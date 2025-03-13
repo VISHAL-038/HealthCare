@@ -1,0 +1,245 @@
+/* 🌟 Global Styles */
+body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #0f172a, #1e3a8a);
+    background-size: 400% 400%;
+    animation: bgAnimation 10s infinite alternate;
+    color: white;
+    margin: 0;
+    padding: 0;
+}
+
+/* 🌟 Background Animation */
+@keyframes bgAnimation {
+    0% { background-position: 0% 0%; }
+    100% { background-position: 100% 100%; }
+}
+
+/* 🌟 Heading Neon Glow */
+h2, h4 {
+    text-shadow: 0px 0px 10px rgba(0, 255, 255, 0.8);
+}
+
+/* 🌟 Navbar Styling */
+.navbar {
+    box-shadow: 0px 4px 10px rgba(0, 255, 255, 0.3);
+    transition: 0.3s;
+}
+.navbar:hover {
+    background-color: rgba(0, 123, 255, 0.9);
+}
+.navbar-brand {
+    font-size: 1.4rem;
+    font-weight: bold;
+    transition: 0.3s ease-in-out;
+}
+.navbar-brand:hover {
+    letter-spacing: 1px;
+}
+.navbar-nav .nav-link {
+    font-weight: 500;
+    transition: 0.3s;
+}
+.navbar-nav .nav-link:hover {
+    color: #f8d210;
+    transform: scale(1.1);
+}
+
+/* 🌟 AI-Themed Buttons */
+.btn {
+    padding: 12px 15px;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s ease-in-out;
+    position: relative;
+    overflow: hidden;
+}
+.btn-success:hover {
+    background-color: #218838;
+    transform: translateY(-3px);
+    box-shadow: 0px 4px 10px rgba(40, 167, 69, 0.5);
+}
+.btn-primary:hover {
+    background-color: #0056b3;
+    transform: translateY(-3px);
+    box-shadow: 0px 4px 10px rgba(0, 123, 255, 0.5);
+}
+
+/* 🌟 Futuristic Cards */
+.ai-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 20px;
+    border-radius: 12px;
+    transition: transform 0.3s ease-in-out;
+}
+.ai-card:hover {
+    transform: scale(1.02);
+    box-shadow: 0px 0px 15px rgba(0, 255, 255, 0.3);
+}
+
+/* 🌟 Smooth Fade-In Effect */
+.fade-in {
+    opacity: 0;
+    transform: translateY(10px);
+    animation: fadeIn 0.8s ease-in-out forwards;
+}
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 🌟 Glass Effect on Forms */
+.animated-form {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(8px);
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.1), -5px -5px 15px rgba(255, 255, 255, 0.7);
+    transition: all 0.3s ease-in-out;
+}
+.animated-form:hover {
+    box-shadow: 8px 8px 20px rgba(0, 0, 0, 0.2), -8px -8px 20px rgba(255, 255, 255, 0.9);
+}
+
+/* 🌟 Table Styling */
+.table {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    overflow: hidden;
+}
+.table-striped tbody tr:nth-of-type(odd) {
+    background: rgba(0, 255, 255, 0.1);
+}
+.table-striped tbody tr:hover {
+    background: rgba(0, 255, 255, 0.2);
+}
+
+/* 🌟 AI Glow Effect on Text */
+.detail-section {
+    background: #f8f9fa;
+    padding: 10px;
+    margin: 10px 0;
+    border-left: 5px solid #007bff;
+    border-radius: 8px;
+    transition: 0.3s ease-in-out;
+}
+.detail-section:hover {
+    background: #e9f5ff;
+}
+
+/* 🌟 AI-Themed Animated Border */
+.ai-card {
+    position: relative;
+    overflow: hidden;
+    border: 2px solid transparent;
+}
+.ai-card::before {
+    content: "";
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, transparent, cyan, transparent);
+    animation: animateBorder 2s linear infinite;
+}
+@keyframes animateBorder {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* 🌟 Floating AI Particles */
+.particle {
+    position: absolute;
+    width: 5px;
+    height: 5px;
+    background: cyan;
+    border-radius: 50%;
+    animation: moveParticle 6s linear infinite;
+    opacity: 0.6;
+}
+@keyframes moveParticle {
+    0% { transform: translateY(0); opacity: 0.6; }
+    100% { transform: translateY(-100vh); opacity: 0; }
+}
+
+/* 🌟 AI Chat Button */
+#aiChatButton {
+    font-size: 1.2rem;
+    padding: 12px 18px;
+    border-radius: 50px;
+    position: fixed;
+    bottom: 15px;
+    right: 20px;
+    background-color: #f8d210;
+    color: black;
+    box-shadow: 0px 4px 10px rgba(255, 200, 0, 0.6);
+    transition: all 0.3s ease-in-out;
+}
+#aiChatButton:hover {
+    background-color: #ffd700;
+    transform: scale(1.1);
+    box-shadow: 0px 6px 12px rgba(255, 200, 0, 0.9);
+}
+
+/* 🌟 Footer Styling */
+footer {
+    background: #007bff;
+    color: white;
+    text-align: center;
+    padding: 15px;
+    margin-top: 40px;
+}
+
+/* 🌟 Report Flip Effect */
+.report-item {
+    perspective: 1000px;
+}
+.report-item-inner {
+    width: 100%;
+    height: 100px;
+    transform-style: preserve-3d;
+    transition: transform 0.6s;
+}
+.report-item:hover .report-item-inner {
+    transform: rotateY(180deg);
+}
+.report-front, .report-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+}
+.report-back {
+    transform: rotateY(180deg);
+    background: rgba(0, 255, 255, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* 🌟 Prescription Card Hover */
+.prediction-card:hover {
+    transform: scale(1.03);
+    box-shadow: 0px 0px 15px rgba(0, 255, 255, 0.3);
+}
+
+
+/* ✅ Footer */
+footer {
+    background: linear-gradient(135deg, #007bff, #0056b3);
+    color: white;
+    text-align: center;
+    padding: 15px;
+    margin-top: 40px;
+    box-shadow: 0px -5px 15px rgba(0, 0, 0, 0.2);
+}
+

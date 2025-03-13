@@ -1,0 +1,165 @@
+{% extends 'healthcare_app/base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center fw-bold text-primary">👨‍⚕️ Welcome, Dr. {{ user.username }}</h2>
+    <p class="text-muted text-center">Manage your appointments and patient records efficiently.</p>
+
+    <!-- 🚀 AI-Themed Tabs -->
+    <ul class="nav nav-tabs mt-4 ai-tabs" id="doctorTabs" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link active" id="appointments-tab" data-bs-toggle="tab" href="#appointments" role="tab">
+                📅 Appointments
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="patients-tab" data-bs-toggle="tab" href="#patients" role="tab">
+                🏥 Patients
+            </a>
+        </li>
+    </ul>
+
+    <div class="tab-content mt-4">
+        <!-- 🏥 Appointments Section -->
+        <div class="tab-pane fade show active" id="appointments" role="tabpanel">
+            <div class="ai-card p-4 fade-in">
+                <h4 class="text-primary">📅 Upcoming Appointments</h4>
+                <ul class="list-group">
+                    {% for appointment in appointments %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center ai-list">
+                            <span>
+                                <strong>Patient:</strong> {{ appointment.patient.username }}  
+                                <br><small>📆 {{ appointment.date }} | ⏰ {{ appointment.time }}</small>
+                            </span>
+                            <span class="badge bg-info">{{ appointment.status }}</span>
+                            <div>
+                                {% if appointment.status == "pending" %}
+                                    <a href="{% url 'approve_appointment' appointment.id %}" class="ai-btn ai-green">✔ Approve</a>
+                                    <a href="{% url 'reject_appointment' appointment.id %}" class="ai-btn ai-red">✖ Reject</a>
+                                {% endif %}
+                                {% if appointment.status == "confirmed" %}
+                                    <a href="{% url 'issue_prescription' %}" class="ai-btn ai-blue">💊 Prescribe</a>
+                                {% endif %}
+                            </div>
+                        </li>
+                    {% empty %}
+                        <li class="list-group-item text-muted text-center">No scheduled appointments.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <!-- 🏥 Patients Section -->
+        <div class="tab-pane fade" id="patients" role="tabpanel">
+            <div class="ai-card p-4 fade-in">
+                <h4 class="text-primary">🏥 Patients Under Your Care</h4>
+                <ul class="list-group">
+                    {% for patient in patients %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center ai-list">
+                            <span>
+                                <strong>👤 {{ patient.username }}</strong>
+                                <br><small>📞 {{ patient.patientprofile.contact_number }}</small>
+                            </span>
+                            <a href="{% url 'patient_details' patient.id %}" class="ai-btn ai-blue">🔍 View Details</a>
+                        </li>
+                    {% empty %}
+                        <li class="list-group-item text-muted text-center">No assigned patients.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🚀 Logout -->
+    <div class="text-center mt-4">
+        <a href="{% url 'logout' %}" class="ai-btn ai-red">🚪 Logout</a>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var triggerTabList = [].slice.call(document.querySelectorAll('#doctorTabs a'));
+        triggerTabList.forEach(function (triggerEl) {
+            var tabTrigger = new bootstrap.Tab(triggerEl);
+            triggerEl.addEventListener('click', function (event) {
+                event.preventDefault();
+                tabTrigger.show();
+            });
+        });
+    });
+</script>
+
+<!-- 🚀 AI-Themed CSS Styles -->
+<style>
+    /* ✅ Smooth Fade-In Effect */
+    .fade-in {
+        opacity: 0;
+        transform: translateY(10px);
+        animation: fadeIn 0.8s ease-in-out forwards;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ✅ AI Glassmorphic Cards */
+    .ai-card {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 15px;
+        padding: 20px;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 4px 10px rgba(0, 255, 255, 0.3);
+        transition: 0.3s ease-in-out;
+    }
+    .ai-card:hover {
+        box-shadow: 0 6px 15px rgba(0, 255, 255, 0.5);
+        transform: scale(1.02);
+    }
+
+    /* ✅ AI-Themed Tabs */
+    .ai-tabs .nav-link {
+        background: rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        padding: 12px;
+        font-weight: bold;
+        transition: 0.3s ease-in-out;
+    }
+    .ai-tabs .nav-link:hover, .ai-tabs .nav-link.active {
+        background: linear-gradient(135deg, #0ff, #0088ff);
+        color: white !important;
+    }
+
+    /* ✅ AI Themed Buttons */
+    .ai-btn {
+        display: inline-block;
+        padding: 8px 16px;
+        font-size: 14px;
+        font-weight: bold;
+        border-radius: 8px;
+        text-decoration: none;
+        transition: all 0.3s ease-in-out;
+        color: white;
+    }
+
+    .ai-green { background: #28a745; box-shadow: 0px 4px 10px rgba(40, 167, 69, 0.5); }
+    .ai-green:hover { background: #218838; transform: scale(1.05); }
+
+    .ai-red { background: #dc3545; box-shadow: 0px 4px 10px rgba(220, 53, 69, 0.5); }
+    .ai-red:hover { background: #c82333; transform: scale(1.05); }
+
+    .ai-blue { background: #007bff; box-shadow: 0px 4px 10px rgba(0, 123, 255, 0.5); }
+    .ai-blue:hover { background: #0056b3; transform: scale(1.05); }
+
+    /* ✅ AI Styled List Items */
+    .ai-list {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 8px;
+        padding: 10px;
+        transition: all 0.3s ease-in-out;
+    }
+    .ai-list:hover {
+        background: rgba(255, 255, 255, 0.1);
+        transform: scale(1.02);
+    }
+</style>
+{% endblock %}

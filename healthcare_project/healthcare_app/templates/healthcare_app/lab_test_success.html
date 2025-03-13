@@ -1,0 +1,10 @@
+{% extends "healthcare_app/base.html" %}
+{% block title %}Lab Test Booked{% endblock %}
+
+{% block content %}
+<div class="container my-5 text-center">
+    <h2 class="text-success">✅ Booking Confirmed!</h2>
+    <p class="text-muted">Your lab test has been successfully booked.</p>
+    <a href="{% url 'available_lab_tests' %}" class="btn btn-primary">🔍 View Available Tests</a>
+</div>
+{% endblock %}

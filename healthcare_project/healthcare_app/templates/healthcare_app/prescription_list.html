@@ -1,0 +1,90 @@
+{% extends 'healthcare_app/base.html' %}
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center fw-bold text-primary">📜 My Prescriptions</h2>
+    <p class="text-muted text-center">Easily access and print prescriptions issued by your doctor.</p>
+
+    {% if prescriptions %}
+    <div class="card shadow-lg p-4 mt-4">
+        <div class="table-responsive">
+            <table class="table table-hover prescription-table">
+                <thead class="table-primary">
+                    <tr>
+                        <th>👨‍⚕️ Doctor</th>
+                        <th>🔍 Diagnosis</th>
+                        <th>💊 Medicines</th>
+                        <th>📝 Notes</th>
+                        <th>📅 Date</th>
+                        <th>🖨 Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for prescription in prescriptions %}
+                    <tr>
+                        <td class="fw-bold">Dr. {{ prescription.doctor.username }}</td>
+                        <td class="text-info">{{ prescription.diagnosis }}</td>
+                        <td class="text-success">{{ prescription.prescribed_medicines }}</td>
+                        <td>{{ prescription.additional_notes|default:"N/A" }}</td>
+                        <td class="text-muted">{{ prescription.date_issued|date:"M d, Y" }}</td>
+                        <td>
+                            <button class="btn btn-outline-primary btn-sm print-btn" onclick="printPrescription('{{ prescription.id }}')">
+                                🖨 Print
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% else %}
+        <p class="text-center mt-4 text-muted">No prescriptions available.</p>
+    {% endif %}
+</div>
+
+<!-- JavaScript for Printing -->
+<script>
+function printPrescription(prescriptionId) {
+    var printContent = document.querySelector(".prescription-table").outerHTML;
+    var newWindow = window.open("", "", "width=800,height=600");
+    newWindow.document.write('<html><head><title>Print Prescription</title>');
+    newWindow.document.write('<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">');
+    newWindow.document.write('</head><body class="p-4">');
+    newWindow.document.write('<h2 class="text-center text-primary">📝 Prescription Details</h2>');
+    newWindow.document.write(printContent);
+    newWindow.document.write('</body></html>');
+    newWindow.document.close();
+    newWindow.print();
+}
+</script>
+
+<!-- Custom CSS for Unique Styling -->
+<style>
+    /* 🔥 Prescription Table Styles */
+    .prescription-table {
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    .prescription-table thead th {
+        text-align: center;
+        font-size: 16px;
+    }
+    .prescription-table tbody tr {
+        transition: 0.3s ease-in-out;
+    }
+    .prescription-table tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+
+    /* 🎨 Print Button Style */
+    .print-btn {
+        transition: 0.3s ease-in-out;
+        font-weight: bold;
+    }
+    .print-btn:hover {
+        background-color: #0d6efd;
+        color: white;
+    }
+</style>
+
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends "healthcare_app/base.html" %}
+{% block title %}Book Lab Test{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h2 class="text-center text-primary">📅 Book a Lab Test</h2>
+    <p class="text-center text-muted">Select your test and schedule an appointment.</p>
+
+    <div class="card shadow-lg p-4 mx-auto" style="max-width: 500px;">
+        <form method="POST">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label class="form-label">Select Test</label>
+                {{ form.test }}
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Select Date</label>
+                {{ form.test_date }}
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Select Time</label>
+                {{ form.test_time }}
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Confirm Booking</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

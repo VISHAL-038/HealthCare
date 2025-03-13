@@ -1,0 +1,88 @@
+{% extends 'healthcare_app/base.html' %}
+{% block title %}📅 My Appointments{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center fw-bold text-primary">📅 Your Appointments</h2>
+    <p class="text-muted text-center">Manage your scheduled visits with ease.</p>
+
+    {% if appointments %}
+    <div class="card shadow-lg p-4 mt-4">
+        <div class="table-responsive">
+            <table class="table table-hover appointment-table">
+                <thead class="table-primary text-center">
+                    <tr>
+                        <th>👨‍⚕️ Doctor</th>
+                        <th>📅 Date</th>
+                        <th>⏰ Time</th>
+                        <th>📝 Reason</th>
+                        <th>🔔 Status</th>
+                        <th>⚡ Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for appointment in appointments %}
+                    <tr>
+                        <td class="fw-bold">Dr. {{ appointment.doctor.username }}</td>
+                        <td class="text-muted">{{ appointment.date }}</td>
+                        <td class="text-info">{{ appointment.time }}</td>
+                        <td>{{ appointment.reason }}</td>
+                        <td>
+                            {% if appointment.status == 'pending' %}
+                                <span class="badge bg-warning text-dark">⏳ Pending</span>
+                            {% elif appointment.status == 'confirmed' %}
+                                <span class="badge bg-success">✅ Confirmed</span>
+                            {% elif appointment.status == 'cancelled' %}
+                                <span class="badge bg-danger">❌ Cancelled</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if appointment.status == 'pending' %}
+                                <a href="{% url 'cancel_appointment' appointment.id %}" class="btn btn-danger btn-sm cancel-btn">
+                                    🛑 Cancel
+                                </a>
+                            {% else %}
+                                <span class="text-muted">N/A</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% else %}
+        <p class="text-center mt-4 text-muted">No appointments found.</p>
+    {% endif %}
+</div>
+
+<!-- Custom CSS for Unique Styling -->
+<style>
+    /* 🔥 Appointment Table Styles */
+    .appointment-table {
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    .appointment-table thead th {
+        text-align: center;
+        font-size: 16px;
+    }
+    .appointment-table tbody tr {
+        transition: 0.3s ease-in-out;
+    }
+    .appointment-table tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+
+    /* 🎨 Cancel Button */
+    .cancel-btn {
+        transition: 0.3s ease-in-out;
+        font-weight: bold;
+    }
+    .cancel-btn:hover {
+        background-color: #dc3545;
+        color: white;
+    }
+</style>
+
+{% endblock %}

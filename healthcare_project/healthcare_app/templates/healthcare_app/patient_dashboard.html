@@ -1,0 +1,300 @@
+{% extends 'healthcare_app/base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center fw-bold">Welcome, {{ user.username }}</h2>
+    <p class="text-muted text-center">Your personalized health dashboard powered by AI.</p>
+
+    <!-- My Medicine Orders Section -->
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card dashboard-card shadow-lg p-4 fade-in">
+                <h4>My Medicine Orders</h4>
+                <p class="text-muted">Track your medicine purchases and order history.</p>
+                <a  href="{% url 'my_orders_page' %}" class="btn btn-primary w-100">📦 View My Orders</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard Sections -->
+    <div class="row mt-4">
+        <!-- Symptom Checker -->
+        <div class="col-md-6">
+            <div class="card dashboard-card shadow-lg p-4 fade-in">
+                <h4>Symptom Checker</h4>
+                <p class="text-muted">Enter your symptoms and get AI-based disease predictions.</p>
+                <a href="{% url 'disease_prediction' %}" class="btn btn-warning w-100">Check Symptoms</a>
+            </div>
+        </div>
+
+        <!-- Appointments -->
+        <div class="col-md-6">
+            <div class="card dashboard-card shadow-lg p-4 fade-in">
+                <h4>Your Appointments</h4>
+                <ul class="list-group">
+                    {% for appointment in appointments %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>
+                                <strong>Dr. {{ appointment.doctor.username }}</strong> 
+                                <br><small>{{ appointment.date|date:"M d, Y" }} at {{ appointment.time }}</small>
+                            </span>
+                            <a href="{% url 'cancel_appointment' appointment.id %}" class="btn btn-sm btn-danger">Cancel</a>
+                        </li>
+                    {% empty %}
+                        <li class="list-group-item text-muted">No scheduled appointments.</li>
+                    {% endfor %}
+                </ul>
+                <a href="{% url 'book_appointment' %}" class="btn btn-success mt-3 w-100">Book Appointment</a>
+            </div>
+        </div>
+
+
+
+     <!-- ✅ Show Lab Tests Booked by User -->
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card dashboard-card shadow-lg p-4 fade-in">
+                
+                <!-- Header Section (Title on Left, Button on Right) -->
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4 class="mb-0">📋 My Lab Test Bookings</h4>
+                    <a href="{% url 'available_lab_tests' %}" class="btn btn-success">🧪 Book Lab Test</a>
+                </div>
+
+                <p class="text-muted">Here are the lab tests you have booked.</p>
+
+                {% if user_lab_tests.exists %}
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Test Name</th>
+                                <th>Date</th>
+                                <th>Time</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for test in user_lab_tests %}
+                            <tr>
+                                <td>{{ test.test.name }}</td>
+                                <td>{{ test.test_date }}</td>
+                                <td>{{ test.test_time }}</td>
+                                <td>
+                                    <span class="badge 
+                                        {% if test.status == 'pending' %}bg-warning
+                                        {% elif test.status == 'completed' %}bg-success
+                                        {% else %}bg-secondary{% endif %}">
+                                        {{ test.status|title }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p class="text-center text-muted">No lab tests booked yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    
+
+    <!-- Prediction History -->
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card dashboard-card shadow-lg p-4 fade-in">
+                <h4>Prediction History</h4>
+                {% if history %}
+                    <table class="table table-bordered mt-4">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Date</th>
+                                <th>Symptoms</th>
+                                <th>Predicted Disease</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for record in history %}
+                            <tr>
+                                <td>{{ record.prediction_date }}</td>
+                                <td>{{ record.symptoms }}</td>
+                                <td><strong>{{ record.predicted_disease }}</strong></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p class="text-center text-muted">No prediction history available.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- My Prescriptions -->
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card dashboard-card shadow-lg p-4 fade-in">
+                <h4>My Prescriptions</h4>
+                <p class="text-muted">View prescriptions issued by your doctor.</p>
+                <a href="{% url 'prescription_list' %}" class="btn btn-info w-100">View Prescriptions</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- PDF Reports Upload & Display -->
+<div class="container mt-5">
+    <h2 class="text-center">📑 My Reports</h2>
+
+    <div class="row mt-4">
+        <!-- Upload Form (Left Side) -->
+        <div class="col-md-6">
+            <div class="card shadow-lg p-4">
+                <h4 class="fw-bold">📤 Upload a Report</h4>
+                <form method="POST" enctype="multipart/form-data" class="mt-3">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="id_report_name" class="form-label">Report Name</label>
+                        {{ report_form.report_name }}
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_report_pdf" class="form-label">Upload Report (PDF)</label>
+                        {{ report_form.report_pdf }}
+                    </div>
+                    <button type="submit" class="btn btn-success w-100" name="upload_report">Upload Report</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Uploaded Reports (Right Side) -->
+        <div class="col-md-6">
+            <div class="card shadow-lg p-4">
+                <h4 class="fw-bold">📂 Uploaded Reports</h4>
+                {% if reports %}
+                    <div class="row mt-3">
+                        {% for report in reports %}
+                            <div class="col-12 mb-3">
+                                <div class="card shadow-sm p-3 text-center">
+                                    <h5 class="text-dark">{{ report.report_name }}</h5>
+                                    <a href="{{ report.report_pdf.url }}" target="_blank" class="btn btn-primary">
+                                        View PDF
+                                    </a>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-center text-muted mt-3">No reports uploaded yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Medical History Section -->
+<div class="container mt-5">
+    <h2 class="text-center fw-bold">📄 Medical History</h2>
+
+    <!-- Display Medical History -->
+    <div class="card p-4 shadow-lg mt-3">
+        <h4 class="mb-3"><i class="bi bi-file-medical"></i> Current Medical History</h4>
+
+        <p><strong>Medical Conditions:</strong> {{ patient_history.medical_conditions|default:"No data available" }}</p>
+        <p><strong>Allergies:</strong> {{ patient_history.allergies|default:"No data available" }}</p>
+        <p><strong>Medications:</strong> {{ patient_history.medications|default:"No data available" }}</p>
+        <p><strong>Surgeries:</strong> {{ patient_history.surgeries|default:"No data available" }}</p>
+
+        <!-- Update Medical History Button -->
+        <button class="btn btn-primary mt-3" data-bs-toggle="modal" data-bs-target="#updateHistoryModal">
+            Update History
+        </button>
+    </div>
+</div>
+
+<!-- Modal for Updating Medical History -->
+<div class="modal fade" id="updateHistoryModal" tabindex="-1" aria-labelledby="updateHistoryModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="updateHistoryModalLabel">Update Medical History</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Medical History Form -->
+                <form method="POST">
+                    {% csrf_token %}
+                    {{ history_form.as_p }}
+                    <button type="submit" name="update_history" class="btn btn-success">Save Changes</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Medical History Update Modal -->
+<div class="modal fade" id="updateHistoryModal" tabindex="-1" aria-labelledby="updateHistoryLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Update Medical History</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST">
+                {% csrf_token %}
+                <div class="modal-body">
+                    {{ history_form.as_p }}
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success">Save Changes</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ✅ Testimonial Submission Form -->
+<div class="container my-5">
+    <h2 class="text-center fw-bold text-primary">📝 Share Your Experience</h2>
+    <p class="text-center text-muted">Rate our service or doctors!</p>
+
+    <form method="POST" class="p-4 shadow-lg rounded bg-light">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label class="fw-bold">Your Feedback:</label>
+            {{ testimonial_form.feedback }}
+        </div>
+        <div class="mb-3">
+            <label class="fw-bold">Rating:</label>
+            {{ testimonial_form.rating }}
+        </div>
+        <button type="submit" name="submit_testimonial" class="btn btn-success w-100">Submit Feedback</button>
+    </form>
+</div>
+
+<!-- ✅ Show Recent Testimonials -->
+{% comment %} <h3 class="mt-5 text-primary fw-bold">Recent Testimonials</h3>
+{% for testimonial in testimonials %}
+    <div class="card p-3 my-3 shadow-sm">
+        <p class="fw-bold">⭐ {{ testimonial.rating }} Stars</p>
+        <p class="text-muted">"{{ testimonial.feedback }}"</p>
+        <small class="text-end text-secondary">- {{ testimonial.patient.username }}</small>
+    </div>
+{% empty %}
+    <p class="text-muted text-center">No testimonials yet. Be the first to share your experience!</p>
+{% endfor %} {% endcomment %}
+
+
+
+
+
+
+    <!-- Logout Button -->
+    <div class="text-center mt-4">
+        <a href="{% url 'logout' %}" class="btn btn-danger btn-lg">Logout</a>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,84 @@
+{% extends 'healthcare_app/base.html' %}
+
+{% block title %}📅 Book an Appointment{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center fw-bold text-primary">📅 Book an Appointment</h2>
+    <p class="text-muted text-center">Schedule a consultation with a healthcare professional.</p>
+
+    <div class="appointment-form-container card shadow-lg p-4 mt-4">
+        <form method="POST" class="animated-form">
+            {% csrf_token %}
+
+            <div class="mb-3">
+                <label for="doctor" class="form-label fw-bold">👨‍⚕️ Select Doctor</label>
+                <select name="doctor" id="doctor" class="form-control doctor-select">
+                    {% for doctor in doctors %}
+                        <option value="{{ doctor.id }}">{{ doctor.username }} ({{ doctor.doctorprofile.specialization }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-bold">📅 Date</label>
+                {{ form.date }}
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-bold">⏰ Time</label>
+                {{ form.time }}
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-bold">📝 Reason</label>
+                {{ form.reason }}
+            </div>
+
+            <button type="submit" class="btn btn-success w-100 shadow book-btn">📅 Book Appointment</button>
+        </form>
+    </div>
+</div>
+
+<!-- Custom Styling -->
+<style>
+    /* 📌 Neumorphic Form Design */
+    .appointment-form-container {
+        border-radius: 12px;
+        background: #ffffff;
+        box-shadow: 8px 8px 15px rgba(0, 0, 0, 0.1), -8px -8px 15px rgba(255, 255, 255, 0.6);
+        transition: all 0.3s ease-in-out;
+    }
+    .appointment-form-container:hover {
+        box-shadow: 12px 12px 20px rgba(0, 0, 0, 0.15), -12px -12px 20px rgba(255, 255, 255, 0.7);
+    }
+
+    /* 📌 Stylish Form Elements */
+    .form-control {
+        border-radius: 8px;
+        padding: 10px;
+        transition: 0.3s ease-in-out;
+    }
+    .form-control:focus {
+        border-color: #28a745;
+        box-shadow: 0px 0px 10px rgba(40, 167, 69, 0.3);
+    }
+
+    /* 📌 Select Dropdown */
+    .doctor-select {
+        cursor: pointer;
+    }
+
+    /* 📌 Animated Button */
+    .book-btn {
+        transition: all 0.3s ease-in-out;
+        font-size: 1.2rem;
+        border-radius: 8px;
+    }
+    .book-btn:hover {
+        background-color: #218838;
+        transform: scale(1.05);
+    }
+</style>
+
+{% endblock %}

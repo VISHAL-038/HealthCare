@@ -1,0 +1,32 @@
+{% extends "healthcare_app/base.html" %}
+{% block title %}Available Lab Tests{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h2 class="text-center text-primary">🧪 Available Lab Tests</h2>
+    <p class="text-center text-muted">Choose from a variety of medical tests.</p>
+
+    <table class="table table-bordered mt-4">
+        <thead class="table-primary">
+            <tr>
+                <th>Test Name</th>
+                <th>Approximate Price (₹)</th>
+                <th>Purpose</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for test in tests %}
+            <tr>
+                <td>{{ test.name }}</td>
+                <td>₹{{ test.price }}</td>
+                <td>{{ test.purpose }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="text-center mt-4">
+        <a href="{% url 'book_lab_test' %}" class="btn btn-success">📅 Book a Lab Test</a>
+    </div>
+</div>
+{% endblock %}

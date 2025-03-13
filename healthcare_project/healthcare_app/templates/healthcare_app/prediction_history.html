@@ -1,0 +1,30 @@
+{% extends 'healthcare_app/base.html' %}
+{% block title %}Prediction History{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center">Prediction History</h2>
+    {% if history %}
+        <table class="table table-bordered mt-4">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Symptoms</th>
+                    <th>Predicted Disease</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for record in history %}
+                <tr>
+                    <td>{{ record.prediction_date }}</td>
+                    <td>{{ record.symptoms }}</td>
+                    <td><strong>{{ record.predicted_disease }}</strong></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p class="text-center mt-4">No prediction history available.</p>
+    {% endif %}
+</div>
+{% endblock %}

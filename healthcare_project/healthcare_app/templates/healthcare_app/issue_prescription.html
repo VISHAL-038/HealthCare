@@ -1,0 +1,13 @@
+{% extends 'healthcare_app/base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>📝 Issue Prescription</h2>
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Submit Prescription</button>
+    </form>
+    <a href="{% url 'prescription_list' %}" class="btn btn-secondary mt-2">View Prescriptions</a>
+</div>
+{% endblock %}

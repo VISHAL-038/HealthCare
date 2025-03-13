@@ -1,0 +1,187 @@
+{% extends 'healthcare_app/base.html' %}
+{% block title %}AI Disease Prediction{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <!-- Heading -->
+    <h2 class="text-center fw-bold">🩺 AI-Powered Disease Prediction</h2>
+    <p class="text-muted text-center">Enter your symptoms below and let AI analyze possible conditions.</p>
+
+    <!-- Prediction Form -->
+    <div class="card shadow-lg p-4 mt-4 animated-form">
+        <form method="POST">
+            {% csrf_token %}
+            <div class="mb-3 position-relative">
+                {{ form.symptoms.label_tag }}
+                <input type="text" id="symptoms" name="symptoms" class="form-control" placeholder="e.g., fever, cough, headache..." value="{{ request.POST.symptoms|default_if_none:'' }}">
+                <!-- Suggestions Dropdown -->
+                <div id="suggestions-box" class="suggestions-container"></div>
+            </div>
+            <button type="submit" class="btn btn-success w-100">🔍 Predict Disease</button>
+        </form>
+    </div>
+
+    <!-- Prediction Results -->
+    {% if prediction %}
+    <div class="mt-4 fade-in">
+        {% if prediction.error %}
+            <div class="alert alert-danger">{{ prediction.error }}</div>
+        {% else %}
+        <div class="card prediction-card shadow-lg">
+            <div class="card-body text-center">
+                <h4 class="fw-bold text-primary">✨ AI Prediction Result ✨</h4>
+                <p class="fs-5">
+                    🤖 Our AI suggests that you might have 
+                    <span class="fw-bold text-success">{{ prediction.final_prediction }}</span>.
+                </p>
+                <p class="text-muted">
+                    Remember, this is just an AI-based prediction. Always consult a doctor for an accurate diagnosis!
+                </p>
+            </div>
+        </div>
+
+        <!-- Disease Information -->
+        {% if disease_details %}
+        <div class="mt-4 disease-card shadow-lg fade-in">
+            <div class="card-body">
+                <h4 class="fw-bold text-primary">📌 About <strong>{{ prediction.final_prediction }}</strong></h4>
+
+                <!-- Description -->
+                <div class="detail-section">
+                    <h5>📝 Description</h5>
+                    <p>{{ disease_details.description }}</p>
+                </div>
+
+                <!-- Tests to Confirm -->
+                <div class="detail-section">
+                    <h5>🩸 Tests to Confirm</h5>
+                    <p>{{ disease_details.tests }}</p>
+                </div>
+
+                <!-- Recommended Medications -->
+                <div class="detail-section">
+                    <h5>💊 Recommended Medications</h5>
+                    <p>{{ disease_details.medications }}</p>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Doctor Consultation Recommendation -->
+    <div class="mt-4 text-center fade-in">
+        <p class="text-danger fw-bold">
+            ⚠️ Important: AI predictions are based on statistical models. 
+            Please consult a licensed healthcare professional for an accurate diagnosis and proper medical advice.
+        </p>
+        <a href="{% url 'book_appointment' %}" class="btn btn-primary btn-lg">📅 Book a Consultation</a>
+    </div>
+</div>
+
+<!-- Load Static JavaScript -->
+{% load static %}
+<script src="{% static 'js/scripts.js' %}"></script>
+
+<!-- Custom CSS Enhancements -->
+<style>
+    /* ✅ Neumorphism Effect */
+    .animated-form {
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.1), -5px -5px 10px rgba(255, 255, 255, 0.7);
+        transition: all 0.3s ease-in-out;
+    }
+    .animated-form:hover {
+        box-shadow: 8px 8px 15px rgba(0, 0, 0, 0.2), -8px -8px 15px rgba(255, 255, 255, 0.9);
+    }
+
+    /* ✅ Smooth Fade-In Effect */
+    .fade-in {
+        opacity: 0;
+        transform: translateY(10px);
+        animation: fadeIn 0.8s ease-in-out forwards;
+    }
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* ✅ Disease Details Card */
+    .disease-card {
+        background: white;
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.1), -5px -5px 15px rgba(255, 255, 255, 0.8);
+        transition: all 0.3s ease-in-out;
+    }
+    .disease-card:hover {
+        box-shadow: 8px 8px 20px rgba(0, 0, 0, 0.2), -8px -8px 20px rgba(255, 255, 255, 0.9);
+    }
+
+    /* ✅ Individual Detail Sections */
+    .detail-section {
+        background: #f8f9fa;
+        padding: 10px;
+        margin: 10px 0;
+        border-left: 5px solid #007bff;
+        border-radius: 8px;
+        transition: 0.3s ease-in-out;
+    }
+    .detail-section:hover {
+        background: #e9f5ff;
+    }
+
+    /* ✅ Seek Medical Help Button */
+    .btn-danger {
+        background: #dc3545;
+        border: none;
+        padding: 12px;
+        font-size: 1.2rem;
+        transition: 0.3s ease-in-out;
+    }
+    .btn-danger:hover {
+        background: #c82333;
+        transform: scale(1.05);
+    }
+
+    /* ✅ Predictions Card */
+    .prediction-card {
+        background: #f8f9fa;
+        border-left: 5px solid #28a745;
+        border-radius: 10px;
+        padding: 15px;
+        transition: transform 0.3s ease-in-out;
+    }
+    .prediction-card:hover {
+        transform: scale(1.03);
+    }
+
+    /* ✅ Suggestions Dropdown */
+    .suggestions-container {
+        position: absolute;
+        width: 100%;
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        z-index: 1000;
+        max-height: 200px;
+        overflow-y: auto;
+    }
+    .suggestion-item {
+        padding: 8px;
+        cursor: pointer;
+    }
+    .suggestion-item:hover, .suggestion-item.selected {
+        background-color: #f0f0f0;
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,21 @@
+Test Name,Approximate Price (₹),Purpose
+Blood Glucose Test,20,Measures blood sugar levels to diagnose and monitor diabetes.
+Liver Function Test (LFT),200,"Assesses liver health by measuring enzymes, proteins, and bilirubin levels."
+Lipid Profile,115,Evaluates cholesterol and triglyceride levels to assess cardiovascular risk.
+Renal Function Test,50,Checks kidney function by measuring blood urea and serum creatinine.
+Complete Blood Count (CBC),200,Evaluates overall health and detects disorders like anemia or infection.
+Urinalysis,90,"Examines urine to detect kidney disorders, urinary tract infections, or metabolic conditions."
+Thyroid Function Test,1000,"Measures levels of thyroid hormones (T3, T4) and TSH to assess thyroid health."
+Electrocardiogram (ECG),200,Records the heart's electrical activity to detect heart conditions.
+Chest X-ray,300,"Visualizes the chest's structures to detect infections, lung conditions, or heart issues."
+Ultrasound,1200,"Uses sound waves to image internal organs, useful for examining the abdomen, pelvis, and more."
+CT Scan,2500,"Provides detailed cross-sectional images of the body to detect tumors, injuries, or infections."
+MRI Scan,5000,"Uses magnetic fields to produce detailed images of organs and tissues, aiding in diagnosing various conditions."
+Mammography,1500,X-ray of the breasts to detect early signs of breast cancer.
+Urine Culture and Sensitivity,150,Detects bacterial infections in the urinary tract and determines antibiotic sensitivity.
+Sputum Smear for AFB,100,"Identifies acid-fast bacilli, aiding in the diagnosis of tuberculosis."
+Bone Marrow Aspiration and Biopsy,400,Examines bone marrow to diagnose blood disorders and cancers.
+Electromyography (EMG),150,Assesses the health of muscles and the nerve cells controlling them.
+Visual Evoked Response (VER),100,Measures the electrical activity in the brain in response to visual stimuli.
+C-Reactive Protein (CRP) Test,25,"Detects inflammation in the body, which can indicate various conditions."
+Prostate-Specific Antigen (PSA) Test,100,"Screens for prostate abnormalities, including prostate cancer."

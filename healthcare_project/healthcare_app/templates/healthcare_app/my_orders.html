@@ -1,0 +1,141 @@
+{% extends "healthcare_app/base.html" %}
+{% block title %}My Orders - AI Healthcare{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h2 class="text-center fw-bold text-dark">📦 My Orders</h2>
+    <p class="text-center text-muted">Track your medicine purchases and order status.</p>
+
+    <div class="row mt-4" id="order-list">
+        {% if orders %}
+            {% for order in orders %}
+                <div class="col-lg-6 col-md-12 mb-4">
+                    <div class="card order-card shadow-sm">
+                        <div class="order-info">
+                            <h5 class="order-id">Order #{{ order.id }}</h5>
+                            <p><strong>Ordered By:</strong> {{ order.user.username }}</p>
+                            <p><strong>Ordered On:</strong> {{ order.order_date }}</p>
+                            <p class="medicine-name">🩺 Medicine: {{ order.medicine.name }}</p>
+                            <p><strong>Quantity:</strong> {{ order.quantity }}</p>
+                            <p><strong>Total Price:</strong> ₹{{ order.total_price }}</p>
+                            
+                            <!-- 🔵 Order Progress Bar -->
+                            <div class="progress-container">
+                                <div class="progress-bar 
+                                    {% if order.status == 'pending' %}status-pending
+                                    {% elif order.status == 'confirmed' %}status-confirmed
+                                    {% elif order.status == 'shipped' %}status-shipped
+                                    {% elif order.status == 'delivered' %}status-delivered
+                                    {% else %}status-cancelled{% endif %}">
+                                </div>
+                            </div>
+                            
+                            <!-- 🔥 Amazon Style Order Status -->
+                            <p class="mt-2 order-status">
+                                <strong>Status:</strong> 
+                                {% if order.status == "pending" %}
+                                    <span class="badge bg-warning">Pending</span>
+                                {% elif order.status == "confirmed" %}
+                                    <span class="badge bg-primary">Confirmed</span>
+                                {% elif order.status == "shipped" %}
+                                    <span class="badge bg-info">Shipped</span>
+                                {% elif order.status == "delivered" %}
+                                    <span class="badge bg-success">Delivered</span>
+                                {% elif order.status == "cancelled" %}
+                                    <span class="badge bg-danger">Cancelled</span>
+                                {% endif %}
+                            </p>
+                            
+                            <a href="#" class="btn btn-track">Track Order</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p class="text-center text-muted">No orders found.</p>
+        {% endif %}
+    </div>
+</div>
+
+
+<style>
+     🌟 Amazon-Style Order Cards */
+.order-card {
+    border-radius: 10px;
+    background: white;
+    padding: 20px;
+    transition: 0.3s /*ease-in-out;
+    box-shadow: 3px 3px 15px rgba(0, 0, 0, 0.1);
+    border: 1px solid #ddd;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.order-card:hover {
+    box-shadow: 5px 5px 20px rgba(0, 0, 0, 0.2);
+    transform: scale(1.02);
+}
+
+/* 📦 Order Details */
+.order-info {
+    flex-grow: 1;
+}
+
+.order-id {
+    font-weight: bold;
+    color: #ff9900; /* Amazon Theme */
+}
+
+.medicine-name {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #333;
+}
+
+.order-status {
+    font-weight: bold;
+}
+
+/* 🔵 Progress Bar for Order Status */
+.progress-container {
+    width: 100%;
+    background-color: #f1f1f1;
+    border-radius: 10px;
+    height: 10px;
+    margin-top: 10px;
+    position: relative;
+}
+
+.progress-bar {
+    height: 10px;
+    border-radius: 10px;
+    transition: width 0.5s ease-in-out;
+}
+
+/* 🎨 Status Colors */
+.status-pending { background-color: #ffc107; width: 20%; }
+.status-confirmed { background-color: #007bff; width: 40%; }
+.status-shipped { background-color: #17a2b8; width: 70%; }
+.status-delivered { background-color: #28a745; width: 100%; }
+.status-cancelled { background-color: #dc3545; width: 100%; opacity: 0.6; }
+
+/* ✅ Amazon-Like Buttons */
+.btn-track {
+    background: #ff9900;
+    color: white;
+    font-weight: bold;
+    border-radius: 5px;
+    padding: 8px 12px;
+    text-decoration: none;
+    transition: 0.3s ease-in-out;
+}
+
+.btn-track:hover {
+    background: #e68900;
+    transform: scale(1.05);
+}
+
+</style>
+{% endblock %}
