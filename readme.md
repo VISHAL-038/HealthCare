@@ -122,8 +122,8 @@ HEALTHCARE_APP/
 
 ## 📞 Contact
 For contributions or queries, feel free to contact us:
-- 📧 Email: your-email@example.com
-- 🔗 [GitHub](https://github.com/your-repo)
+- 📧 Email: vishaal03.it@gmail.com
+- 🔗 [GitHub](https://github.com/VISHAL-038))
 - 🌐 Website: www.yourhealthcareapp.com
 
 ---
