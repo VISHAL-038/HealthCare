@@ -3,15 +3,15 @@
 {% block content %}
 <div class="container mt-5">
     <h2 class="text-center fw-bold">Welcome, {{ user.username }}</h2>
-    <p class="text-muted text-center">Your personalized health dashboard powered by AI.</p>
+    <p class="text-muted text-center">Your personalized AI-powered health dashboard.</p>
 
     <!-- My Medicine Orders Section -->
     <div class="row mt-4">
         <div class="col-md-12">
             <div class="card dashboard-card shadow-lg p-4 fade-in">
-                <h4>My Medicine Orders</h4>
+                <h4>📦 My Medicine Orders</h4>
                 <p class="text-muted">Track your medicine purchases and order history.</p>
-                <a  href="{% url 'my_orders_page' %}" class="btn btn-primary w-100">📦 View My Orders</a>
+                <a href="{% url 'my_orders_page' %}" class="btn btn-primary w-100">View My Orders</a>
             </div>
         </div>
     </div>
@@ -21,8 +21,8 @@
         <!-- Symptom Checker -->
         <div class="col-md-6">
             <div class="card dashboard-card shadow-lg p-4 fade-in">
-                <h4>Symptom Checker</h4>
-                <p class="text-muted">Enter your symptoms and get AI-based disease predictions.</p>
+                <h4>🤖 AI Symptom Checker</h4>
+                <p class="text-muted">Enter symptoms to get AI-based disease predictions.</p>
                 <a href="{% url 'disease_prediction' %}" class="btn btn-warning w-100">Check Symptoms</a>
             </div>
         </div>
@@ -30,7 +30,7 @@
         <!-- Appointments -->
         <div class="col-md-6">
             <div class="card dashboard-card shadow-lg p-4 fade-in">
-                <h4>Your Appointments</h4>
+                <h4>📅 Your Appointments</h4>
                 <ul class="list-group">
                     {% for appointment in appointments %}
                         <li class="list-group-item d-flex justify-content-between align-items-center">
@@ -47,22 +47,16 @@
                 <a href="{% url 'book_appointment' %}" class="btn btn-success mt-3 w-100">Book Appointment</a>
             </div>
         </div>
+    </div>
 
-
-
-     <!-- ✅ Show Lab Tests Booked by User -->
+    <!-- Lab Test Section -->
     <div class="row mt-4">
         <div class="col-md-12">
             <div class="card dashboard-card shadow-lg p-4 fade-in">
-                
-                <!-- Header Section (Title on Left, Button on Right) -->
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h4 class="mb-0">📋 My Lab Test Bookings</h4>
-                    <a href="{% url 'available_lab_tests' %}" class="btn btn-success">🧪 Book Lab Test</a>
+                    <h4 class="mb-0">🧪 My Lab Test Bookings</h4>
+                    <a href="{% url 'available_lab_tests' %}" class="btn btn-success">Book Lab Test</a>
                 </div>
-
-                <p class="text-muted">Here are the lab tests you have booked.</p>
-
                 {% if user_lab_tests.exists %}
                     <table class="table table-striped">
                         <thead>
@@ -98,67 +92,20 @@
         </div>
     </div>
 
-    
-
-    <!-- Prediction History -->
-    <div class="row mt-4">
-        <div class="col-md-12">
-            <div class="card dashboard-card shadow-lg p-4 fade-in">
-                <h4>Prediction History</h4>
-                {% if history %}
-                    <table class="table table-bordered mt-4">
-                        <thead class="table-dark">
-                            <tr>
-                                <th>Date</th>
-                                <th>Symptoms</th>
-                                <th>Predicted Disease</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for record in history %}
-                            <tr>
-                                <td>{{ record.prediction_date }}</td>
-                                <td>{{ record.symptoms }}</td>
-                                <td><strong>{{ record.predicted_disease }}</strong></td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                {% else %}
-                    <p class="text-center text-muted">No prediction history available.</p>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-
-    <!-- My Prescriptions -->
-    <div class="row mt-4">
-        <div class="col-md-12">
-            <div class="card dashboard-card shadow-lg p-4 fade-in">
-                <h4>My Prescriptions</h4>
-                <p class="text-muted">View prescriptions issued by your doctor.</p>
-                <a href="{% url 'prescription_list' %}" class="btn btn-info w-100">View Prescriptions</a>
-            </div>
-        </div>
-    </div>
-
-    <!-- PDF Reports Upload & Display -->
-<div class="container mt-5">
-    <h2 class="text-center">📑 My Reports</h2>
-
-    <div class="row mt-4">
-        <!-- Upload Form (Left Side) -->
+    <!-- Upload Reports & Display Section -->
+    <div class="row mt-5">
+        <!-- Upload Form (Left) -->
         <div class="col-md-6">
-            <div class="card shadow-lg p-4">
+            <div class="card shadow-lg p-4 upload-report-card">
                 <h4 class="fw-bold">📤 Upload a Report</h4>
                 <form method="POST" enctype="multipart/form-data" class="mt-3">
                     {% csrf_token %}
                     <div class="mb-3">
-                        <label for="id_report_name" class="form-label">Report Name</label>
+                        <label class="form-label">Report Name</label>
                         {{ report_form.report_name }}
                     </div>
                     <div class="mb-3">
-                        <label for="id_report_pdf" class="form-label">Upload Report (PDF)</label>
+                        <label class="form-label">Upload Report (PDF)</label>
                         {{ report_form.report_pdf }}
                     </div>
                     <button type="submit" class="btn btn-success w-100" name="upload_report">Upload Report</button>
@@ -166,30 +113,25 @@
             </div>
         </div>
 
-        <!-- Uploaded Reports (Right Side) -->
+        <!-- Uploaded Reports (Right) -->
         <div class="col-md-6">
-            <div class="card shadow-lg p-4">
+            <div class="card shadow-lg p-4 upload-report-card">
                 <h4 class="fw-bold">📂 Uploaded Reports</h4>
                 {% if reports %}
-                    <div class="row mt-3">
-                        {% for report in reports %}
-                            <div class="col-12 mb-3">
-                                <div class="card shadow-sm p-3 text-center">
-                                    <h5 class="text-dark">{{ report.report_name }}</h5>
-                                    <a href="{{ report.report_pdf.url }}" target="_blank" class="btn btn-primary">
-                                        View PDF
-                                    </a>
-                                </div>
-                            </div>
-                        {% endfor %}
-                    </div>
+                    {% for report in reports %}
+                        <div class="card shadow-sm p-3 my-2">
+                            <h5 class="text-dark">{{ report.report_name }}</h5>
+                            <a href="{{ report.report_pdf.url }}" target="_blank" class="btn btn-primary">
+                                View PDF
+                            </a>
+                        </div>
+                    {% endfor %}
                 {% else %}
-                    <p class="text-center text-muted mt-3">No reports uploaded yet.</p>
+                    <p class="text-center text-muted">No reports uploaded yet.</p>
                 {% endif %}
             </div>
         </div>
     </div>
-</div>
 
 
 <!-- Medical History Section -->
@@ -296,5 +238,64 @@
         <a href="{% url 'logout' %}" class="btn btn-danger btn-lg">Logout</a>
     </div>
 </div>
+<style>
+
+   /* 🌟 General Styling */
+body {
+    font-family: 'Poppins', sans-serif;
+    background: #f4f7fc;
+    color: #333;
+}
+
+/* 🌟 Dashboard Cards */
+.dashboard-card {
+    background: white;
+    border-radius: 12px;
+    padding: 25px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
+    transition: 0.3s ease-in-out;
+}
+.dashboard-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* 🌟 Upload Report Section */
+.upload-report-card {
+    background: rgba(255, 255, 255, 0.98);
+    border-radius: 15px;
+    padding: 25px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
+    transition: 0.3s ease-in-out;
+}
+.upload-report-card:hover {
+    transform: scale(1.02);
+}
+
+/* 🌟 Buttons */
+.btn {
+    padding: 12px 15px;
+    font-weight: 600;
+    border-radius: 8px;
+}
+.btn-primary:hover, .btn-success:hover {
+    transform: translateY(-2px);
+}
+
+/* 🌟 Logout Button */
+.logout-btn {
+    background: linear-gradient(135deg, #dc3545, #c82333);
+    font-size: 18px;
+    font-weight: bold;
+    border-radius: 8px;
+    padding: 12px 20px;
+}
+.logout-btn:hover {
+    transform: scale(1.05);
+}
+
+</style>
 
 {% endblock %}

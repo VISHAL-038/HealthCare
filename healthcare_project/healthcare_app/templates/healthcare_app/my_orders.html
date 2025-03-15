@@ -12,12 +12,13 @@
                 <div class="col-lg-6 col-md-12 mb-4">
                     <div class="card order-card shadow-sm">
                         <div class="order-info">
-                            <h5 class="order-id">Order #{{ order.id }}</h5>
-                            <p><strong>Ordered By:</strong> {{ order.user.username }}</p>
+                            <h5 class="order-id">🩺 {{ order.medicine }}</h5>
+                            {% comment %} <h5 class="order-id">Order #{{ order.id }}</h5> {% endcomment %}
+                            {% comment %} <p><strong>Ordered By:</strong> {{ order.user.username }}</p> {% endcomment %}
                             <p><strong>Ordered On:</strong> {{ order.order_date }}</p>
-                            <p class="medicine-name">🩺 Medicine: {{ order.medicine.name }}</p>
+                            {% comment %} <p class="medicine-name">🩺 Medicine: {{ order.medicine }}</p> {% endcomment %}
                             <p><strong>Quantity:</strong> {{ order.quantity }}</p>
-                            <p><strong>Total Price:</strong> ₹{{ order.total_price }}</p>
+                            <p><strong>Total Price:</strong> {{ order.total_price }}</p>
                             
                             <!-- 🔵 Order Progress Bar -->
                             <div class="progress-container">
@@ -59,12 +60,11 @@
 
 
 <style>
-     🌟 Amazon-Style Order Cards */
 .order-card {
     border-radius: 10px;
     background: white;
     padding: 20px;
-    transition: 0.3s /*ease-in-out;
+    transition: 0.3s;
     box-shadow: 3px 3px 15px rgba(0, 0, 0, 0.1);
     border: 1px solid #ddd;
     position: relative;

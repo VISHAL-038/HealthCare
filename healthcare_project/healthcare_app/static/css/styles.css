@@ -1,10 +1,10 @@
 /* 🌟 Global Styles */
 body {
     font-family: 'Poppins', sans-serif;
-    background: linear-gradient(135deg, #0f172a, #1e3a8a);
+    /* background: linear-gradient(135deg, #99a0b1, #929bb6); */
     background-size: 400% 400%;
     animation: bgAnimation 10s infinite alternate;
-    color: white;
+    color: black;
     margin: 0;
     padding: 0;
 }

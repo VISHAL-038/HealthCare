@@ -37,9 +37,9 @@
             <div class="glass-card doctor-card">
                 <div class="card-body text-center">
                     <h4 class="doctor-name">Dr. {{ doctor.user.username }}</h4>
-                    <p><strong>Specialization:</strong> {{ doctor.specialization }}</p>
-                    <p><strong>Experience:</strong> {{ doctor.experience|default:"Not provided" }} years</p>
-                    <p><strong>Contact:</strong> {{ doctor.contact_number }}</p>
+                    <p class=".text-secondary"><strong>Specialization:</strong> {{ doctor.specialization }}</p>
+                    <p class=".text-secondary"><strong>Experience:</strong> {{ doctor.experience|default:"Not provided" }} years</p>
+                    <p class=".text-secondary"><strong>Contact:</strong> {{ doctor.contact_number }}</p>
                 </div>
             </div>
         </div>
@@ -173,6 +173,27 @@
     setInterval(updateHealthTip, 5000);
     updateHealthStats();
     updateHealthTip();
+
+    document.addEventListener("DOMContentLoaded", function () {
+        let fadeElements = document.querySelectorAll(".fade-in");
+    
+        let observer = new IntersectionObserver(
+            (entries, observer) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add("show");
+                        observer.unobserve(entry.target); // Stop observing after first trigger
+                    }
+                });
+            },
+            { threshold: 0.2 }
+        );
+    
+        fadeElements.forEach((el) => {
+            observer.observe(el);
+        });
+    });
+    
 </script>
 
 <style>
@@ -202,17 +223,27 @@
     padding: 60px 0;
 }
 
-/* 🌟 Service Cards */
+/* 🌟 Service Card - default */
 .service-card {
-    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    transform-style: preserve-3d;
+    perspective: 1000px; 
+    transition: transform 0.4s ease-in-out, box-shadow 0.4s ease-in-out;
     background: rgba(255, 255, 255, 0.95);
     border-radius: 15px;
+    padding: 20px;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
 }
-.service-card:hover {
-    transform: translateY(-10px);
-    box-shadow: 0px 8px 20px rgba(138, 43, 226, 0.5);
+
+.service-card a {
+    display: block;
+    text-decoration: none;
 }
+
+.service-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+}
+
 
 /* 🌟 Glowing Button */
 .btn-glow {
@@ -321,6 +352,22 @@
     transform: translateY(-5px);
     box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
 }
+
+/* 🌟 Smooth Fade-In Effect */
+.fade-in {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+
+/* 🌟 Trigger animation when in viewport */
+.fade-in.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+
+
 
 
 
