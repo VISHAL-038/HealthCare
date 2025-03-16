@@ -1,0 +1,192 @@
+{% extends 'healthcare_app/base.html' %}
+{% load static %}
+
+{% block title %}Health Trends - AI Healthcare{% endblock %}
+
+{% block content %}
+
+<!-- 🌟 Hero Section -->
+<div class="container-fluid hero-section text-center py-5">
+    <h1 class="display-4 fw-bold animated-title">📊 AI-Powered Health Insights</h1>
+    <p class="lead animated-subtitle">Track symptoms & disease trends using real-time analytics.</p>
+</div>
+
+<!-- 🌟 Health Trends Section -->
+<div class="container mt-5">
+    <div class="row mt-5">
+        <div class="col-md-12">
+            <div class="chart-container fade-in">
+                <h3 class="text-center">Top 10 Symptoms This Month</h3>
+                <div class="chart-content">
+                    {{ symptom_chart|safe }}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row mt-5">
+        <div class="col-md-12">
+            <div class="chart-container fade-in">
+                <h3 class="text-center">Top 10 Diagnosed Diseases</h3>
+                <div class="chart-content">
+                    {{ disease_chart|safe }}
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Heatmap Chart -->
+    <div class="row mt-5">
+        <div class="col-md-12">
+            <div class="chart-container fade-in">
+                <h3 class="text-center">📊 Symptoms vs Diagnosed Diseases (Heatmap)</h3>
+                <div class="chart-content">
+                    {{ heatmap_chart|safe }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ✅ JavaScript Animations -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Title & Subtitle Animation
+        gsap.from(".animated-title", {
+            duration: 1.2,
+            opacity: 0,
+            y: -30,
+            ease: "power3.out",
+        });
+
+        gsap.from(".animated-subtitle", {
+            duration: 1.2,
+            opacity: 0,
+            y: 30,
+            ease: "power3.out",
+            delay: 0.2,
+        });
+
+        // Fade-in effect for charts
+        gsap.utils.toArray(".fade-in").forEach((el, index) => {
+            gsap.from(el, {
+                scrollTrigger: {
+                    trigger: el,
+                    start: "top 80%",
+                    toggleActions: "play none none reverse",
+                },
+                opacity: 0,
+                y: 50,
+                duration: 1,
+                delay: index * 0.2,
+                ease: "power2.out",
+            });
+        });
+    });
+</script>
+
+<style>
+    /* 🌟 Smooth Page Transition */
+    body {
+        opacity: 0;
+        transition: opacity 0.8s ease-in-out;
+    }
+
+    /* 🌟 Hero Section */
+    .hero-section {
+        background: linear-gradient(135deg, #502ab1, #8a2be2);
+        color: white;
+        padding: 50px 0;
+        text-align: center;
+        border-bottom-left-radius: 30% 10%;
+        border-bottom-right-radius: 30% 10%;
+    }
+
+    /* 🌟 Chart Container: Improve Spacing & Shadows */
+    .chart-container {
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: 15px;
+        padding: 25px;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+        transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        margin-bottom: 30px; /* ⬅ Add Space Between Charts */
+    }
+
+    /* 🌟 Ensure Graph Fits Well */
+    .chart-content {
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    /* 🌟 Improve Hover Effects */
+    .chart-container:hover {
+        transform: translateY(-5px);
+        box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.3);
+    }
+
+    /* 🌟 Improve Readability */
+    .chart-container h3 {
+        font-size: 1.8rem;
+        font-weight: bold;
+        color: #222;
+        margin-bottom: 20px;
+    }
+
+    /* 🌟 Improve Heatmap Readability */
+    .heatmap-container {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 15px;
+        padding: 20px;
+    }
+
+    /* 🌟 Smooth Chart Appear Effect */
+    .fade-in {
+        opacity: 0;
+        transform: translateY(20px);
+        transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+    }
+
+    /* 🌟 Ripple Effect on Buttons */
+    .btn {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn::after {
+        content: "";
+        position: absolute;
+        width: 200%;
+        height: 200%;
+        top: 50%;
+        left: 50%;
+        background: rgba(255, 255, 255, 0.3);
+        transition: transform 0.5s ease-out, opacity 0.5s ease-out;
+        border-radius: 50%;
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 0;
+    }
+
+    .btn:active::after {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+    }
+
+    /* 🌟 Responsive Layout */
+    @media (max-width: 768px) {
+        .chart-container {
+            margin-bottom: 20px;
+        }
+    }
+</style>
+
+<script>
+    // Ensure smooth page transition
+    document.addEventListener("DOMContentLoaded", function () {
+        document.body.style.opacity = "1";
+    });
+</script>
+
+{% endblock %}

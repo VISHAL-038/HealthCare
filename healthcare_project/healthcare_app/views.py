@@ -10,6 +10,10 @@ import pandas as pd
 from django.conf import settings 
 from .serializers import MedicineSerializer
 from rest_framework import generics
+import plotly.express as px
+from django.utils.timezone import now
+import plotly.graph_objects as go
+from django.utils import timezone
 
 # ✅ Flask API URL for ML Predictions
 FLASK_API_URL = "http://127.0.0.1:5000/predict"
@@ -264,14 +268,14 @@ def patient_dashboard(request):
 
 
 
-
 @login_required
 def doctor_dashboard(request):
-    if request.user.user_type != 'doctor':
-        return redirect('patient_dashboard')
+    # Redirect if the user is not a doctor
+    if request.user.user_type != "doctor":
+        return redirect("patient_dashboard")
 
     # Fetch all appointments assigned to this doctor
-    appointments = Appointment.objects.filter(doctor=request.user).order_by('date')
+    appointments = Appointment.objects.filter(doctor=request.user).order_by("date")
 
     # Get unique patients assigned to the doctor
     patients = User.objects.filter(
@@ -279,10 +283,71 @@ def doctor_dashboard(request):
         patient_appointments__doctor=request.user
     ).distinct()
 
-    return render(request, 'healthcare_app/doctor_dashboard.html', {
-        "appointments": appointments,
-        "patients": patients
-    })
+    today = now()
+
+    if appointments.exists():
+        # Convert appointments to a DataFrame
+        df = pd.DataFrame(list(appointments.values("date", "status", "patient")))
+
+        # 📅 Monthly Appointments Trend
+        df["Month"] = pd.to_datetime(df["date"]).dt.strftime("%b %Y")
+        appointment_counts = df.groupby("Month").size().reset_index(name="Count")
+        fig_monthly = px.line(
+            appointment_counts,
+            x="Month",
+            y="Count",
+            title="📅 Monthly Appointment Trend",
+            markers=True,
+            line_shape="spline",
+            color_discrete_sequence=["#007BFF"],
+        )
+        fig_monthly.update_layout(title_x=0.5)
+
+        # 📅 Appointments per Weekday
+        df["Weekday"] = pd.to_datetime(df["date"]).dt.day_name()
+        weekday_counts = df["Weekday"].value_counts().reset_index()
+        weekday_counts.columns = ["Weekday", "Count"]
+        fig_weekly = px.bar(
+            weekday_counts,
+            x="Weekday",
+            y="Count",
+            title="📅 Weekly Bookings",
+            text_auto=True,
+            color_discrete_sequence=["#28a745"],
+        )
+        fig_weekly.update_layout(title_x=0.5)
+
+        # 🩺 Confirmed vs Canceled Appointments
+        status_counts = df["status"].value_counts().reset_index()
+        status_counts.columns = ["Status", "Count"]
+        fig_status = px.pie(
+            status_counts,
+            names="Status",
+            values="Count",
+            title="🩺 Confirmed vs Canceled Appointments",
+            color_discrete_sequence=["#007BFF", "#FF5733"],
+        )
+        fig_status.update_layout(title_x=0.5)
+
+        # Convert charts to HTML
+        chart_monthly = fig_monthly.to_html(full_html=False)
+        chart_weekly = fig_weekly.to_html(full_html=False)
+        chart_status = fig_status.to_html(full_html=False)
+    else:
+        chart_monthly = chart_weekly = chart_status = None
+
+    return render(
+        request,
+        "healthcare_app/doctor_dashboard.html",
+        {
+            "appointments": appointments,
+            "patients": patients,
+            "chart_monthly": chart_monthly,
+            "chart_weekly": chart_weekly,
+            "chart_status": chart_status,
+        },
+    )
+
 
 
 @login_required
@@ -415,3 +480,58 @@ def book_lab_test(request):
 def lab_test_success(request):
     """Display a success message after booking."""
     return render(request, "healthcare_app/lab_test_success.html")
+
+@login_required
+def health_trends(request):
+    predictions = PredictionHistory.objects.filter(prediction_date__gte=timezone.now() - timezone.timedelta(days=30))
+    symptom_chart_html = disease_chart_html = heatmap_chart_html = None
+    
+    if predictions.exists():
+        df = pd.DataFrame(list(predictions.values('symptoms', 'predicted_disease')))
+        df['symptoms'] = df['symptoms'].str.split(',\s*')
+        all_symptoms = [symptom.strip() for sublist in df['symptoms'] for symptom in sublist if symptom]
+        symptom_counts = pd.Series(all_symptoms).value_counts().reset_index()
+        symptom_counts.columns = ['Symptom', 'Count']
+
+        fig_symptoms = px.bar(
+            symptom_counts.head(10), x='Symptom', y='Count', title="Top 10 Symptoms This Month",
+            text_auto=True, color_discrete_sequence=['#007BFF']
+        )
+        fig_symptoms.update_layout(
+            plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)',
+            margin=dict(l=50, r=50, t=50, b=100),
+            title_x=0.5, font=dict(size=14)
+        )
+        symptom_chart_html = fig_symptoms.to_html(full_html=False)
+
+        disease_counts = df['predicted_disease'].value_counts().reset_index()
+        disease_counts.columns = ['Disease', 'Count']
+        fig_diseases = px.bar(
+            disease_counts.head(10), y='Disease', x='Count', title="Top 10 Diagnosed Diseases",
+            text_auto=True, orientation='h', color_discrete_sequence=['#FF5733']
+        )
+        fig_diseases.update_layout(
+            margin=dict(l=150, r=50, t=50, b=50), title_x=0.5, font=dict(size=14)
+        )
+        disease_chart_html = fig_diseases.to_html(full_html=False)
+
+        heatmap_df = df.explode('symptoms').dropna(subset=['symptoms', 'predicted_disease'])
+        symptom_matrix = pd.crosstab(index=heatmap_df['symptoms'], columns=heatmap_df['predicted_disease'])
+        fig_heatmap = go.Figure(
+            data=go.Heatmap(
+                z=symptom_matrix.values, x=symptom_matrix.columns, y=symptom_matrix.index,
+                colorscale='Viridis', hoverongaps=False
+            )
+        )
+        fig_heatmap.update_layout(
+            title="Symptom Co-Occurrence Heatmap", xaxis_title="Diseases", yaxis_title="Symptoms",
+            plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)',
+            title_x=0.5, font=dict(size=14)
+        )
+        heatmap_chart_html = fig_heatmap.to_html(full_html=False)
+    
+    return render(request, 'healthcare_app/health_trends.html', {
+        'symptom_chart': symptom_chart_html,
+        'disease_chart': disease_chart_html,
+        'heatmap_chart': heatmap_chart_html,
+    })

@@ -20,7 +20,7 @@
         </div>
 
         <!-- Right: AI Themed Hero Image -->
-        <div class="col-md-6">
+        <div class="col-md-5">
             <img src="{% static 'images/main_.jpeg' %}" class="img-fluid hero-img floating-img" alt="AI Healthcare">
         </div>
     </div>
@@ -145,6 +145,9 @@
     </div>
 </div>
 
+<!-- 🌟 GSAP Animations & Scripts -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
 
 <!-- 🌟 JavaScript Enhancements -->
 <script>
@@ -155,7 +158,7 @@
     function updateHealthStats() {
         document.getElementById("bpValue").innerText = getRandomInRange(110, 130) + "/" + getRandomInRange(70, 90) + " mmHg";
         document.getElementById("heartRateValue").innerText = getRandomInRange(60, 90) + " bpm";
-        document.getElementById("bmiValue").innerText = getRandomInRange(18, 25);
+        document.getElementById("bmiValue").innerText = getRandomInRange(18, 25) + " kg/m²";
     }
 
     function updateHealthTip() {
@@ -191,6 +194,51 @@
     
         fadeElements.forEach((el) => {
             observer.observe(el);
+        });
+    });
+    document.addEventListener("DOMContentLoaded", function () {
+        gsap.to("body", { opacity: 1, duration: 0.8, ease: "power3.out" });
+
+        // Hero Section Animation
+        gsap.from(".animated-text", {
+            duration: 1.2,
+            opacity: 0,
+            y: -30,
+            ease: "power3.out",
+        });
+
+        gsap.from(".floating-img", {
+            duration: 2,
+            opacity: 0,
+            y: 50,
+            ease: "power3.out",
+            delay: 0.3
+        });
+
+        // Fade-in effect for sections
+        gsap.utils.toArray(".fade-in").forEach((el) => {
+            gsap.from(el, {
+                scrollTrigger: {
+                    trigger: el,
+                    start: "top 85%",
+                    toggleActions: "play none none none",
+                },
+                opacity: 0,
+                y: 30,
+                duration: 1,
+                ease: "power3.out",
+            });
+        });
+
+        // Service Cards Hover Animation
+        document.querySelectorAll(".service-card").forEach((card) => {
+            card.addEventListener("mouseenter", () => {
+                gsap.to(card, { scale: 1.05, duration: 0.3, ease: "power2.out" });
+            });
+
+            card.addEventListener("mouseleave", () => {
+                gsap.to(card, { scale: 1, duration: 0.3, ease: "power2.out" });
+            });
         });
     });
     
@@ -366,12 +414,8 @@
     transform: translateY(0);
 }
 
-
-
-
-
-
-
 </style>
+
+
 
 {% endblock %}

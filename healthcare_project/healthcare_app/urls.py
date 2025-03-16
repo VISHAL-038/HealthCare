@@ -4,7 +4,7 @@ from .views import (
     disease_prediction, prediction_history, book_appointment, appointment_list, cancel_appointment,
     approve_appointment, reject_appointment, prescription_list, issue_prescription, patient_details,
     MedicineDetailView, MedicineListCreateView, medicine_shop, my_orders_page, 
-    available_lab_tests, book_lab_test, lab_test_success  # ✅ Import lab test views
+    available_lab_tests, book_lab_test, lab_test_success, health_trends  # ✅ Import lab test views
 )
 from .views_medicine import medicine_list, place_order, my_orders
 
@@ -57,4 +57,7 @@ urlpatterns = [
     path("lab-tests/", available_lab_tests, name="available_lab_tests"),
     path("book-lab-test/", book_lab_test, name="book_lab_test"),
     path("lab-test-success/", lab_test_success, name="lab_test_success"),
+
+    # trends
+    path('health-trends/', health_trends, name='health_trends'),
 ]

@@ -2,12 +2,137 @@
 
 {% block content %}
 <div class="container mt-5">
-    <h2>📝 Issue Prescription</h2>
-    <form method="POST">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="btn btn-primary">Submit Prescription</button>
-    </form>
-    <a href="{% url 'prescription_list' %}" class="btn btn-secondary mt-2">View Prescriptions</a>
+    <h2 class="text-center text-primary fw-bold animated-title">📝 Issue Prescription</h2>
+    <p class="text-muted text-center animated-subtitle">Fill in the prescription details below.</p>
+
+    <div class="prescription-form-container fade-in">
+        <form method="POST" class="prescription-form">
+            {% csrf_token %}
+            
+            <!-- Render Form Fields -->
+            {% for field in form %}
+                <div class="form-group">
+                    <label class="form-label">{{ field.label }}</label>
+                    {{ field }}
+                </div>
+            {% endfor %}
+
+            <button type="submit" class="btn btn-primary btn-glow">Submit Prescription</button>
+        </form>
+
+        <a href="{% url 'prescription_list' %}" class="btn btn-secondary mt-3 btn-glow">📜 View Prescriptions</a>
+    </div>
 </div>
+
+<!-- ✅ GSAP Animations -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        gsap.from(".animated-title", { duration: 1, opacity: 0, y: -20, ease: "power3.out" });
+        gsap.from(".animated-subtitle", { duration: 1.2, opacity: 0, y: 20, delay: 0.3, ease: "power3.out" });
+
+        // Fade-in effect for the form
+        gsap.from(".fade-in", {
+            opacity: 0,
+            y: 30,
+            duration: 1,
+            delay: 0.5,
+            ease: "power2.out"
+        });
+    });
+</script>
+
+<!-- 🌟 Custom Styles -->
+<style>
+    /* ✅ Smooth Fade-In Effect */
+    .fade-in {
+        opacity: 0;
+        transform: translateY(20px);
+        transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+    }
+
+    /* 🌟 Prescription Form Container */
+    .prescription-form-container {
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 15px;
+        padding: 25px;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.15);
+        transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    /* Hover Effect */
+    .prescription-form-container:hover {
+        transform: translateY(-5px);
+        box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.2);
+    }
+
+    /* 🌟 Form Fields */
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    .form-label {
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 5px;
+        display: block;
+    }
+
+    /* 🌟 Styled Input Fields */
+    .prescription-form input, 
+    .prescription-form select, 
+    .prescription-form textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid rgba(0, 0, 0, 0.2);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.3);
+        backdrop-filter: blur(5px);
+        font-size: 16px;
+        transition: border 0.3s ease-in-out, background 0.3s ease-in-out;
+    }
+
+    /* Input Focus Effect */
+    .prescription-form input:focus, 
+    .prescription-form select:focus, 
+    .prescription-form textarea:focus {
+        border-color: #007bff;
+        background: rgba(255, 255, 255, 0.5);
+        outline: none;
+    }
+
+    /* 🌟 Glowing Buttons */
+    .btn-glow {
+        background: #007bff;
+        padding: 12px 20px;
+        font-size: 16px;
+        font-weight: bold;
+        border-radius: 8px;
+        box-shadow: 0px 4px 10px rgba(0, 123, 255, 0.3);
+        transition: 0.3s ease-in-out;
+        display: block;
+        width: 100%;
+        text-align: center;
+    }
+
+    .btn-glow:hover {
+        background: #0056b3;
+        box-shadow: 0px 6px 15px rgba(0, 86, 179, 0.4);
+        transform: scale(1.05);
+    }
+
+    .btn-secondary {
+        background: #6c757d;
+        display: block;
+        text-align: center;
+    }
+
+    .btn-secondary:hover {
+        background: #5a6268;
+    }
+</style>
 {% endblock %}
