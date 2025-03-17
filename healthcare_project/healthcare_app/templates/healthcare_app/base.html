@@ -63,7 +63,7 @@
         <div class="container">
             <a class="navbar-brand d-flex align-items-center" href="{% url 'home' %}">
                 <img src="{% static 'images/logo_.webp' %}" alt="AI Healthcare" width="40" class="me-2" />
-                <span class="fw-bold">AI Healthcare</span>
+                <span class="fw-bold">MediAI </span>
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
@@ -79,15 +79,16 @@
                         <li class="nav-item">
                             <a class="nav-link fw-bold" href="{% url 'disease_prediction' %}">🧪 Disease Prediction</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link fw-bold" href="{% url 'health_trends' %}">📊 Health Trends</a>
-                        </li>
 
                         {% if user.user_type == "doctor" %}
-                            <li class="nav-item dropdown">
+                            <li class="nav-item">
+                              <a class="nav-link fw-bold" href="{% url 'health_trends' %}">📊 Health Trends</a>
+                            </li>
+                            <li class="nav-item dropdown"> 
                                 <a class="nav-link dropdown-toggle fw-bold" href="#" id="doctorDropdown" role="button" data-bs-toggle="dropdown">
                                     👨‍⚕️ Dr. {{ user.username }}
                                 </a>
+
                                 <ul class="dropdown-menu">
                                     <li><a class="dropdown-item" href="{% url 'doctor_dashboard' %}">📊 Dashboard</a></li>
                                     <li><a class="dropdown-item" href="{% url 'prescription_list' %}">💊 Prescriptions</a></li>
@@ -141,7 +142,7 @@
 
     <!-- Footer -->
     <footer class="bg-primary text-white text-center py-4 mt-5 shadow-lg">
-        <p class="fw-bold">"Your Health, Our Priority – AI Healthcare" 🏥</p>
+        <p class="fw-bold">"Your Health, Our Priority – MediAI " 🏥</p>
         <p>Use AI-powered insights, but always consult a healthcare professional.</p>
                 <!-- Social Media Links -->
                 <p class="mb-2 fw-bold">Follow Us:</p>

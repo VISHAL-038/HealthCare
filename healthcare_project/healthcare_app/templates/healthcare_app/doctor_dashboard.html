@@ -40,7 +40,9 @@
                 <li class="list-group-item d-flex justify-content-between align-items-center">
                     <span>
                         <strong>👤 {{ patient.username }}</strong>
-                        <br><small>📞 {{ patient.patientprofile.contact_number }}</small>
+                        <br><small>Contact no: {{ patient.patientprofile.contact_number }}</small>
+                        <br><small>Age: {{ patient.patientprofile.age }}</small>
+                        <br><small>Gender:  {{ patient.patientprofile.gender }}</small>
                     </span>
                     <a href="{% url 'patient_details' patient.id %}" class="btn btn-primary btn-sm">🔍 View Details</a>
                 </li>

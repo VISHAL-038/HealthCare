@@ -11,51 +11,73 @@
         <!-- Left: AI Text Content -->
         <div class="col-md-6">
             <div class="glass-box p-4">
-                <h1 class="display-4 fw-bold">
-                    AI-Powered <span id="dynamic-text"></span> Healthcare
-                </h1>
-                <p class="lead">Get quick and accurate disease predictions using AI technology.</p>
-                <a href="{% url 'disease_prediction' %}" class="btn btn-lg btn-glow">Check Your Symptoms</a>
+                {% if user.user_type == "doctor" %}
+                    <h1 class="display-4 fw-bold">
+                        AI-Powered Analytics
+                    </h1>
+                    <p class="lead">Optimize patient care with AI-driven health insights.</p>
+                    <a href="{% url 'doctor_dashboard' %}" class="btn btn-lg btn-glow">Go to Dashboard</a>
+                {% else %}
+                    <h1 class="display-4 fw-bold">
+                        AI-Powered <span id="dynamic-text"></span>
+                    </h1>
+                    <p class="lead">Get quick and accurate disease predictions using AI technology.</p>
+                    <a href="{% url 'disease_prediction' %}" class="btn btn-lg btn-glow">Check Your Symptoms</a>
+                {% endif %}
             </div>
         </div>
 
         <!-- Right: AI Themed Hero Image -->
         <div class="col-md-5">
-            <img src="{% static 'images/main_.jpeg' %}" class="img-fluid hero-img floating-img" alt="AI Healthcare">
+            {% if user.user_type == "doctor" %}
+                <img src="{% static 'images/doctor.jpg' %}" class="img-fluid hero-img floating-img" alt="Doctor Dashboard">
+            {% else %}
+                <img src="{% static 'images/main_.jpeg' %}" class="img-fluid hero-img floating-img" alt="AI Healthcare">
+            {% endif %}
         </div>
     </div>
 </div>
+
+
 
 <!-- 🌟 Available Doctors Section -->
-<div class="container mt-5">
-    <h2 class="text-center text-dark fw-bold">🏥 Available Doctors</h2>
-    <p class="text-center text-muted">Find the best doctors for your medical needs.</p>
+{% if user.user_type == "patient" %}
+    <div class="container mt-5">
+        <h2 class="text-center text-dark fw-bold">🏥 Available Doctors</h2>
+        <p class="text-center text-muted">Find the best doctors for your medical needs.</p>
 
-    <div class="row mt-4">
-        {% for doctor in doctors %}
-        <div class="col-lg-4 col-md-6 col-sm-12 mb-4">
-            <div class="glass-card doctor-card">
-                <div class="card-body text-center">
-                    <h4 class="doctor-name">Dr. {{ doctor.user.username }}</h4>
-                    <p class=".text-secondary"><strong>Specialization:</strong> {{ doctor.specialization }}</p>
-                    <p class=".text-secondary"><strong>Experience:</strong> {{ doctor.experience|default:"Not provided" }} years</p>
-                    <p class=".text-secondary"><strong>Contact:</strong> {{ doctor.contact_number }}</p>
+        <div class="row mt-4">
+            {% for doctor in doctors %}
+            <div class="col-lg-4 col-md-6 col-sm-12 mb-4">
+                <div class="glass-card doctor-card">
+                    <div class="card-body text-center">
+                        <h4 class="doctor-name">🩺 Dr. {{ doctor.user.username }}</h4>
+                        <p class=".text-secondary"><strong>Specialization:</strong> {{ doctor.specialization }}</p>
+                        <p class=".text-secondary"><strong>Experience:</strong> {{ doctor.experience|default:"Not provided" }} years</p>
+                        <p class=".text-secondary"><strong>Contact:</strong> {{ doctor.contact_number }}</p>
+                    </div>
                 </div>
             </div>
+            {% empty %}
+            <p class="text-center text-muted">No doctors available at the moment.</p>
+            {% endfor %}
+            </div>
         </div>
-        {% empty %}
-        <p class="text-center text-muted">No doctors available at the moment.</p>
-        {% endfor %}
+{% else %}
+    <div class="container mt-5">
+
+                <div class="glass-card doctor-card">
+                    <h4 class="doctor-name"> Welcome 🩺 Dr. {{ user.username }}</h4>  
+                    <a href="{% url 'doctor_dashboard' %}" class="btn btn-lg btn-glow">Go to Dashboard</a>
+                </div>
     </div>
-</div>
-
-
+{% endif %}
 
 <!-- 🌟 AI-Powered Services Section -->
 <div class="container-fluid my-5 ai-services-banner">
     <div class="row align-items-center text-center py-5">
         <div class="col-md-12">
-            <h2 class="fw-bold text-light">🚀 Our AI-Powered Healthcare Services</h2>
+            <h2 class="fw-bold text-light">🚀 AI-Powered Healthcare Services</h2>
             <p class="text-light">Experience the future of healthcare with AI-driven solutions.</p>
         </div>
     </div>
@@ -63,35 +85,75 @@
 
 <div class="container mt-5">
     <div class="row text-center">
+        
+        {% if user.user_type == 'doctor' %}
+        <!-- ✅ Doctor-Specific Services -->
+        <div class="col-md-4">
+            <a href="{% url 'doctor_dashboard' %}">
+            <div class="card service-card shadow-lg p-4 fade-in">
+                <img src="{% static 'images/Manage_Appoipments.jpg' %}" class="service-img mb-3" alt="Manage Appointments">
+                <h4>Manage Appointments</h4>
+                <p>Track and manage patient bookings efficiently.</p>
+            </div>
+            </a>
+        </div>
+
+        <div class="col-md-4">
+            <a href="{% url 'issue_prescription' %}">
+            <div class="card service-card shadow-lg p-4 fade-in">
+                <img src="{% static 'images/Issue_Precreptions.jpg' %}" class="service-img mb-3" alt="Issue Prescriptions">
+                <h4>Issue Prescriptions</h4>
+                <p>Provide and manage patient prescriptions digitally.</p>
+            </div>
+            </a>
+        </div>
+
+        <div class="col-md-4">
+            <a href="{% url 'health_trends' %}">
+            <div class="card service-card shadow-lg p-4 fade-in">
+                <img src="{% static 'images/Health_analysis.jpg' %}" class="service-img mb-3" alt="Health Analytics">
+                <h4>Health Analytics</h4>
+                <p>Analyze patient trends and improve diagnosis with AI insights.</p>
+            </div>
+            </a>
+        </div>
+
+        {% else %}
+        <!-- ✅ Patient-Specific Services (Default) -->
         <div class="col-md-4">
             <a href="{% url 'disease_prediction' %}">
             <div class="card service-card shadow-lg p-4 fade-in">
-                <img src="{% static 'images/Prediction.webp' %}" class="service-img mb-3" alt="Disease Prediction">
+                <img src="{% static 'images/Diseases_Prediction.jpg' %}" class="service-img mb-3" alt="Disease Prediction">
                 <h4>Disease Prediction</h4>
                 <p>AI-powered system to detect possible diseases based on symptoms.</p>
             </div>
             </a>
         </div>
+
         <div class="col-md-4">
             <a href="{% url 'book_appointment' %}">
             <div class="card service-card shadow-lg p-4 fade-in">
-                <img src="{% static 'images/doctor.webp' %}" class="service-img mb-3" alt="Doctor Consultation">
+                <img src="{% static 'images/Doctor_Consultation.jpg' %}" class="service-img mb-3" alt="Doctor Consultation">
                 <h4>Doctor Consultation</h4>
                 <p>Find and book appointments with the best healthcare professionals.</p>
             </div>
-        </a>
+            </a>
         </div>
+
         <div class="col-md-4">
-            <a href = "{% url 'book_lab_test' %}">
+            <a href="{% url 'book_lab_test' %}">
             <div class="card service-card shadow-lg p-4 fade-in">
-                <img src="{% static 'images/reports.webp' %}" class="service-img mb-3" alt="Medical Reports">
+                <img src="{% static 'images/Health_Reports.jpg' %}" class="service-img mb-3" alt="Medical Reports">
                 <h4>Medical Reports</h4>
                 <p>View past predictions and prescriptions for better healthcare management.</p>
             </div>
             </a>
         </div>
+
+        {% endif %}
     </div>
 </div>
+
 
 <!-- 🌟 Live Health Statistics -->
 <div class="container text-center my-5">
@@ -151,6 +213,53 @@
 
 <!-- 🌟 JavaScript Enhancements -->
 <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const textElement = document.getElementById("dynamic-text");
+        const words = [
+            "Healthcare ",
+            "Diagnosis ",
+            "Analysis ",
+            "Telemedicine ",
+            "Prediction ",
+            "Consultation ",
+            "Prevention "
+        ];
+        
+        let index = 0;
+        let charIndex = 0;
+        let isDeleting = false;
+        let typingSpeed = 150;  // ⏳ Typing speed
+        let deletingSpeed = 100; // ⏳ Deleting speed
+        let holdTime = 2000;  // ⏳ Hold time before deleting
+        let loopDelay = 500;  // ⏳ Delay before restarting loop
+    
+        function typeEffect() {
+            const currentWord = words[index];
+    
+            if (isDeleting) {
+                textElement.textContent = currentWord.substring(0, charIndex--);
+            } else {
+                textElement.textContent = currentWord.substring(0, charIndex++);
+            }
+    
+            if (!isDeleting && charIndex === currentWord.length) {
+                setTimeout(() => {
+                    isDeleting = true;
+                    typeEffect();
+                }, holdTime);  // ⏳ Hold for 2 seconds before deleting
+            } else if (isDeleting && charIndex === 0) {
+                isDeleting = false;
+                index = (index + 1) % words.length;  // Move to next word
+                setTimeout(typeEffect, loopDelay); // ⏳ Small delay before restarting
+            } else {
+                setTimeout(typeEffect, isDeleting ? deletingSpeed : typingSpeed);
+            }
+        }
+    
+        typeEffect();
+    });
+    
+    
     function getRandomInRange(min, max) {
         return (Math.random() * (max - min) + min).toFixed(1);
     }
