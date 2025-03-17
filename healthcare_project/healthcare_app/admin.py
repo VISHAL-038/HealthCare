@@ -17,9 +17,9 @@ admin.site.register(LabTest)
 
 @admin.register(Medicine)
 class MedicineAdmin(admin.ModelAdmin):
-    list_display = ("generic_name", "brand_names", "typical_use", "price_range","image_link")  # Display columns
+    list_display = ("generic_name", "brand_names", "typical_use", "price_range","image_link","price")  # Display columns
     search_fields = ("generic_name", "brand_names")  # Add search functionality
-    list_filter = ("typical_use",)  # Add filter option
+    list_filter = ("typical_use",)  # Add filter optionß
 
 # ✅ Register Order Model
 @admin.register(Order)

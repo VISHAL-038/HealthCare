@@ -1,0 +1,38 @@
+{% extends 'healthcare_app/base.html' %}
+{% block title %}Cart - AI Healthcare{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center">🛒 Your Cart</h2>
+    {% if cart_items %}
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Medicine</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Total</th>
+                    <th>Remove</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in cart_items %}
+                <tr>
+                    <td>{{ item.medicine.generic_name }}</td>
+                    <td>₹{{ item.medicine.price }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>₹{{ item.total_price }}</td>
+                    <td>
+                        <a href="{% url 'remove_from_cart' item.id %}" class="btn btn-danger btn-sm">Remove</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <h3 class="text-right">Total Price: ₹{{ total_price }}</h3>
+        <a href="{% url 'checkout' %}" class="btn btn-success btn-lg">Proceed to Checkout</a>
+    {% else %}
+        <p class="text-center text-muted">Your cart is empty.</p>
+    {% endif %}
+</div>
+{% endblock %}

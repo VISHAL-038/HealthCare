@@ -3,7 +3,7 @@ from .views import (
     home, register, user_login, user_logout, dashboard, doctor_dashboard, patient_dashboard,
     disease_prediction, prediction_history, book_appointment, appointment_list, cancel_appointment,
     approve_appointment, reject_appointment, prescription_list, issue_prescription, patient_details,
-    MedicineDetailView, MedicineListCreateView, medicine_shop, my_orders_page, 
+    MedicineDetailView, MedicineListCreateView, medicine_shop, my_orders_page,  add_to_cart, view_cart, remove_from_cart, checkout, 
     available_lab_tests, book_lab_test, lab_test_success, health_trends  # ✅ Import lab test views
 )
 from .views_medicine import medicine_list, place_order, my_orders
@@ -50,8 +50,12 @@ urlpatterns = [
     path('api/shop/my-orders/', my_orders, name='shop_my_orders'),
 
     # ✅ Serve the medicine shop frontend page
-    path('medicines/', medicine_shop, name='medicine_shop'),
-    path('my-orders/', my_orders_page, name='my_orders_page'),  # ✅ Added missing comma
+    path("shop/", medicine_shop, name="medicine_shop"),
+    path("cart/", view_cart, name="view_cart"),
+    path("cart/add/<int:medicine_id>/", add_to_cart, name="add_to_cart"),
+    path("cart/remove/<int:cart_id>/", remove_from_cart, name="remove_from_cart"),
+    path("checkout/", checkout, name="checkout"),
+    path("orders/", my_orders_page, name="my_orders_page"),
 
     # ✅ Lab test booking URLs
     path("lab-tests/", available_lab_tests, name="available_lab_tests"),

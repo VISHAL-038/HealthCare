@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils.timezone import now
 from django.contrib.auth import get_user_model
+from decimal import Decimal
 
 
 class User(AbstractUser):
@@ -101,10 +102,23 @@ class Medicine(models.Model):
     brand_names = models.CharField(max_length=255)
     typical_use = models.TextField()
     price_range = models.CharField(max_length=255)
-    image_link = models.URLField(max_length=500, blank=True, null=True)  # ✅ Add Image Link
+    price = models.DecimalField(max_digits=10, decimal_places=2, null=True)
+    image_link = models.URLField(max_length=500, blank=True, null=True)
 
     def __str__(self):
         return f"{self.generic_name} ({self.brand_names})"
+
+class Cart(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    medicine = models.ForeignKey(Medicine, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=1)
+
+    def total_price(self):
+        return self.quantity * self.medicine.price  
+
+    def __str__(self):
+        return f"{self.user.username} - {self.medicine.generic_name} ({self.quantity})"
+
 
 class Order(models.Model):
     STATUS_CHOICES = (
@@ -114,17 +128,16 @@ class Order(models.Model):
         ('delivered', 'Delivered'),
         ('cancelled', 'Cancelled'),
     )
-
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     medicine = models.ForeignKey(Medicine, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
-    total_price = models.CharField(max_length=255)  # Store the price as string
+    total_price = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'), null=False, blank=False)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
     order_date = models.DateTimeField(default=now)
 
     def __str__(self):
         return f"Order {self.id} - {self.user.username} ({self.medicine.generic_name})"
-
+    
 # raiting
 class Testimonial(models.Model):
     patient = models.ForeignKey(User, on_delete=models.CASCADE)

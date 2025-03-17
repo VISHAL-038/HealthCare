@@ -3,7 +3,7 @@ from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .forms import UserRegisterForm, DoctorProfileForm, PatientProfileForm, SymptomForm, AppointmentForm, PrescriptionForm, PatientReportForm, PatientHistoryForm, TestimonialForm, LabTestForm
-from .models import User, DoctorProfile, PatientProfile, PredictionHistory, Appointment, Prescription, PatientReport, PatientHistory, Medicine, Testimonial, Order, AvailableLabTest, LabTest
+from .models import User, DoctorProfile, PatientProfile, PredictionHistory, Appointment, Prescription, PatientReport, PatientHistory, Medicine, Cart, Testimonial, Order, AvailableLabTest, LabTest
 import requests
 import os
 import pandas as pd
@@ -14,6 +14,7 @@ import plotly.express as px
 from django.utils.timezone import now
 import plotly.graph_objects as go
 from django.utils import timezone
+from decimal import Decimal
 
 # ✅ Flask API URL for ML Predictions
 FLASK_API_URL = "http://127.0.0.1:5000/predict"
@@ -447,6 +448,65 @@ def medicine_shop(request):
         "medicines": medicines,
         "search_query": query,
     })
+
+@login_required
+def add_to_cart(request, medicine_id):
+    medicine = get_object_or_404(Medicine, id=medicine_id)
+    cart_item, created = Cart.objects.get_or_create(user=request.user, medicine=medicine)
+
+    if not created:
+        cart_item.quantity += 1  # ✅ Increment quantity if item already exists
+        cart_item.save()
+
+    messages.success(request, "Added to cart!")
+    return redirect("medicine_shop")
+
+# ✅ View Cart
+# ✅ Fix in view_cart()
+@login_required
+def view_cart(request):
+    cart_items = Cart.objects.filter(user=request.user)
+    total_price = sum(item.total_price() for item in cart_items)  # ✅ Add ()
+
+    return render(request, "healthcare_app/cart.html", {
+        "cart_items": cart_items,
+        "total_price": total_price,
+    })
+
+
+
+
+# ✅ Remove from Cart
+@login_required
+def remove_from_cart(request, cart_id):
+    cart_item = get_object_or_404(Cart, id=cart_id, user=request.user)
+    cart_item.delete()
+    messages.success(request, "Item removed from cart.")
+    return redirect("view_cart")
+
+# ✅ Proceed to Checkout (Move from Cart to Order)
+@login_required
+def checkout(request):
+    from decimal import Decimal  # ✅ Ensure Decimal import
+
+    cart_items = Cart.objects.filter(user=request.user)
+
+    if not cart_items:
+        messages.error(request, "Your cart is empty.")
+        return redirect("view_cart")
+
+    for item in cart_items:
+        Order.objects.create(
+            user=request.user,
+            medicine=item.medicine,
+            quantity=item.quantity,
+            total_price=Decimal(str(item.total_price() or "0.00")),  # ✅ Fix NoneType issue
+            status="pending"
+        )
+
+    cart_items.delete()
+    messages.success(request, "Order placed successfully!")
+    return redirect("my_orders_page")
 
 @login_required
 def my_orders_page(request):
