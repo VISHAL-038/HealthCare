@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .forms import UserRegisterForm, DoctorProfileForm, PatientProfileForm, SymptomForm, AppointmentForm, PrescriptionForm, PatientReportForm, PatientHistoryForm, TestimonialForm, LabTestForm
+from .forms import UserRegisterForm, DoctorProfileForm, PatientProfileForm, SymptomForm, AppointmentForm, PrescriptionForm, PatientReportForm, PatientHistoryForm, TestimonialForm, LabTestForm, HealthPredictionForm
 from .models import User, DoctorProfile, PatientProfile, PredictionHistory, Appointment, Prescription, PatientReport, PatientHistory, Medicine, Cart, Testimonial, Order, AvailableLabTest, LabTest
 import requests
 import os
@@ -14,7 +14,7 @@ import plotly.express as px
 from django.utils.timezone import now
 import plotly.graph_objects as go
 from django.utils import timezone
-from decimal import Decimal
+from django.http import JsonResponse
 
 # ✅ Flask API URL for ML Predictions
 FLASK_API_URL = "http://127.0.0.1:5000/predict"
@@ -594,4 +594,59 @@ def health_trends(request):
         'symptom_chart': symptom_chart_html,
         'disease_chart': disease_chart_html,
         'heatmap_chart': heatmap_chart_html,
+    })
+
+
+from .forms import HealthPredictionForm
+# ✅ Flask API URL
+flask_api_url = "http://127.0.0.1:8080/predict_health"
+
+@login_required
+def health_prediction(request):
+    prediction_result = None
+
+    if request.method == "POST":
+        form = HealthPredictionForm(request.POST)
+        if form.is_valid():
+            # Extract user input
+            health_data = {
+                "Age": form.cleaned_data["age"],
+                "BMI": form.cleaned_data["bmi"],
+                "Blood Pressure": form.cleaned_data["blood_pressure"],
+                "Heart Rate": form.cleaned_data["heart_rate"],
+                "Blood Sugar": form.cleaned_data["blood_sugar"],
+                "Cholesterol": form.cleaned_data["cholesterol"],
+            }
+
+            try:
+                # 🔹 Send POST request to Flask API
+                response = requests.post(flask_api_url, json=health_data, timeout=10)
+
+                if response.status_code == 200:
+                    result = response.json()
+
+                    # ✅ Ensure compatibility with Django template
+                    prediction_result = {
+                        "predicted_health_condition": result.get("Predicted Health Condition", "Unknown"),
+                        "health_risk": result.get("Health Risk", "Unknown"),
+                    }
+
+                else:
+                    prediction_result = {"error": f"API Error: {response.status_code}"}
+
+            except requests.exceptions.Timeout:
+                prediction_result = {"error": "Request timed out. Try again later."}
+
+            except requests.exceptions.ConnectionError:
+                prediction_result = {"error": "Failed to connect to prediction service."}
+
+            except requests.exceptions.RequestException as e:
+                prediction_result = {"error": f"API request failed: {e}"}
+
+    else:
+        form = HealthPredictionForm()
+    print(prediction_result)
+    return render(request, "healthcare_app/health_prediction.html", {
+        "form": form,
+        "prediction": prediction_result  # ✅ Ensured it is always a dictionary
     })

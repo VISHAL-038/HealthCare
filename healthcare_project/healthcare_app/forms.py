@@ -94,3 +94,11 @@ class LabTestForm(forms.ModelForm):
             "test_date": forms.DateInput(attrs={"type": "date", "class": "form-control"}),
             "test_time": forms.TimeInput(attrs={"type": "time", "class": "form-control"}),
         }
+
+class HealthPredictionForm(forms.Form):
+    age = forms.IntegerField(min_value=18, max_value=100, label="Age")
+    bmi = forms.FloatField(min_value=10.0, max_value=50.0, label="BMI")
+    blood_pressure = forms.IntegerField(min_value=80, max_value=200, label="Blood Pressure")
+    heart_rate = forms.IntegerField(min_value=40, max_value=150, label="Heart Rate")
+    blood_sugar = forms.IntegerField(min_value=50, max_value=600, label="Blood Sugar")
+    cholesterol = forms.IntegerField(min_value=100, max_value=400, label="Cholesterol")

@@ -1,0 +1,181 @@
+{% extends "healthcare_app/base.html" %}
+
+{% block title %}Health Prediction{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h2 class="text-center fw-bold text-primary">🩺 Health Prediction</h2>
+    <p class="text-center text-muted">Enter your vitals to check your health status.</p>
+
+    <!-- Health Prediction Form -->
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-lg p-4 custom-card">
+                <form method="POST" class="needs-validation">
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label for="age" class="form-label">🧑 Age</label>
+                        {{ form.age }}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="bmi" class="form-label">⚖️ BMI</label>
+                        {{ form.bmi }}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="blood_pressure" class="form-label">🩸 Blood Pressure</label>
+                        {{ form.blood_pressure }}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="heart_rate" class="form-label">❤️ Heart Rate</label>
+                        {{ form.heart_rate }}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="blood_sugar" class="form-label">🍭 Blood Sugar</label>
+                        {{ form.blood_sugar }}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="cholesterol" class="form-label">🧬 Cholesterol</label>
+                        {{ form.cholesterol }}
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100 btn-lg shadow-sm">🔍 Predict Health</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stylish Prediction Box -->
+    {% comment %} {% if prediction %}
+    <div class="row justify-content-center mt-4">
+        <div class="col-md-6">
+            <div class="glassmorphism-box">
+                <h4 class="text-white fw-bold">🔎 AI Prediction Results</h4>
+
+                <p class="prediction-text"><strong>Predicted Health Condition:</strong> {{ prediction.predicted_health_condition }}</p>
+                <p class="prediction-text"><strong>Health Risk Details:</strong> {{ prediction.health_risk }}</p>
+            </div>
+        </div>
+    </div>
+    {% endif %} {% endcomment %}
+
+     <!-- Stylish Prediction Results -->
+     {% if prediction %}
+     <div class="mt-4 fade-in">
+         {% if prediction.error %}
+             <div class="alert alert-danger">{{ prediction.error }}</div>
+         {% else %}
+         <div class="card prediction-card shadow-lg">
+             <div class="card-body text-center">
+                 <h4 class="fw-bold text-primary">✨ AI Prediction Result ✨</h4>
+                 <p class="fs-5">
+                     🤖 Our AI suggests that your health condition is 
+                     <span class="fw-bold text-success">{{ prediction.predicted_health_condition }}</span>.
+                 </p>
+                 <h4 class="fw-bold text-danger">⚠️ Health Risk Details</h4>
+                 <p>{{ prediction.health_risk }}</p>
+                 <p class="text-muted">
+                     Remember, this is just an AI-based prediction. Always consult a doctor for an accurate diagnosis!
+                 </p>
+             </div>
+         </div>
+         {% endif %}
+     </div>
+     {% endif %}
+    <!-- Error Handling -->
+    {% if prediction.error %}
+    <div class="alert alert-danger mt-3 text-center shadow-sm">
+        ⚠️ {{ prediction.error }}
+    </div>
+    {% endif %}
+</div>
+
+<!-- Custom Styling -->
+<style>
+    /* Card Styling */
+    .custom-card {
+        border-radius: 16px;
+        background: #f8f9fa;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Form Inputs */
+    .form-label {
+        font-weight: 600;
+        color: #333;
+    }
+
+    input, select {
+        border: 2px solid #ced4da;
+        border-radius: 8px;
+        padding: 10px;
+        width: 100%;
+        transition: 0.3s;
+    }
+
+    input:focus {
+        border-color: #007bff;
+        outline: none;
+        box-shadow: 0 0 8px rgba(0, 123, 255, 0.3);
+    }
+
+    /* Submit Button */
+    .btn-primary {
+        border-radius: 8px;
+        font-size: 18px;
+        font-weight: bold;
+        background: linear-gradient(135deg, #007bff, #6610f2);
+        border: none;
+        transition: 0.3s;
+    }
+
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #0056b3, #520dc2);
+    }
+
+    /* 🔥 Stylish Glassmorphism Prediction Box */
+    .glassmorphism-box {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        padding: 20px;
+        text-align: center;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.2);
+        color: white;
+        animation: glow 1.5s infinite alternate;
+    }
+
+    /* Gradient Text for Prediction */
+    .prediction-text {
+        font-size: 18px;
+        font-weight: bold;
+        background: -webkit-linear-gradient(45deg, #ff6b6b, #ffbb33);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    /* Glow Animation */
+    @keyframes glow {
+        0% {
+            box-shadow: 0px 10px 20px rgba(255, 255, 255, 0.2);
+        }
+        100% {
+            box-shadow: 0px 10px 30px rgba(255, 255, 255, 0.5);
+        }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .container {
+            max-width: 90%;
+        }
+    }
+</style>
+{% endblock %}

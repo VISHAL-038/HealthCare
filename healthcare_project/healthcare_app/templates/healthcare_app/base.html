@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{% block title %}AI Healthcare{% endblock %}</title>
+    <title>{% block title %}MediAI{% endblock %}</title>
     <link rel="icon" type="image/x-icon" href="{% static 'images/favicon.ico' %}">
 
     <!-- Bootstrap CSS -->
@@ -79,6 +79,12 @@
                         <li class="nav-item">
                             <a class="nav-link fw-bold" href="{% url 'disease_prediction' %}">🧪 Disease Prediction</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'health_prediction' %}">Health Prediction</a>
+                        </li>
+                        
+                        
+                        
 
                         {% if user.user_type == "doctor" %}
                             <li class="nav-item">
