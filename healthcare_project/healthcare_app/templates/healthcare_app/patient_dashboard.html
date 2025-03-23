@@ -9,12 +9,24 @@
     <div class="row mt-4">
         <div class="col-md-12">
             <div class="card dashboard-card shadow-lg p-4 fade-in">
-                <h4>📦 My Medicine Orders</h4>
-                <p class="text-muted">Track your medicine purchases and order history.</p>
+                <h4 class="text-center">📦 My Medicine Orders</h4>
+                <p class="text-muted text-center">Track your medicine purchases and order history.</p>
                 <a href="{% url 'my_orders_page' %}" class="btn btn-primary w-100">View My Orders</a>
             </div>
         </div>
     </div>
+
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card dashboard-card shadow-lg p-4 fade-in">
+                <h4 class="text-center">📊 Health History</h4>
+                <a  href="{% url 'health_history' %}" class="btn btn-primary w-100">Health History</a>
+            </div>
+        </div>
+    </div>
+
+    
+    
 
     <!-- Dashboard Sections -->
     <div class="row mt-4">
@@ -96,7 +108,7 @@
     <div class="row mt-4">
         <div class="col-md-12">
             <div class="card dashboard-card shadow-lg p-4 fade-in">
-                <h4>Prediction History</h4>
+                <h4 class="text-center">Prediction History</h4>
                 {% if history %}
                     <table class="table table-bordered mt-4">
                         <thead class="table-dark">

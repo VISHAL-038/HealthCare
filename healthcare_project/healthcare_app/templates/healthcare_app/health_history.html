@@ -1,0 +1,72 @@
+{% extends "healthcare_app/base.html" %}
+
+{% block title %}Health History{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h2 class="text-center fw-bold text-primary">📜 Health Prediction History</h2>
+    <p class="text-center text-muted">Your past health predictions with graphical trends.</p>
+
+    <!-- Health History Table -->
+    <div class="table-responsive mt-4">
+        <table class="table table-striped table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>Date</th>
+                    <th>Age</th>
+                    <th>BMI</th>
+                    <th>Blood Pressure</th>
+                    <th>Heart Rate</th>
+                    <th>Blood Sugar</th>
+                    <th>Cholesterol</th>
+                    <th>Predicted Condition</th>
+                    <th>Health Risk</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for entry in history %}
+                <tr>
+                    <td>{{ entry.created_at|date:"d M, Y" }}</td>
+                    <td>{{ entry.age }}</td>
+                    <td>{{ entry.bmi }}</td>
+                    <td>{{ entry.blood_pressure }}</td>
+                    <td>{{ entry.heart_rate }}</td>
+                    <td>{{ entry.blood_sugar }}</td>
+                    <td>{{ entry.cholesterol }}</td>
+                    <td class="fw-bold text-primary">{{ entry.predicted_health_condition }}</td>
+                    <td class="fw-bold text-danger">{{ entry.health_risk }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Graphical Trends -->
+    <div class="row mt-5">
+        {% for key, image in charts.items %}
+        <div class="col-md-6">
+            <div class="card shadow-sm p-3">
+                <h5 class="text-center">{{ key }} Trend</h5>
+                <img src="data:image/png;base64,{{ image }}" class="img-fluid" alt="Graph">
+            </div>
+            <br>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+    .table th, .table td {
+        text-align: center;
+        vertical-align: middle;
+    }
+    .table thead {
+        background: linear-gradient(135deg, #007bff, #6610f2);
+        color: white;
+    }
+    .card {
+        border-radius: 12px;
+        box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
+    }
+</style>
+{% endblock %}

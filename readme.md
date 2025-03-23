@@ -7,21 +7,28 @@ The **AI Healthcare System** is a web-based application that integrates **machin
 - **🔍 AI-Powered Disease Prediction**: Input symptoms and get AI-driven health analysis.
 - **📅 Doctor Appointments**: Schedule and manage appointments with available doctors.
 - **🛒 Online Medicine Store**: Browse and order medicines online.
-- **🧪 Lab Test Booking**: Schedule diagnostic tests and view results.
+- **🧪 Lab Test Booking**: Schedule diagnostic tests.
 - **📄 Medical Reports & History**: Upload, store, and manage reports.
 - **📋 Doctor Dashboard**: Manage patients, appointments, and prescriptions.
+- **📊 Health Record Based on Vitals Input**: Enter vital signs like BMI, blood pressure, and heart rate to get AI-based health risk analysis.
 
 ## 📂 Project Structure
 ```
 HEALTHCARE_APP/
 │
-├── healthcare_project/         # Main Django project directory
+├── health_risk_model/         # Health Risk Prediction Model
+│   ├── health_model.pkl       # Trained health risk prediction model
+│   ├── notebook.ipynb         # Jupyter notebook for model training
+│   ├── script.py              # Script for processing health data
+│   ├── synthetic_health_data.csv  # Sample synthetic health dataset
+│
+├── healthcare_project/        # Main Django project directory
 │   ├── __pycache__
-│   ├── healthcare_app/         # Core Django app
+│   ├── healthcare_app/        # Core Django app
 │   │   ├── __pycache__
 │   │   ├── management/
 │   │   ├── migrations/
-│   │   ├── static/             # CSS, JS, and images
+│   │   ├── static/            # CSS, JS, and images
 │   │   ├── templates/healthcare_app/  # HTML templates
 │   │   │   ├── appointment_list.html
 │   │   │   ├── available_lab_tests.html
@@ -51,7 +58,6 @@ HEALTHCARE_APP/
 │   │   ├── urls.py
 │   │   ├── views.py
 │   │   ├── views_medicine.py
-│   │
 │   ├── healthcare_project/
 │   │   ├── __pycache__
 │   │   ├── __init__.py
@@ -59,7 +65,6 @@ HEALTHCARE_APP/
 │   │   ├── settings.py
 │   │   ├── urls.py
 │   │   ├── wsgi.py
-│   │
 │   ├── media/                  # Uploaded media files
 │   ├── db.sqlite3               # SQLite database
 │   ├── manage.py
@@ -76,6 +81,7 @@ HEALTHCARE_APP/
 │
 ├── myenv/                        # Virtual environment
 ├── readme.md
+├── requirements.txt              # Required Python libraries
 ```
 
 ## 🛠️ Technologies Used
@@ -123,8 +129,7 @@ HEALTHCARE_APP/
 ## 📞 Contact
 For contributions or queries, feel free to contact us:
 - 📧 Email: vishaal03.it@gmail.com
-- 🔗 [GitHub](https://github.com/VISHAL-038))
-- 🌐 Website: www.yourhealthcareapp.com
+- 🔗 [GitHub](https://github.com/VISHAL-038)
 
 ---
 Made with ❤️ by AI Healthcare Team 🚀

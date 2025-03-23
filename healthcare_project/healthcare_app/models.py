@@ -173,3 +173,19 @@ class LabTest(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.test.name}"
+
+# history
+class HealthPredictionHistory(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    age = models.IntegerField()
+    bmi = models.FloatField()
+    blood_pressure = models.FloatField()
+    heart_rate = models.IntegerField()
+    blood_sugar = models.FloatField()
+    cholesterol = models.FloatField()
+    predicted_health_condition = models.CharField(max_length=255)
+    health_risk = models.CharField(max_length=255)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.predicted_health_condition} ({self.created_at.strftime('%Y-%m-%d')})"

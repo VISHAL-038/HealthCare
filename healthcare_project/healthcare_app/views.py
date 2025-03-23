@@ -3,7 +3,7 @@ from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .forms import UserRegisterForm, DoctorProfileForm, PatientProfileForm, SymptomForm, AppointmentForm, PrescriptionForm, PatientReportForm, PatientHistoryForm, TestimonialForm, LabTestForm, HealthPredictionForm
-from .models import User, DoctorProfile, PatientProfile, PredictionHistory, Appointment, Prescription, PatientReport, PatientHistory, Medicine, Cart, Testimonial, Order, AvailableLabTest, LabTest
+from .models import User, DoctorProfile, PatientProfile, PredictionHistory, Appointment, Prescription, PatientReport, PatientHistory, Medicine, Cart, Testimonial, Order, AvailableLabTest, LabTest, HealthPredictionHistory
 import requests
 import os
 import pandas as pd
@@ -15,6 +15,12 @@ from django.utils.timezone import now
 import plotly.graph_objects as go
 from django.utils import timezone
 from django.http import JsonResponse
+import matplotlib.pyplot as plt
+import seaborn as sns
+import base64
+from io import BytesIO
+import matplotlib
+matplotlib.use("Agg")
 
 # ✅ Flask API URL for ML Predictions
 FLASK_API_URL = "http://127.0.0.1:5000/predict"
@@ -401,6 +407,7 @@ def prescription_list(request):
 def patient_details(request, patient_id):
     doctor = request.user
     patient = get_object_or_404(User, id=patient_id, user_type="patient")
+    print(patient)
 
     # Ensure the doctor has an appointment with this patient
     if not Appointment.objects.filter(doctor=doctor, patient=patient).exists():
@@ -472,9 +479,6 @@ def view_cart(request):
         "cart_items": cart_items,
         "total_price": total_price,
     })
-
-
-
 
 # ✅ Remove from Cart
 @login_required
@@ -608,7 +612,6 @@ def health_prediction(request):
     if request.method == "POST":
         form = HealthPredictionForm(request.POST)
         if form.is_valid():
-            # Extract user input
             health_data = {
                 "Age": form.cleaned_data["age"],
                 "BMI": form.cleaned_data["bmi"],
@@ -619,34 +622,66 @@ def health_prediction(request):
             }
 
             try:
-                # 🔹 Send POST request to Flask API
                 response = requests.post(flask_api_url, json=health_data, timeout=10)
-
                 if response.status_code == 200:
-                    result = response.json()
+                    raw_prediction = response.json()
 
-                    # ✅ Ensure compatibility with Django template
+                    # Convert keys for better template access
                     prediction_result = {
-                        "predicted_health_condition": result.get("Predicted Health Condition", "Unknown"),
-                        "health_risk": result.get("Health Risk", "Unknown"),
+                        "predicted_health_condition": raw_prediction.get("Predicted Health Condition", "Unknown"),
+                        "health_risk": raw_prediction.get("Health Risk", "No significant health risks detected.")
                     }
+
+                    # Save to history
+                    HealthPredictionHistory.objects.create(
+                        user=request.user,
+                        age=form.cleaned_data["age"],
+                        bmi=form.cleaned_data["bmi"],
+                        blood_pressure=form.cleaned_data["blood_pressure"],
+                        heart_rate=form.cleaned_data["heart_rate"],
+                        blood_sugar=form.cleaned_data["blood_sugar"],
+                        cholesterol=form.cleaned_data["cholesterol"],
+                        predicted_health_condition=prediction_result["predicted_health_condition"],
+                        health_risk=prediction_result["health_risk"]
+                    )
 
                 else:
                     prediction_result = {"error": f"API Error: {response.status_code}"}
-
-            except requests.exceptions.Timeout:
-                prediction_result = {"error": "Request timed out. Try again later."}
-
-            except requests.exceptions.ConnectionError:
-                prediction_result = {"error": "Failed to connect to prediction service."}
 
             except requests.exceptions.RequestException as e:
                 prediction_result = {"error": f"API request failed: {e}"}
 
     else:
         form = HealthPredictionForm()
-    print(prediction_result)
+    
+    print(prediction_result)  # ✅ Check the modified dictionary structure
     return render(request, "healthcare_app/health_prediction.html", {
         "form": form,
-        "prediction": prediction_result  # ✅ Ensured it is always a dictionary
+        "prediction": prediction_result
     })
+
+@login_required
+def health_history(request):
+    history = HealthPredictionHistory.objects.filter(user=request.user).order_by("-created_at")
+    charts = {}
+
+    if history.exists():
+        for key in ["bmi", "blood_pressure", "heart_rate", "blood_sugar", "cholesterol"]:
+            fig, ax = plt.subplots(figsize=(8, 4))
+            ax.plot(history.values_list("created_at", flat=True), 
+                    history.values_list(key, flat=True), 
+                    marker="o", linestyle="-", label=key.replace("_", " ").title())
+            ax.legend()
+            ax.set_title(f"{key.replace('_', ' ').title()} Trend")
+            ax.set_xlabel("Date")
+            ax.set_ylabel("Value")
+            ax.grid()
+
+            buffer = BytesIO()
+            plt.savefig(buffer, format="png")
+            buffer.seek(0)
+            charts[key.replace("_", " ").title()] = base64.b64encode(buffer.getvalue()).decode("utf-8")
+            buffer.close()
+            plt.close(fig)
+
+    return render(request, "healthcare_app/health_history.html", {"history": history, "charts": charts})

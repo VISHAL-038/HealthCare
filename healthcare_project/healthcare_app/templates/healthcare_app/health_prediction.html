@@ -64,35 +64,31 @@
     </div>
     {% endif %} {% endcomment %}
 
-     <!-- Stylish Prediction Results -->
-     {% if prediction %}
-     <div class="mt-4 fade-in">
-         {% if prediction.error %}
-             <div class="alert alert-danger">{{ prediction.error }}</div>
-         {% else %}
-         <div class="card prediction-card shadow-lg">
-             <div class="card-body text-center">
-                 <h4 class="fw-bold text-primary">✨ AI Prediction Result ✨</h4>
-                 <p class="fs-5">
-                     🤖 Our AI suggests that your health condition is 
-                     <span class="fw-bold text-success">{{ prediction.predicted_health_condition }}</span>.
-                 </p>
-                 <h4 class="fw-bold text-danger">⚠️ Health Risk Details</h4>
-                 <p>{{ prediction.health_risk }}</p>
-                 <p class="text-muted">
-                     Remember, this is just an AI-based prediction. Always consult a doctor for an accurate diagnosis!
-                 </p>
-             </div>
-         </div>
-         {% endif %}
-     </div>
-     {% endif %}
-    <!-- Error Handling -->
-    {% if prediction.error %}
-    <div class="alert alert-danger mt-3 text-center shadow-sm">
-        ⚠️ {{ prediction.error }}
+    {% if prediction %}
+    <div class="mt-4 fade-in">
+        {% if prediction.error %}
+            <div class="alert alert-danger">{{ prediction.error }}</div>
+        {% else %}
+        <div class="card prediction-card shadow-lg">
+            <div class="card-body text-center">
+                <h4 class="fw-bold text-primary">✨ AI Prediction Result ✨</h4>
+                <p class="fs-5">
+                    🤖 Our AI suggests that your health condition is  
+                    <span class="fw-bold text-success">
+                        {{ prediction.predicted_health_condition }}
+                    </span>.
+                </p>
+                <h4 class="fw-bold text-danger">⚠️ Health Risk Details</h4>
+                <p>{{ prediction.health_risk }}</p>
+                <p class="text-muted">
+                    Remember, this is just an AI-based prediction. Always consult a doctor for an accurate diagnosis!
+                </p>
+            </div>
+        </div>
+        {% endif %}
     </div>
     {% endif %}
+
 </div>
 
 <!-- Custom Styling -->

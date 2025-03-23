@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import User, DoctorProfile, PatientProfile, PredictionHistory, Appointment, Prescription, PatientReport, PatientHistory, Medicine, Order, Testimonial, AvailableLabTest, LabTest
+from .models import User, DoctorProfile, PatientProfile, PredictionHistory, Appointment, Prescription, PatientReport, PatientHistory, Medicine, Order, Testimonial, AvailableLabTest, LabTest, HealthPredictionHistory
 # OrderItem
 
 # Register all models
@@ -13,6 +13,7 @@ admin.site.register(PatientReport)
 admin.site.register(PatientHistory)
 admin.site.register(AvailableLabTest)
 admin.site.register(LabTest)
+admin.site.register(HealthPredictionHistory)
 # admin.site.register(OrderItem)
 
 @admin.register(Medicine)

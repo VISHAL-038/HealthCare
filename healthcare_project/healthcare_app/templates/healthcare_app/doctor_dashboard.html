@@ -2,15 +2,16 @@
 {% load static %}
 
 {% block content %}
-<div class="container mt-5">
+<div class="container mt-5 fade-in-page">
     <h2 class="text-center fw-bold text-primary">👨‍⚕️ Welcome, Dr. {{ user.username }}</h2>
     <p class="text-muted text-center">Manage your appointments and patient records efficiently.</p>
+
     <!-- Appointment List -->
     <div class="card mt-5 shadow-lg p-4 fade-in">
-        <h4>📅 Upcoming Appointments</h4>
+        <h4 class="text-center">📅 Upcoming Appointments</h4>
         <ul class="list-group">
             {% for appointment in appointments %}
-                <li class="list-group-item d-flex justify-content-between align-items-center">
+                <li class="list-group-item d-flex justify-content-between align-items-center hover-effect">
                     <span>
                         <strong>Patient:</strong> {{ appointment.patient.username }}  
                         <br><small>📆 {{ appointment.date|date:"M d, Y" }} | ⏰ {{ appointment.time }}</small>
@@ -34,17 +35,17 @@
     
     <!-- Patient List -->
     <div class="card mt-5 shadow-lg p-4 fade-in">
-        <h4>🏥 Your Patients</h4>
+        <h4 class="text-center">🏥 Your Patients</h4>
         <ul class="list-group">
             {% for patient in patients %}
-                <li class="list-group-item d-flex justify-content-between align-items-center">
+                <li class="list-group-item d-flex justify-content-between align-items-center hover-effect">
                     <span>
                         <strong>👤 {{ patient.username }}</strong>
                         <br><small>Contact no: {{ patient.patientprofile.contact_number }}</small>
                         <br><small>Age: {{ patient.patientprofile.age }}</small>
                         <br><small>Gender:  {{ patient.patientprofile.gender }}</small>
                     </span>
-                    <a href="{% url 'patient_details' patient.id %}" class="btn btn-primary btn-sm">🔍 View Details</a>
+                    <a href="{% url 'patient_details' patient.id %}" class="btn btn-primary btn-sm hover-btn">🔍 View Details</a>
                 </li>
             {% empty %}
                 <li class="list-group-item text-muted text-center">No assigned patients.</li>
@@ -52,9 +53,8 @@
         </ul>
     </div>
 
-    <br>
+    <h2 class="text-muted text-center mt-4">Monitor your performance and manage appointments efficiently.</h2>
 
-    <h2 class="text-muted text-center">Monitor your performance and manage appointments efficiently.</h2>
     <!-- Summary Cards -->
     <div class="row mt-4">
         <div class="col-md-4">
@@ -102,21 +102,31 @@
         </div>
     </div>
 </div>
+
 <!-- ✅ GSAP Animations -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {
+        // Page Load Animation
+        gsap.from(".fade-in-page", {
+            opacity: 0,
+            y: -20,
+            duration: 1.2,
+            ease: "power2.out"
+        });
+
+        // Scroll Animations
         gsap.utils.toArray(".fade-in").forEach((el, index) => {
             gsap.from(el, {
                 scrollTrigger: {
                     trigger: el,
-                    start: "top 80%",
+                    start: "top 85%",
                     toggleActions: "play none none reverse",
                 },
                 opacity: 0,
-                y: 50,
+                y: 30,
                 duration: 1,
                 delay: index * 0.2,
                 ease: "power2.out",
@@ -126,6 +136,41 @@
 </script>
 
 <style>
+    /* ✅ Page Load Fade-In */
+    .fade-in-page {
+        opacity: 0;
+        animation: fadeIn 1.2s ease-out forwards;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* ✅ Hover Effects */
+    .hover-effect {
+        transition: all 0.3s ease-in-out;
+    }
+
+    .hover-effect:hover {
+        transform: scale(1.02);
+        box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .hover-btn {
+        transition: background 0.3s ease, transform 0.3s ease;
+    }
+
+    .hover-btn:hover {
+        transform: scale(1.1);
+    }
+
     /* ✅ Summary Cards */
     .summary-card {
         background: white;
@@ -149,11 +194,8 @@
         transition: 0.3s ease-in-out;
     }
 
-    /* ✅ Smooth Fade-In */
-    .fade-in {
-        opacity: 0;
-        transform: translateY(20px);
-        transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+    .chart-container:hover {
+        transform: scale(1.03);
     }
 </style>
 
