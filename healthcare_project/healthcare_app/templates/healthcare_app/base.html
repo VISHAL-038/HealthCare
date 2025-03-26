@@ -74,14 +74,10 @@
                     <li class="nav-item">
                         <a class="nav-link fw-bold" href="{% url 'home' %}">🏠 Home</a>
                     </li>
-
                     {% if user.is_authenticated %}
                         <li class="nav-item">
                             <a class="nav-link fw-bold" href="{% url 'disease_prediction' %}">🧪 Disease Prediction</a>
                         </li>
-                        
-                                         
-
                         {% if user.user_type == "doctor" %}
                             <li class="nav-item">
                               <a class="nav-link fw-bold" href="{% url 'health_trends' %}">📊 Health Trends</a>
@@ -178,6 +174,7 @@
 
     <!-- JavaScript -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
     <script src="{% static 'js/script.js' %}"></script>
 
     <script>

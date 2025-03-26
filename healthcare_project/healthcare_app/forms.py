@@ -10,17 +10,25 @@ class UserRegisterForm(UserCreationForm):
         model = User
         fields = ['username', 'email', 'password1', 'password2', 'user_type']
 
-# Doctor Profile Form
 class DoctorProfileForm(forms.ModelForm):
+    profile_image = forms.ImageField(required=False)
+
     class Meta:
         model = DoctorProfile
-        fields = ['specialization', 'experience', 'contact_number']
+        fields = ['specialization', 'experience', 'contact_number', 'profile_image']
+        widgets = {
+            'specialization': forms.TextInput(attrs={'class': 'form-control'}),
+            'experience': forms.NumberInput(attrs={'class': 'form-control'}),
+            'contact_number': forms.TextInput(attrs={'class': 'form-control'}),
+        }
 
-# Patient Profile Form
+# Patient Profile
 class PatientProfileForm(forms.ModelForm):
+    profile_image = forms.ImageField(required=False)  # ✅ Optional Image Upload
+
     class Meta:
         model = PatientProfile
-        fields = ['age', 'gender', 'contact_number']
+        fields = ['age', 'gender', 'contact_number', 'profile_image']
 
 # symptom forms
 class SymptomForm(forms.Form):

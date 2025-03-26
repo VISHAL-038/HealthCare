@@ -41,11 +41,10 @@
 
 
 <!-- 🌟 Available Doctors Section -->
-{% if user.user_type == "patient" %}
+    {% if user.user_type == "patient" %}
     <div class="container mt-5">
         <h2 class="text-center text-dark fw-bold">🏥 Available Doctors</h2>
         <p class="text-center text-muted">Find the best doctors for your medical needs.</p>
-
         <div class="row mt-4">
             {% for doctor in doctors %}
             <div class="col-lg-4 col-md-6 col-sm-12 mb-4">
@@ -63,15 +62,14 @@
             {% endfor %}
             </div>
         </div>
-{% else %}
-    <div class="container mt-5">
-
+    {% else %}
+        <div class="container mt-5">
                 <div class="glass-card doctor-card">
                     <h4 class="doctor-name"> Welcome 🩺 Dr. {{ user.username }}</h4>  
                     <a href="{% url 'doctor_dashboard' %}" class="btn btn-lg btn-glow">Go to Dashboard</a>
                 </div>
-    </div>
-{% endif %}
+        </div>
+    {% endif %}
 
 <!-- 🌟 AI-Powered Services Section -->
 <div class="container-fluid my-5 ai-services-banner">

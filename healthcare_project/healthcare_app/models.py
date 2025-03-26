@@ -19,6 +19,7 @@ class DoctorProfile(models.Model):
     specialization = models.CharField(max_length=100, default="General")
     experience = models.IntegerField(null=True, blank=True)  # Allow NULL values
     contact_number = models.CharField(max_length=15, default="N/A")
+    profile_image = models.ImageField(upload_to="profile_images/doctors/", null=True, blank=True)  # ✅ Optional profile image
 
 
 # Patient Profile
@@ -27,6 +28,7 @@ class PatientProfile(models.Model):
     age = models.IntegerField()
     gender = models.CharField(max_length=10)
     contact_number = models.CharField(max_length=15)
+    profile_image = models.ImageField(upload_to="profile_images/patients/", null=True, blank=True)  # ✅ Optional profile image
 
 
 # Prediction History

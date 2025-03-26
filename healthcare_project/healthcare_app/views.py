@@ -220,19 +220,27 @@ def cancel_appointment(request, appointment_id):
 
     return redirect('appointment_list')
 
+# ✅ Patient Dashboard
 @login_required
 def patient_dashboard(request):
+    # Ensure patient profile exists
+    patient_profile, _ = PatientProfile.objects.get_or_create(user=request.user)
+    profile_form = PatientProfileForm(instance=patient_profile)
+    patient_history, _ = PatientHistory.objects.get_or_create(patient=request.user)
+
+    # Fetch related data
     appointments = Appointment.objects.filter(patient=request.user)
     reports = PatientReport.objects.filter(patient=request.user)
     history = PredictionHistory.objects.filter(user=request.user)
     user_lab_tests = LabTest.objects.filter(user=request.user)
+    testimonials = Testimonial.objects.all().order_by("-created_at")[:5]
 
-    patient_history, _ = PatientHistory.objects.get_or_create(patient=request.user)
-
+    # Forms
     history_form = PatientHistoryForm(instance=patient_history)
     report_form = PatientReportForm()
     testimonial_form = TestimonialForm()
 
+    # ✅ Handle Form Submissions
     if request.method == "POST":
         if "update_history" in request.POST:
             history_form = PatientHistoryForm(request.POST, instance=patient_history)
@@ -258,88 +266,110 @@ def patient_dashboard(request):
                 testimonial.save()
                 messages.success(request, "Your testimonial has been submitted successfully!")
                 return redirect("patient_dashboard")
+        
+        elif "update_profile" in request.POST:
+            profile_form = PatientProfileForm(request.POST, request.FILES, instance=patient_profile)
+            if profile_form.is_valid():
+                profile_form.save()
+                messages.success(request, "Profile updated successfully!")
+                return redirect("patient_dashboard")
 
-    testimonials = Testimonial.objects.all().order_by('-created_at')[:5]  # Show latest 5 testimonials
+    return render(
+        request,
+        "healthcare_app/patient_dashboard.html",
+        {
+            "patient_profile": patient_profile,
+            "profile_form": profile_form,
+            "appointments": appointments,
+            "reports": reports,
+            "history": history,
+            "history_form": history_form,
+            "report_form": report_form,
+            "patient_history": patient_history,
+            "testimonial_form": testimonial_form,
+            "testimonials": testimonials,
+            "user_lab_tests": user_lab_tests,
+        },
+    )
 
-    return render(request, "healthcare_app/patient_dashboard.html", {
-        "appointments": appointments,
-        "reports": reports,
-        "history": history,
-        "history_form": history_form,
-        "report_form": report_form,
-        "patient_history": patient_history,
-        "testimonial_form": testimonial_form,
-        "testimonials": testimonials,
-        "user_lab_tests": user_lab_tests,
-    })
 
-
-
+# ✅ Doctor Dashboard
 @login_required
 def doctor_dashboard(request):
-    # Redirect if the user is not a doctor
+    # Redirect if user is not a doctor
     if request.user.user_type != "doctor":
         return redirect("patient_dashboard")
 
-    # Fetch all appointments assigned to this doctor
-    appointments = Appointment.objects.filter(doctor=request.user).order_by("date")
+    # Ensure doctor profile exists
+    doctor_profile, _ = DoctorProfile.objects.get_or_create(user=request.user)
+    profile_form = DoctorProfileForm(instance=doctor_profile)
+    if request.method == "POST":
+        if "update_doctor_profile" in request.POST:
+            profile_form = DoctorProfileForm(request.POST, request.FILES, instance=doctor_profile)
+            if profile_form.is_valid():
+                profile_form.save()
+                messages.success(request, "Profile updated successfully!")
+                return redirect("doctor_dashboard")
 
-    # Get unique patients assigned to the doctor
+    # Fetch related data
+    appointments = Appointment.objects.filter(doctor=request.user).order_by("date")
     patients = User.objects.filter(
-        user_type="patient",
-        patient_appointments__doctor=request.user
+        user_type="patient", patient_appointments__doctor=request.user
     ).distinct()
 
     today = now()
 
+    # ✅ Data Visualization for Appointments
     if appointments.exists():
-        # Convert appointments to a DataFrame
         df = pd.DataFrame(list(appointments.values("date", "status", "patient")))
 
-        # 📅 Monthly Appointments Trend
-        df["Month"] = pd.to_datetime(df["date"]).dt.strftime("%b %Y")
-        appointment_counts = df.groupby("Month").size().reset_index(name="Count")
-        fig_monthly = px.line(
-            appointment_counts,
-            x="Month",
-            y="Count",
-            title="📅 Monthly Appointment Trend",
-            markers=True,
-            line_shape="spline",
-            color_discrete_sequence=["#007BFF"],
-        )
-        fig_monthly.update_layout(title_x=0.5)
+        if not df.empty:
+            # 📅 Monthly Appointment Trend
+            df["Month"] = pd.to_datetime(df["date"]).dt.strftime("%b %Y")
+            appointment_counts = df.groupby("Month").size().reset_index(name="Count")
+            fig_monthly = px.line(
+                appointment_counts,
+                x="Month",
+                y="Count",
+                title="📅 Monthly Appointment Trend",
+                markers=True,
+                line_shape="spline",
+                color_discrete_sequence=["#007BFF"],
+            )
+            fig_monthly.update_layout(title_x=0.5)
 
-        # 📅 Appointments per Weekday
-        df["Weekday"] = pd.to_datetime(df["date"]).dt.day_name()
-        weekday_counts = df["Weekday"].value_counts().reset_index()
-        weekday_counts.columns = ["Weekday", "Count"]
-        fig_weekly = px.bar(
-            weekday_counts,
-            x="Weekday",
-            y="Count",
-            title="📅 Weekly Bookings",
-            text_auto=True,
-            color_discrete_sequence=["#28a745"],
-        )
-        fig_weekly.update_layout(title_x=0.5)
+            # 📅 Appointments per Weekday
+            df["Weekday"] = pd.to_datetime(df["date"]).dt.day_name()
+            weekday_counts = df["Weekday"].value_counts().reset_index()
+            weekday_counts.columns = ["Weekday", "Count"]
+            fig_weekly = px.bar(
+                weekday_counts,
+                x="Weekday",
+                y="Count",
+                title="📅 Weekly Bookings",
+                text_auto=True,
+                color_discrete_sequence=["#28a745"],
+            )
+            fig_weekly.update_layout(title_x=0.5)
 
-        # 🩺 Confirmed vs Canceled Appointments
-        status_counts = df["status"].value_counts().reset_index()
-        status_counts.columns = ["Status", "Count"]
-        fig_status = px.pie(
-            status_counts,
-            names="Status",
-            values="Count",
-            title="🩺 Confirmed vs Canceled Appointments",
-            color_discrete_sequence=["#007BFF", "#FF5733"],
-        )
-        fig_status.update_layout(title_x=0.5)
+            # 🩺 Confirmed vs Canceled Appointments
+            status_counts = df["status"].value_counts().reset_index()
+            status_counts.columns = ["Status", "Count"]
+            fig_status = px.pie(
+                status_counts,
+                names="Status",
+                values="Count",
+                title="🩺 Confirmed vs Canceled Appointments",
+                color_discrete_sequence=["#007BFF", "#FF5733"],
+            )
+            fig_status.update_layout(title_x=0.5)
 
-        # Convert charts to HTML
-        chart_monthly = fig_monthly.to_html(full_html=False)
-        chart_weekly = fig_weekly.to_html(full_html=False)
-        chart_status = fig_status.to_html(full_html=False)
+            # Convert charts to HTML
+            chart_monthly = fig_monthly.to_html(full_html=False)
+            chart_weekly = fig_weekly.to_html(full_html=False)
+            chart_status = fig_status.to_html(full_html=False)
+        else:
+            chart_monthly = chart_weekly = chart_status = None
     else:
         chart_monthly = chart_weekly = chart_status = None
 
@@ -347,6 +377,8 @@ def doctor_dashboard(request):
         request,
         "healthcare_app/doctor_dashboard.html",
         {
+            "doctor_profile": doctor_profile,
+            "profile_form": profile_form,
             "appointments": appointments,
             "patients": patients,
             "chart_monthly": chart_monthly,
@@ -354,8 +386,6 @@ def doctor_dashboard(request):
             "chart_status": chart_status,
         },
     )
-
-
 
 @login_required
 def approve_appointment(request, appointment_id):
