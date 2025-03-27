@@ -45,7 +45,6 @@
                 <p><strong>Allergies:</strong> {{ patient_history.allergies|default:"No data available" }}</p>
                 <p><strong>Medications:</strong> {{ patient_history.medications|default:"No data available" }}</p>
                 <p><strong>Surgeries:</strong> {{ patient_history.surgeries|default:"No data available" }}</p>
-                
             </div>
         </div>
     </div>
@@ -96,7 +95,7 @@
                     <form method="POST">
                         {% csrf_token %}
                         {{ history_form.as_p }}
-                        <button type="submit" name="update_history" class="btn btn-success">Save Changes</button>
+                        <button type="submit" name="update_history" class="btn btn-success w-100">Save Changes</button>
                     </form>
                 </div>
             </div>
@@ -132,72 +131,76 @@
         <div class="col-md-6">
             <div class="card dashboard-card shadow-lg p-4">
                 <h4 class="text-center">Prediction History</h4>
-                {% if history %}
-                    <table class="table table-bordered mt-4">
-                        <thead class="table-dark">
-                            <tr>
-                                <th>Date</th>
-                                <th>Symptoms</th>
-                                <th>Predicted Disease</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for record in history %}
-                            <tr>
-                                <td>{{ record.prediction_date }}</td>
-                                <td>{{ record.symptoms }}</td>
-                                <td><strong>{{ record.predicted_disease }}</strong></td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                {% else %}
-                    <p class="text-center text-muted">No prediction history available.</p>
-                {% endif %}
+                <div class="table-container">
+                    {% if history %}
+                        <table class="table table-bordered mt-4">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Symptoms</th>
+                                    <th>Predicted Disease</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for record in history %}
+                                <tr>
+                                    <td>{{ record.prediction_date }}</td>
+                                    <td>{{ record.symptoms }}</td>
+                                    <td><strong>{{ record.predicted_disease }}</strong></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <p class="text-center text-muted">No prediction history available.</p>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </div>
 
     <!-- Dashboard Sections -->
     <div class="row mt-4">
-        <!-- Symptom Checker -->
+        <!-- My Lab Test Bookings -->
         <div class="col-md-6">
             <div class="card dashboard-card shadow-lg p-4">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h4 class="mb-0">🧪 My Lab Test Bookings</h4>
                     <a href="{% url 'available_lab_tests' %}" class="btn btn-outline-primary">Book Lab Test</a>
                 </div>
-                {% if user_lab_tests.exists %}
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>Test Name</th>
-                                <th>Date</th>
-                                <th>Time</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for test in user_lab_tests %}
-                            <tr>
-                                <td>{{ test.test.name }}</td>
-                                <td>{{ test.test_date }}</td>
-                                <td>{{ test.test_time }}</td>
-                                <td>
-                                    <span class="badge 
-                                        {% if test.status == 'pending' %}bg-warning
-                                        {% elif test.status == 'completed' %}bg-success
-                                        {% else %}bg-secondary{% endif %}">
-                                        {{ test.status|title }}
-                                    </span>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                {% else %}
-                    <p class="text-center text-muted">No lab tests booked yet.</p>
-                {% endif %}
+                <div class="table-container">
+                    {% if user_lab_tests.exists %}
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Test Name</th>
+                                    <th>Date</th>
+                                    <th>Time</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for test in user_lab_tests %}
+                                <tr>
+                                    <td>{{ test.test.name }}</td>
+                                    <td>{{ test.test_date }}</td>
+                                    <td>{{ test.test_time }}</td>
+                                    <td>
+                                        <span class="badge 
+                                            {% if test.status == 'pending' %}bg-warning
+                                            {% elif test.status == 'completed' %}bg-success
+                                            {% else %}bg-secondary{% endif %}">
+                                            {{ test.status|title }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <p class="text-center text-muted">No lab tests booked yet.</p>
+                    {% endif %}
+                </div>
             </div>
         </div>
 
@@ -208,21 +211,21 @@
                     <h4>📅 Your Appointments</h4>
                     <a href="{% url 'book_appointment' %}" class="btn btn-outline-primary">Book Appointment</a>
                 </div>
-                
-                <ul class="list-group">
-                    {% for appointment in appointments %}
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span>
-                                <strong>🩺 Dr. {{ appointment.doctor.username }}</strong> 
-                                <br><small>{{ appointment.date|date:"M d, Y" }} at {{ appointment.time }}</small>
-                            </span>
-                            <a href="{% url 'cancel_appointment' appointment.id %}" class="btn btn-sm btn-danger">Cancel</a>
-                        </li>
-                    {% empty %}
-                        <li class="list-group-item text-muted">No scheduled appointments.</li>
-                    {% endfor %}
-                </ul>
-                
+                <div class="list-container">
+                    <ul class="list-group">
+                        {% for appointment in appointments %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span>
+                                    <strong>🩺 Dr. {{ appointment.doctor.username }}</strong> 
+                                    <br><small>{{ appointment.date|date:"M d, Y" }} at {{ appointment.time }}</small>
+                                </span>
+                                <a href="{% url 'cancel_appointment' appointment.id %}" class="btn btn-sm btn-danger">Cancel</a>
+                            </li>
+                        {% empty %}
+                            <li class="list-group-item text-muted">No scheduled appointments.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
@@ -252,18 +255,20 @@
         <div class="col-md-6">
             <div class="card shadow-lg p-4 upload-report-card">
                 <h4 class="fw-bold">📂 Uploaded Reports</h4>
-                {% if reports %}
-                    {% for report in reports %}
-                        <div class="card shadow-sm p-3 my-2">
-                            <h5 class="text-dark">{{ report.report_name }}</h5>
-                            <a href="{{ report.report_pdf.url }}" target="_blank" class="btn btn-primary">
-                                View PDF
-                            </a>
-                        </div>
-                    {% endfor %}
-                {% else %}
-                    <p class="text-center text-muted">No reports uploaded yet.</p>
-                {% endif %}
+                <div class="reports-container">
+                    {% if reports %}
+                        {% for report in reports %}
+                            <div class="card shadow-sm p-3 my-2">
+                                <h5 class="text-dark">{{ report.report_name }}</h5>
+                                <a href="{{ report.report_pdf.url }}" target="_blank" class="btn btn-primary">
+                                    View PDF
+                                </a>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-center text-muted">No reports uploaded yet.</p>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </div>
@@ -282,8 +287,8 @@
                         {{ history_form.as_p }}
                     </div>
                     <div class="modal-footer">
-                        <button type="submit" class="btn btn-success">Save Changes</button>
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-success w-100">Save Changes</button>
+                        <button type="button" class="btn btn-secondary w-100" data-bs-dismiss="modal">Close</button>
                     </div>
                 </form>
             </div>
@@ -414,6 +419,50 @@ body {
 }
 .logout-btn:hover {
     transform: scale(1.05);
+}
+
+/* Scrollable Containers */
+.table-container, .list-container, .reports-container {
+    max-height: 300px; /* Adjust this height as needed */
+    overflow-y: auto;  /* Enables vertical scrolling */
+    overflow-x: auto;  /* Enables horizontal scrolling if needed */
+    position: relative;
+}
+
+/* Sticky table headers */
+.table-container table thead th {
+    position: sticky;
+    top: 0;
+    background: #212529; /* Matches table-dark class */
+    color: white;
+    z-index: 1;
+}
+
+/* Scrollbar styling */
+.table-container::-webkit-scrollbar, 
+.list-container::-webkit-scrollbar, 
+.reports-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.table-container::-webkit-scrollbar-track, 
+.list-container::-webkit-scrollbar-track, 
+.reports-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.table-container::-webkit-scrollbar-thumb, 
+.list-container::-webkit-scrollbar-thumb, 
+.reports-container::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+.table-container::-webkit-scrollbar-thumb:hover, 
+.list-container::-webkit-scrollbar-thumb:hover, 
+.reports-container::-webkit-scrollbar-thumb:hover {
+    background: #555;
 }
 </style>
 {% endblock %}

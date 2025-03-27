@@ -8,17 +8,17 @@
 
     <!-- Medicine Search Bar -->
     <div class="container my-4">
-        <div class="d-flex justify-content-between align-items-center">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
             <!-- Left Side: Search Form -->
-            <form method="GET" class="d-flex">
+            <form method="GET" class="d-flex align-items-center search-form">
                 <input type="text" name="search" class="form-control shadow-sm search-input" 
                     placeholder="🔍 Search medicine by brand or generic name..." 
-                    value="{{ search_query }}" style="width: 500px;">
+                    value="{{ search_query }}" >
                 <button type="submit" class="btn btn-primary ms-2 search-btn">Search</button>
             </form>
     
             <!-- Right Side: View Cart Button -->
-            <a href="{% url 'view_cart' %}" class="btn btn-primary d-flex align-items-center">
+            <a href="{% url 'view_cart' %}" class="btn btn-primary d-flex align-items-center cart-btn">
                 <i class="fas fa-shopping-basket me-2"></i> View Cart
             </a>
         </div>
@@ -185,12 +185,18 @@
         font-weight: bold;
     }
 
-    /* Search Bar */
+    /* Search Bar and Cart Button Container */
+    .search-form {
+        max-width: 500px; /* Limits the search bar width */
+        flex-grow: 1; /* Allows it to take available space */
+    }
+
     .search-input {
         border-radius: 25px;
         padding: 12px;
         font-size: 1rem;
         transition: 0.3s ease-in-out;
+        width: 100%; /* Ensures it fills the form */
     }
 
     .search-input:focus {
@@ -198,7 +204,6 @@
         box-shadow: 0px 0px 10px rgba(0, 123, 255, 0.5);
     }
 
-    /* Cart Button */
     .search-btn {
         border-radius: 25px;
         font-size: 1rem;
@@ -210,6 +215,32 @@
     .search-btn:hover {
         background: #0056b3;
         transform: scale(1.05);
+    }
+
+    .cart-btn {
+        border-radius: 25px;
+        font-size: 1rem;
+        font-weight: bold;
+        padding: 10px 20px;
+        transition: 0.3s;
+        white-space: nowrap; /* Prevents text wrapping */
+    }
+
+    .cart-btn:hover {
+        background: #0056b3;
+        transform: scale(1.05);
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 576px) {
+        .search-form {
+            max-width: 100%; /* Full width on small screens */
+            margin-bottom: 10px; /* Adds spacing when stacked */
+        }
+
+        .cart-btn {
+            width: 100%; /* Full width on small screens */
+        }
     }
 </style>
 

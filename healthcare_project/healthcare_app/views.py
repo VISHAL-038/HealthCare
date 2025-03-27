@@ -243,7 +243,11 @@ def doctor_dashboard(request):
 
     today = now()
     # Calculate the number of confirmed appointments
-    confirmed_appointments_count = appointments.filter(status="Confirmed").count()
+    confirmed_appointments = appointments.filter(status="confirmed")
+    confirmed_appointments_count = confirmed_appointments.count()
+    # print("Appointment Status Values:", list(appointments.values_list("status", flat=True)))
+    
+    # print("Confirmed Appointments Count:", confirmed_appointments_count)
     # ✅ Data Visualization for Appointments
     if appointments.exists():
         df = pd.DataFrame(list(appointments.values("date", "status", "patient")))
@@ -344,7 +348,7 @@ def issue_prescription(request):
             return redirect('prescription_list')
     else:
         form = PrescriptionForm()
-
+    messages.success(request, "Prescription issued successfully!")
     return render(request, 'healthcare_app/issue_prescription.html', {'form': form})
 
 # ✅ View Prescriptions (For Patients)

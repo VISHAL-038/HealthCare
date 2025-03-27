@@ -78,9 +78,9 @@
                         <h4 class="doctor-name mb-2">
                             <i class="fas fa-user-md me-2"></i> Welcome to MediAI, Dr. {{ user.username }}!
                         </h4>
-                        <a href="{% url 'doctor_dashboard' %}" class="btn btn-lg btn-glow mt-3">
+                        {% comment %} <a href="{% url 'doctor_dashboard' %}" class="btn btn-lg btn-glow mt-3">
                             Go to Dashboard
-                        </a>
+                        </a> {% endcomment %}
                     </div>
                     <!-- Right Section: Doctor Image -->
                     <div class="doctor-image welcome-doctor-image">

@@ -56,29 +56,31 @@
         <div class="col-md-6">
             <div class="card shadow-lg p-4 fade-in h-100">
                 <h4 class="text-center fw-bold text-primary">📅 Upcoming Appointments</h4>
-                <ul class="list-group list-group-flush">
-                    {% for appointment in appointments %}
-                        <li class="list-group-item d-flex justify-content-between align-items-center hover-effect">
-                            <span>
-                                <strong>Patient:</strong> {{ appointment.patient.username }}  
-                                <br><small>📆 {{ appointment.date|date:"M d, Y" }} | ⏰ {{ appointment.time }}</small>
-                                <br><small>📒{{ appointment.reason }}</small>
-                            </span>
-                            <span class="badge bg-info text-dark">{{ appointment.status }}</span>
-                            <div class="action-buttons">
-                                {% if appointment.status == "pending" %}
-                                    <a href="{% url 'approve_appointment' appointment.id %}" class="btn btn-success btn-sm">✔ Approve</a>
-                                    <a href="{% url 'reject_appointment' appointment.id %}" class="btn btn-danger btn-sm">✖ Reject</a>
-                                {% endif %}
-                                {% if appointment.status == "confirmed" %}
-                                    <a href="{% url 'issue_prescription' %}" class="btn btn-primary btn-sm">💊 Prescribe</a>
-                                {% endif %}
-                            </div>
-                        </li>
-                    {% empty %}
-                        <li class="list-group-item text-muted text-center">No scheduled appointments.</li>
-                    {% endfor %}
-                </ul>
+                <div class="list-container">
+                    <ul class="list-group list-group-flush">
+                        {% for appointment in appointments %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center hover-effect">
+                                <span>
+                                    <strong>Patient:</strong> {{ appointment.patient.username }}  
+                                    <br><small>📆 {{ appointment.date|date:"M d, Y" }} | ⏰ {{ appointment.time }}</small>
+                                    <br><small>📒{{ appointment.reason }}</small>
+                                </span>
+                                <span class="badge bg-info text-dark">{{ appointment.status }}</span>
+                                <div class="action-buttons">
+                                    {% if appointment.status == "pending" %}
+                                        <a href="{% url 'approve_appointment' appointment.id %}" class="btn btn-success btn-sm">✔ Approve</a>
+                                        <a href="{% url 'reject_appointment' appointment.id %}" class="btn btn-danger btn-sm">✖ Reject</a>
+                                    {% endif %}
+                                    {% if appointment.status == "confirmed" %}
+                                        <a href="{% url 'issue_prescription' %}" class="btn btn-primary btn-sm">💊 Prescribe</a>
+                                    {% endif %}
+                                </div>
+                            </li>
+                        {% empty %}
+                            <li class="list-group-item text-muted text-center">No scheduled appointments.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
             </div>
         </div>
 
@@ -86,21 +88,23 @@
         <div class="col-md-6">
             <div class="card shadow-lg p-4 fade-in h-100">
                 <h4 class="text-center fw-bold text-primary">🏥 Your Patients</h4>
-                <ul class="list-group list-group-flush">
-                    {% for patient in patients %}
-                        <li class="list-group-item d-flex justify-content-between align-items-center hover-effect">
-                            <span>
-                                <strong>👤 {{ patient.username }}</strong>
-                                <br><small>Contact: {{ patient.patientprofile.contact_number }}</small>
-                                <br><small>Age: {{ patient.patientprofile.age }}</small>
-                                <br><small>Gender: {{ patient.patientprofile.gender }}</small>
-                            </span>
-                            <a href="{% url 'patient_details' patient.id %}" class="btn btn-primary btn-sm hover-btn">🔍 View Details</a>
-                        </li>
-                    {% empty %}
-                        <li class="list-group-item text-muted text-center">No assigned patients.</li>
-                    {% endfor %}
-                </ul>
+                <div class="list-container">
+                    <ul class="list-group list-group-flush">
+                        {% for patient in patients %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center hover-effect">
+                                <span>
+                                    <strong>👤 {{ patient.username }}</strong>
+                                    <br><small>Contact: {{ patient.patientprofile.contact_number }}</small>
+                                    <br><small>Age: {{ patient.patientprofile.age }}</small>
+                                    <br><small>Gender: {{ patient.patientprofile.gender }}</small>
+                                </span>
+                                <a href="{% url 'patient_details' patient.id %}" class="btn btn-primary btn-sm hover-btn">🔍 View Details</a>
+                            </li>
+                        {% empty %}
+                            <li class="list-group-item text-muted text-center">No assigned patients.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
@@ -274,6 +278,33 @@
     .list-group-item small {
         color: #6c757d;
         font-size: 0.85rem;
+    }
+
+    /* Scrollable List Container */
+    .list-container {
+        max-height: 300px; /* Adjust this height as needed */
+        overflow-y: auto;  /* Enables vertical scrolling */
+        overflow-x: auto;  /* Enables horizontal scrolling if needed */
+        position: relative;
+    }
+
+    /* Scrollbar Styling */
+    .list-container::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .list-container::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 4px;
+    }
+
+    .list-container::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 4px;
+    }
+
+    .list-container::-webkit-scrollbar-thumb:hover {
+        background: #555;
     }
 
     /* Badge */
