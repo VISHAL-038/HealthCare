@@ -1,4 +1,4 @@
-# AI Healthcare System
+# MediAI - AI Healthcare System
 
 ## 📌 Project Overview
 The **AI Healthcare System** is a web-based application that integrates **machine learning** with **Django** to assist users in disease prediction, booking appointments with doctors, purchasing medicines, and managing lab tests. This system provides AI-powered insights to help users monitor their health efficiently.
