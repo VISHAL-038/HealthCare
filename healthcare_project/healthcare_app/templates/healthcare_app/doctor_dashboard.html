@@ -8,12 +8,17 @@
 <div class="container mt-5 fade-in-page">
     <h2 class="text-center fw-bold text-primary">👨‍⚕️ Welcome, Dr. {{ user.username }}</h2>
     <p class="text-muted text-center">Manage your appointments and patient records efficiently.</p>
+
+    <!-- Doctor Profile and Summary Cards -->
     <div class="row mt-5">
-        <!-- Doctor Profile -->
+        <!-- Doctor Profile (Left) -->
         <div class="col-md-6">
             <div class="card dashboard-card shadow-lg p-4 fade-in">
-                <h4 class="text-center fw-bold text-primary">Doctor Profile</h4>
-                <div class="text-center">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4 class="fw-bold text-primary m-0">Doctor Profile</h4>
+                    <button class="btn btn-primary " data-bs-toggle="modal" data-bs-target="#updateDoctorProfileModal">✏️ Edit Profile</button>
+                </div>
+                <div class="text-center mb-3">
                     {% if doctor_profile.profile_image %}
                         <img src="{{ doctor_profile.profile_image.url }}" class="rounded-circle img-thumbnail" width="150" height="150">
                     {% else %}
@@ -25,11 +30,10 @@
                 <p><strong>Specialization:</strong> {{ doctor_profile.specialization }}</p>
                 <p><strong>Experience:</strong> {{ doctor_profile.experience }} years</p>
                 <p><strong>Contact:</strong> {{ doctor_profile.contact_number }}</p>
-                <button class="btn btn-primary w-100 mt-3" data-bs-toggle="modal" data-bs-target="#updateDoctorProfileModal">✏️ Edit Profile</button>
             </div>
         </div>
 
-        <!-- Summary Cards -->
+        <!-- Summary Cards (Right) -->
         <div class="col-md-6">
             <div class="summary-card shadow-lg p-4 fade-in text-center">
                 <h5>Total Appointments 📅</h5>
@@ -41,61 +45,68 @@
             </div>
             <div class="summary-card shadow-lg p-4 fade-in text-center mt-3">
                 <h5>Confirmed Appointments ✅</h5>
-                <h3 class="text-info">{{ confirmed_appointments }}</h3>
+                <h3 class="text-info">{{ confirmed_appointments_count }}</h3>
             </div>
         </div>
     </div>
-    
 
-    <!-- Appointment List -->
-    <div class="card mt-5 shadow-lg p-4 fade-in">
-        <h4 class="text-center">📅 Upcoming Appointments</h4>
-        <ul class="list-group">
-            {% for appointment in appointments %}
-                <li class="list-group-item d-flex justify-content-between align-items-center hover-effect">
-                    <span>
-                        <strong>Patient:</strong> {{ appointment.patient.username }}  
-                        <br><small>📆 {{ appointment.date|date:"M d, Y" }} | ⏰ {{ appointment.time }}</small>
-                    </span>
-                    <span class="badge bg-info">{{ appointment.status }}</span>
-                    <div>
-                        {% if appointment.status == "pending" %}
-                            <a href="{% url 'approve_appointment' appointment.id %}" class="btn btn-success btn-sm">✔ Approve</a>
-                            <a href="{% url 'reject_appointment' appointment.id %}" class="btn btn-danger btn-sm">✖ Reject</a>
-                        {% endif %}
-                        {% if appointment.status == "confirmed" %}
-                            <a href="{% url 'issue_prescription' %}" class="btn btn-primary btn-sm">💊 Prescribe</a>
-                        {% endif %}
-                    </div>
-                </li>
-            {% empty %}
-                <li class="list-group-item text-muted text-center">No scheduled appointments.</li>
-            {% endfor %}
-        </ul>
+    <!-- Appointments and Patients -->
+    <div class="row mt-5">
+        <!-- Upcoming Appointments (Left) -->
+        <div class="col-md-6">
+            <div class="card shadow-lg p-4 fade-in h-100">
+                <h4 class="text-center fw-bold text-primary">📅 Upcoming Appointments</h4>
+                <ul class="list-group list-group-flush">
+                    {% for appointment in appointments %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center hover-effect">
+                            <span>
+                                <strong>Patient:</strong> {{ appointment.patient.username }}  
+                                <br><small>📆 {{ appointment.date|date:"M d, Y" }} | ⏰ {{ appointment.time }}</small>
+                                <br><small>📒{{ appointment.reason }}</small>
+                            </span>
+                            <span class="badge bg-info text-dark">{{ appointment.status }}</span>
+                            <div class="action-buttons">
+                                {% if appointment.status == "pending" %}
+                                    <a href="{% url 'approve_appointment' appointment.id %}" class="btn btn-success btn-sm">✔ Approve</a>
+                                    <a href="{% url 'reject_appointment' appointment.id %}" class="btn btn-danger btn-sm">✖ Reject</a>
+                                {% endif %}
+                                {% if appointment.status == "confirmed" %}
+                                    <a href="{% url 'issue_prescription' %}" class="btn btn-primary btn-sm">💊 Prescribe</a>
+                                {% endif %}
+                            </div>
+                        </li>
+                    {% empty %}
+                        <li class="list-group-item text-muted text-center">No scheduled appointments.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <!-- Your Patients (Right) -->
+        <div class="col-md-6">
+            <div class="card shadow-lg p-4 fade-in h-100">
+                <h4 class="text-center fw-bold text-primary">🏥 Your Patients</h4>
+                <ul class="list-group list-group-flush">
+                    {% for patient in patients %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center hover-effect">
+                            <span>
+                                <strong>👤 {{ patient.username }}</strong>
+                                <br><small>Contact: {{ patient.patientprofile.contact_number }}</small>
+                                <br><small>Age: {{ patient.patientprofile.age }}</small>
+                                <br><small>Gender: {{ patient.patientprofile.gender }}</small>
+                            </span>
+                            <a href="{% url 'patient_details' patient.id %}" class="btn btn-primary btn-sm hover-btn">🔍 View Details</a>
+                        </li>
+                    {% empty %}
+                        <li class="list-group-item text-muted text-center">No assigned patients.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
     </div>
-    
-    <!-- Patient List -->
-    <div class="card mt-5 shadow-lg p-4 fade-in">
-        <h4 class="text-center">🏥 Your Patients</h4>
-        <ul class="list-group">
-            {% for patient in patients %}
-                <li class="list-group-item d-flex justify-content-between align-items-center hover-effect">
-                    <span>
-                        <strong>👤 {{ patient.username }}</strong>
-                        <br><small>Contact no: {{ patient.patientprofile.contact_number }}</small>
-                        <br><small>Age: {{ patient.patientprofile.age }}</small>
-                        <br><small>Gender:  {{ patient.patientprofile.gender }}</small>
-                    </span>
-                    <a href="{% url 'patient_details' patient.id %}" class="btn btn-primary btn-sm hover-btn">🔍 View Details</a>
-                </li>
-            {% empty %}
-                <li class="list-group-item text-muted text-center">No assigned patients.</li>
-            {% endfor %}
-        </ul>
-    </div>
 
-    <h2 class="text-muted text-center mt-4">Monitor your performance and manage appointments efficiently.</h2>
-
+    <!-- Performance Monitoring -->
+    <h2 class="text-muted text-center mt-5">Monitor your performance and manage appointments efficiently.</h2>
 
     <!-- Performance Charts -->
     <div class="row mt-4">
@@ -123,7 +134,7 @@
     </div>
 </div>
 
-<!-- ✅ Move modal here at the end of the file -->
+<!-- Update Profile Modal -->
 <div class="modal fade" id="updateDoctorProfileModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -157,71 +168,66 @@
     </div>
 </div>
 
-
-<!-- ✅ GSAP Animations -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-
 <script>
     document.addEventListener("DOMContentLoaded", function () {
+        // Ensure modal inputs are editable
         document.querySelectorAll("#updateDoctorProfileModal input").forEach(input => {
             input.removeAttribute("disabled");
             input.removeAttribute("readonly");
         });
     });
-    document.addEventListener("DOMContentLoaded", function () {
-        // Page Load Animation
-        gsap.from(".fade-in-page", {
-            opacity: 0,
-            y: -20,
-            duration: 1.2,
-            ease: "power2.out"
-        });
-
-        // Scroll Animations
-        gsap.utils.toArray(".fade-in").forEach((el, index) => {
-            gsap.from(el, {
-                scrollTrigger: {
-                    trigger: el,
-                    start: "top 85%",
-                    toggleActions: "play none none reverse",
-                },
-                opacity: 0,
-                y: 30,
-                duration: 1,
-                delay: index * 0.2,
-                ease: "power2.out",
-            });
-        });
-    });
 </script>
 
 <style>
-    /* ✅ Page Load Fade-In */
+    /* Page Load Fade-In */
     .fade-in-page {
         opacity: 0;
-        animation: fadeIn 1.2s ease-out forwards;
+        animation: fadeInPage 1s ease-out forwards;
+    }
+
+    @keyframes fadeInPage {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Card Styling */
+    .dashboard-card, .summary-card, .chart-container {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        border: none;
+    }
+
+    .dashboard-card:hover, .summary-card:hover, .chart-container:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Fade-In for Elements */
+    .fade-in {
+        opacity: 0;
+        animation: fadeIn 0.8s ease-out forwards;
     }
 
     @keyframes fadeIn {
-        from {
-            opacity: 0;
-            transform: translateY(-10px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
     }
 
-    /* ✅ Hover Effects */
+    .fade-in:nth-child(1) { animation-delay: 0.2s; }
+    .fade-in:nth-child(2) { animation-delay: 0.4s; }
+    .fade-in:nth-child(3) { animation-delay: 0.6s; }
+    .fade-in:nth-child(4) { animation-delay: 0.8s; }
+
+    /* Hover Effects */
     .hover-effect {
         transition: all 0.3s ease-in-out;
     }
 
     .hover-effect:hover {
-        transform: scale(1.02);
-        box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
+        background: #f8f9fa;
+        transform: translateY(-2px);
     }
 
     .hover-btn {
@@ -232,32 +238,122 @@
         transform: scale(1.1);
     }
 
-    /* ✅ Summary Cards */
+    /* Summary Cards */
     .summary-card {
-        background: white;
-        border-radius: 12px;
         padding: 25px;
-        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-        transition: 0.3s ease-in-out;
         text-align: center;
     }
-    .summary-card:hover {
-        transform: translateY(-3px);
-        box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.15);
+
+    .summary-card h5 {
+        font-size: 1.1rem;
+        color: #495057;
     }
 
-    /* ✅ Chart Containers */
+    .summary-card h3 {
+        font-weight: 700;
+        margin-top: 10px;
+    }
+
+    /* List Group */
+    .list-group-flush .list-group-item {
+        border: none;
+        border-bottom: 1px solid #e9ecef;
+        padding: 15px 20px;
+        background: transparent;
+    }
+
+    .list-group-flush .list-group-item:last-child {
+        border-bottom: none;
+    }
+
+    .list-group-item span strong {
+        color: #212529;
+        font-weight: 600;
+    }
+
+    .list-group-item small {
+        color: #6c757d;
+        font-size: 0.85rem;
+    }
+
+    /* Badge */
+    .badge {
+        font-size: 0.9rem;
+        padding: 6px 12px;
+        border-radius: 20px;
+    }
+
+    /* Action Buttons */
+    .action-buttons .btn-sm {
+        padding: 5px 10px;
+        font-size: 0.85rem;
+        margin-left: 5px;
+        border-radius: 5px;
+        transition: all 0.3s ease;
+    }
+
+    .action-buttons .btn-sm:hover {
+        transform: scale(1.05);
+    }
+
+    /* Chart Containers */
     .chart-container {
-        background: rgba(255, 255, 255, 0.95);
-        border-radius: 15px;
         padding: 20px;
-        box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.15);
-        transition: 0.3s ease-in-out;
     }
 
-    .chart-container:hover {
-        transform: scale(1.03);
+    /* Buttons */
+    .btn-primary {
+        background-color: #007bff;
+        border: none;
+    }
+
+    .btn-primary:hover {
+        background-color: #0056b3;
+    }
+
+    .btn-success {
+        background-color: #28a745;
+        border: none;
+    }
+
+    .btn-success:hover {
+        background-color: #218838;
+    }
+
+    .btn-danger {
+        background-color: #dc3545;
+        border: none;
+    }
+
+    .btn-danger:hover {
+        background-color: #c82333;
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 767px) {
+        .col-md-6 {
+            margin-bottom: 20px;
+        }
+
+        .list-group-item {
+            flex-direction: column;
+            text-align: center;
+            gap: 10px;
+        }
+
+        .action-buttons {
+            margin-top: 10px;
+        }
+
+        .dashboard-card .d-flex {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .dashboard-card .btn-sm {
+            margin-top: 10px;
+            width: 100%;
+        }
     }
 </style>
-
 {% endblock %}

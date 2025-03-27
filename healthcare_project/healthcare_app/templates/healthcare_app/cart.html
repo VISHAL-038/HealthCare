@@ -3,36 +3,185 @@
 
 {% block content %}
 <div class="container mt-5">
-    <h2 class="text-center">🛒 Your Cart</h2>
+    <!-- Header -->
+    <div class="text-center mb-5">
+        <h2 class="fw-bold text-dark">🛒 Your Cart</h2>
+        <p class="text-muted lead">Review your selected medicines before checkout.</p>
+    </div>
+
     {% if cart_items %}
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>Medicine</th>
-                    <th>Price</th>
-                    <th>Quantity</th>
-                    <th>Total</th>
-                    <th>Remove</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for item in cart_items %}
-                <tr>
-                    <td>{{ item.medicine.generic_name }}</td>
-                    <td>₹{{ item.medicine.price }}</td>
-                    <td>{{ item.quantity }}</td>
-                    <td>₹{{ item.total_price }}</td>
-                    <td>
-                        <a href="{% url 'remove_from_cart' item.id %}" class="btn btn-danger btn-sm">Remove</a>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        <h3 class="text-right">Total Price: ₹{{ total_price }}</h3>
-        <a href="{% url 'checkout' %}" class="btn btn-success btn-lg">Proceed to Checkout</a>
+        <!-- Cart Table -->
+        <div class="table-responsive">
+            <table class="table table-bordered cart-table shadow-sm">
+                <thead class="table-header">
+                    <tr>
+                        <th scope="col">Medicine</th>
+                        <th scope="col">Price</th>
+                        <th scope="col">Quantity</th>
+                        <th scope="col">Total</th>
+                        <th scope="col">Remove</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in cart_items %}
+                    <tr class="cart-item">
+                        <td>{{ item.medicine.generic_name }}</td>
+                        <td>₹{{ item.medicine.price|floatformat:2 }}</td>
+                        <td>{{ item.quantity }}</td>
+                        <td>₹{{ item.total_price|floatformat:2 }}</td>
+                        <td>
+                            <a href="{% url 'remove_from_cart' item.id %}" class="btn btn-danger btn-sm btn-remove">Remove</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Total and Checkout -->
+        <div class="cart-summary mt-4">
+            <h3 class="total-price text-end">Total Price: <span class="text-success">₹{{ total_price|floatformat:2 }}</span></h3>
+            <div class="text-end">
+                <a href="{% url 'checkout' %}" class="btn btn-success btn-lg btn-checkout">Proceed to Checkout</a>
+            </div>
+        </div>
     {% else %}
-        <p class="text-center text-muted">Your cart is empty.</p>
+        <!-- Empty Cart -->
+        <div class="empty-cart text-center py-5">
+            <p class="text-muted fs-4">Your cart is empty.</p>
+            <a href="{% url 'medicine_list' %}" class="btn btn-primary">Start Shopping</a>
+        </div>
     {% endif %}
 </div>
+
+<style>
+/* Container */
+.container {
+    max-width: 1200px;
+}
+
+/* Cart Table */
+.cart-table {
+    background: #fff;
+    border-radius: 10px;
+    overflow: hidden; /* Ensures rounded corners work with table */
+    border: none; /* Remove default border */
+}
+
+.table-header {
+    background-color: #007bff; /* Blue header for emphasis */
+    color: #fff;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+}
+
+.table-header th {
+    padding: 15px;
+    border: none;
+}
+
+.cart-item td {
+    padding: 20px;
+    vertical-align: middle;
+    font-size: 1rem;
+    color: #333;
+    border-color: #e9ecef; /* Softer border color */
+}
+
+.cart-item:hover {
+    background-color: #f8f9fa; /* Subtle hover effect */
+    transition: background-color 0.3s ease;
+}
+
+/* Remove Button */
+.btn-remove {
+    padding: 6px 12px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+}
+
+.btn-remove:hover {
+    background-color: #c82333;
+    transform: scale(1.05);
+}
+
+/* Cart Summary */
+.cart-summary {
+    padding: 20px;
+    background: #f1f5f9; /* Light blue-gray background */
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.total-price {
+    font-weight: 700;
+    font-size: 1.5rem;
+    color: #212529;
+    margin-bottom: 15px;
+}
+
+.btn-checkout {
+    padding: 12px 30px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-radius: 6px;
+    background-color: #28a745; /* Green for checkout */
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.btn-checkout:hover {
+    background-color: #218838;
+    transform: translateY(-2px);
+}
+
+/* Empty Cart */
+.empty-cart {
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.empty-cart .btn-primary {
+    padding: 10px 20px;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 6px;
+    background-color: #007bff;
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.empty-cart .btn-primary:hover {
+    background-color: #0056b3;
+    transform: scale(1.05);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .cart-table {
+        font-size: 0.9rem;
+    }
+
+    .cart-item td {
+        padding: 15px;
+    }
+
+    .total-price {
+        font-size: 1.3rem;
+        text-align: center;
+    }
+
+    .cart-summary {
+        text-align: center;
+    }
+
+    .btn-checkout {
+        width: 100%;
+    }
+}
+</style>
 {% endblock %}

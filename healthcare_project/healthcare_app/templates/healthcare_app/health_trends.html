@@ -46,46 +46,6 @@
     </div>
 </div>
 
-<!-- ✅ JavaScript Animations -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        // Title & Subtitle Animation
-        gsap.from(".animated-title", {
-            duration: 1.2,
-            opacity: 0,
-            y: -30,
-            ease: "power3.out",
-        });
-
-        gsap.from(".animated-subtitle", {
-            duration: 1.2,
-            opacity: 0,
-            y: 30,
-            ease: "power3.out",
-            delay: 0.2,
-        });
-
-        // Fade-in effect for charts
-        gsap.utils.toArray(".fade-in").forEach((el, index) => {
-            gsap.from(el, {
-                scrollTrigger: {
-                    trigger: el,
-                    start: "top 80%",
-                    toggleActions: "play none none reverse",
-                },
-                opacity: 0,
-                y: 50,
-                duration: 1,
-                delay: index * 0.2,
-                ease: "power2.out",
-            });
-        });
-    });
-</script>
-
 <style>
     /* 🌟 Smooth Page Transition */
     body {
@@ -184,6 +144,13 @@
     // Ensure smooth page transition
     document.addEventListener("DOMContentLoaded", function () {
         document.body.style.opacity = "1";
+        
+        // Add loaded class to trigger CSS fade-in
+        const fadeElements = document.querySelectorAll('.fade-in');
+        fadeElements.forEach(el => {
+            el.style.opacity = "1";
+            el.style.transform = "translateY(0)";
+        });
     });
 </script>
 

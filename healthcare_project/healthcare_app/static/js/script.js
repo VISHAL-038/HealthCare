@@ -134,4 +134,3 @@ document.addEventListener("DOMContentLoaded", function () {
     fadeInElements.forEach((el) => observer.observe(el));
 });
 
-

@@ -18,13 +18,16 @@
                         {% endif %}
                     </div>
                     <div class="col-md-8">
-                        <h4 class="fw-bold">👤 Your Profile</h4>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h4 class="fw-bold">👤 Your Profile</h4>
+                            <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#updateProfileModal">✏️ Edit Profile</button>
+                        </div>
+                        <hr>
                         <p><strong>Name:</strong> {{ user.username }}</p>
                         <p><strong>Email:</strong> {{ user.email }}</p>
                         <p><strong>Age:</strong> {{ patient_profile.age }}</p>
                         <p><strong>Gender:</strong> {{ patient_profile.gender }}</p>
                         <p><strong>Contact:</strong> {{ patient_profile.contact_number }}</p>
-                        <button class="btn btn-outline-primary mt-3" data-bs-toggle="modal" data-bs-target="#updateProfileModal">✏️ Edit Profile</button>
                     </div>
                 </div>
             </div>
@@ -33,12 +36,16 @@
         <!-- Medical History Section (Right) -->
         <div class="col-md-6">
             <div class="card p-4 shadow-lg rounded glass-effect">
-                <h4 class="fw-bold"><i class="bi bi-file-medical"></i> 📄 Medical History</h4>
+                <div class="d-flex justify-content-between align-items-center">
+                    <h4 class="fw-bold"><i class="bi bi-file-medical"></i> 📄 Medical History</h4>
+                    <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#updateHistoryModal">Update History</button>
+                </div>
+                <hr>
                 <p><strong>Medical Conditions:</strong> {{ patient_history.medical_conditions|default:"No data available" }}</p>
                 <p><strong>Allergies:</strong> {{ patient_history.allergies|default:"No data available" }}</p>
                 <p><strong>Medications:</strong> {{ patient_history.medications|default:"No data available" }}</p>
                 <p><strong>Surgeries:</strong> {{ patient_history.surgeries|default:"No data available" }}</p>
-                <button class="btn btn-primary mt-3" data-bs-toggle="modal" data-bs-target="#updateHistoryModal">Update History</button>
+                
             </div>
         </div>
     </div>
@@ -96,14 +103,13 @@
         </div>
     </div>
 
-
     <!-- My Medicine Orders Section -->
     <div class="row mt-4">
         <div class="col-md-12">
-            <div class="card dashboard-card shadow-lg p-4 fade-in">
+            <div class="card dashboard-card shadow-lg p-4">
                 <h4 class="text-center">📦 My Medicine Orders</h4>
                 <p class="text-muted text-center">Track your medicine purchases and order history.</p>
-                <a href="{% url 'my_orders_page' %}" class="btn btn-primary w-100">View My Orders</a>
+                <a href="{% url 'my_orders_page' %}" class="btn btn-outline-primary w-100">View My Orders</a>
             </div>
         </div>
     </div>
@@ -111,20 +117,20 @@
     <!-- Left Side: Health History & AI Symptom Checker -->
     <div class="row mt-4">
         <div class="col-md-6">
-            <div class="card dashboard-card shadow-lg p-4 fade-in">
+            <div class="card dashboard-card shadow-lg p-4">
                 <h4 class="text-center">📊 Health History</h4>
-                <a href="{% url 'health_history' %}" class="btn btn-primary w-100">View Health History</a>
+                <a href="{% url 'health_history' %}" class="btn btn-outline-primary w-100">View Health History</a>
             </div>
-            <div class="card dashboard-card shadow-lg p-4 fade-in mt-4">
+            <div class="card dashboard-card shadow-lg p-4 mt-4">
                 <h4>🤖 AI Symptom Checker</h4>
                 <p class="text-muted">Enter symptoms to get AI-based disease predictions.</p>
-                <a href="{% url 'disease_prediction' %}" class="btn btn-warning w-100">Check Symptoms</a>
+                <a href="{% url 'disease_prediction' %}" class="btn btn-outline-primary w-100">Check Symptoms</a>
             </div>
         </div>
 
         <!-- Right Side: Prediction History -->
         <div class="col-md-6">
-            <div class="card dashboard-card shadow-lg p-4 fade-in">
+            <div class="card dashboard-card shadow-lg p-4">
                 <h4 class="text-center">Prediction History</h4>
                 {% if history %}
                     <table class="table table-bordered mt-4">
@@ -152,15 +158,14 @@
         </div>
     </div>
 
-    
     <!-- Dashboard Sections -->
     <div class="row mt-4">
         <!-- Symptom Checker -->
         <div class="col-md-6">
-            <div class="card dashboard-card shadow-lg p-4 fade-in">
+            <div class="card dashboard-card shadow-lg p-4">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h4 class="mb-0">🧪 My Lab Test Bookings</h4>
-                    <a href="{% url 'available_lab_tests' %}" class="btn btn-success">Book Lab Test</a>
+                    <a href="{% url 'available_lab_tests' %}" class="btn btn-outline-primary">Book Lab Test</a>
                 </div>
                 {% if user_lab_tests.exists %}
                     <table class="table table-striped">
@@ -198,13 +203,17 @@
 
         <!-- Appointments -->
         <div class="col-md-6">
-            <div class="card dashboard-card shadow-lg p-4 fade-in">
-                <h4>📅 Your Appointments</h4>
+            <div class="card dashboard-card shadow-lg p-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4>📅 Your Appointments</h4>
+                    <a href="{% url 'book_appointment' %}" class="btn btn-outline-primary">Book Appointment</a>
+                </div>
+                
                 <ul class="list-group">
                     {% for appointment in appointments %}
                         <li class="list-group-item d-flex justify-content-between align-items-center">
                             <span>
-                                <strong>Dr. {{ appointment.doctor.username }}</strong> 
+                                <strong>🩺 Dr. {{ appointment.doctor.username }}</strong> 
                                 <br><small>{{ appointment.date|date:"M d, Y" }} at {{ appointment.time }}</small>
                             </span>
                             <a href="{% url 'cancel_appointment' appointment.id %}" class="btn btn-sm btn-danger">Cancel</a>
@@ -213,30 +222,28 @@
                         <li class="list-group-item text-muted">No scheduled appointments.</li>
                     {% endfor %}
                 </ul>
-                <a href="{% url 'book_appointment' %}" class="btn btn-success mt-3 w-100">Book Appointment</a>
+                
             </div>
         </div>
     </div>
 
-
-    
     <!-- Upload Reports & Display Section -->
     <div class="row mt-5">
         <!-- Upload Form (Left) -->
         <div class="col-md-6">
             <div class="card shadow-lg p-4 upload-report-card">
                 <h4 class="fw-bold">📤 Upload a Report</h4>
-                <form method="POST" enctype="multipart/form-data" class="mt-3">
+                <form method="POST" enctype="multipart/form-data" class="mt-3" style="max-width: 500px; margin: 0 auto; padding: 20px; background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
                     {% csrf_token %}
                     <div class="mb-3">
-                        <label class="form-label">Report Name</label>
-                        {{ report_form.report_name }}
+                        <label class="form-label" style="font-weight: 600; color: #34495e; margin-bottom: 5px;">Report Name</label>
+                        <input type="text" name="report_name" class="form-control" value="{{ report_form.report_name.value|default:'' }}" style="width: 100%; padding: 10px; border: 1px solid #dcdcdc; border-radius: 5px;" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Upload Report (PDF)</label>
-                        {{ report_form.report_pdf }}
+                        <label class="form-label" style="font-weight: 600; color: #34495e; margin-bottom: 5px;">Upload Report (PDF)</label>
+                        <input type="file" name="report_pdf" class="form-control" accept=".pdf" style="width: 100%; padding: 10px; border: 1px solid #dcdcdc; border-radius: 5px;" required>
                     </div>
-                    <button type="submit" class="btn btn-success w-100" name="upload_report">Upload Report</button>
+                    <button type="submit" class="btn btn-primary w-100" name="upload_report" style="padding: 12px; font-size: 1.1rem; font-weight: 500; border-radius: 5px; background-color: blue; border: none;">Upload Report</button>
                 </form>
             </div>
         </div>
@@ -261,64 +268,46 @@
         </div>
     </div>
 
-
-<!-- Medical History Update Modal -->
-<div class="modal fade" id="updateHistoryModal" tabindex="-1" aria-labelledby="updateHistoryLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Update Medical History</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    <!-- Medical History Update Modal -->
+    <div class="modal fade" id="updateHistoryModal" tabindex="-1" aria-labelledby="updateHistoryLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Update Medical History</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        {{ history_form.as_p }}
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-success">Save Changes</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </form>
             </div>
-            <form method="POST">
-                {% csrf_token %}
-                <div class="modal-body">
-                    {{ history_form.as_p }}
-                </div>
-                <div class="modal-footer">
-                    <button type="submit" class="btn btn-success">Save Changes</button>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                </div>
-            </form>
         </div>
     </div>
-</div>
 
-<!-- ✅ Testimonial Submission Form -->
-<div class="container my-5">
-    <h2 class="text-center fw-bold text-primary">📝 Share Your Experience</h2>
-    <p class="text-center text-muted">Rate our service or doctors!</p>
+    <!-- Testimonial Submission Form -->
+    <div class="container my-5">
+        <h2 class="text-center fw-bold text-primary">📝 Share Your Experience</h2>
+        <p class="text-center text-muted">Rate our service or doctors!</p>
 
-    <form method="POST" class="p-4 shadow-lg rounded bg-light">
-        {% csrf_token %}
-        <div class="mb-3">
-            <label class="fw-bold">Your Feedback:</label>
-            {{ testimonial_form.feedback }}
-        </div>
-        <div class="mb-3">
-            <label class="fw-bold">Rating:</label>
-            {{ testimonial_form.rating }}
-        </div>
-        <button type="submit" name="submit_testimonial" class="btn btn-success w-100">Submit Feedback</button>
-    </form>
-</div>
-
-<!-- ✅ Show Recent Testimonials -->
-{% comment %} <h3 class="mt-5 text-primary fw-bold">Recent Testimonials</h3>
-{% for testimonial in testimonials %}
-    <div class="card p-3 my-3 shadow-sm">
-        <p class="fw-bold">⭐ {{ testimonial.rating }} Stars</p>
-        <p class="text-muted">"{{ testimonial.feedback }}"</p>
-        <small class="text-end text-secondary">- {{ testimonial.patient.username }}</small>
+        <form method="POST" class="p-4 shadow-lg rounded bg-light">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label class="fw-bold">Your Feedback:</label>
+                {{ testimonial_form.feedback }}
+            </div>
+            <div class="mb-3">
+                <label class="fw-bold">Rating:</label>
+                {{ testimonial_form.rating }}
+            </div>
+            <button type="submit" name="submit_testimonial" class="btn btn-success w-100">Submit Feedback</button>
+        </form>
     </div>
-{% empty %}
-    <p class="text-muted text-center">No testimonials yet. Be the first to share your experience!</p>
-{% endfor %} {% endcomment %}
-
-
-
-
-
 
     <!-- Logout Button -->
     <div class="text-center mt-4">
@@ -326,7 +315,7 @@
     </div>
 </div>
 <style>
-/* 🌟 General Styling */
+/* General Styling */
 body {
     font-family: 'Poppins', sans-serif;
     background: #f4f7fc;
@@ -392,22 +381,7 @@ body {
     color: #fff;
 }
 
-.fade-in-page {
-    opacity: 0;
-    animation: fadeIn 1.2s ease-out forwards;
-}
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* 🌟 Upload Report Section */
+/* Upload Report Section */
 .upload-report-card {
     background: rgba(255, 255, 255, 0.98);
     border-radius: 15px;
@@ -420,7 +394,7 @@ body {
     transform: scale(1.02);
 }
 
-/* 🌟 Buttons */
+/* Buttons */
 .btn {
     padding: 12px 15px;
     font-weight: 600;
@@ -430,7 +404,7 @@ body {
     transform: translateY(-2px);
 }
 
-/* 🌟 Logout Button */
+/* Logout Button */
 .logout-btn {
     background: linear-gradient(135deg, #dc3545, #c82333);
     font-size: 18px;
@@ -441,7 +415,5 @@ body {
 .logout-btn:hover {
     transform: scale(1.05);
 }
-
 </style>
-
 {% endblock %}

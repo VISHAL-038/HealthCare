@@ -28,14 +28,22 @@ FLASK_API_URL = "http://127.0.0.1:5000/predict"
 # ✅ Path to the CSV file
 CSV_FILE_PATH = os.path.join(settings.BASE_DIR, 'healthcare_app', 'static', 'data', 'disease_data.csv')
 
-# Home Page View
 def home(request):
     doctors = DoctorProfile.objects.select_related('user').all()
     testimonials = Testimonial.objects.all().order_by('-created_at')[:5]  # Fetch latest 5 testimonials
 
+    # Fetch the DoctorProfile for the logged-in user if they are a doctor
+    doctor_profile = None
+    if request.user.is_authenticated and request.user.user_type == "doctor":
+        try:
+            doctor_profile = DoctorProfile.objects.get(user=request.user)
+        except DoctorProfile.DoesNotExist:
+            pass  # Handle the case where the doctor profile doesn't exist
+
     return render(request, "healthcare_app/home.html", {
         "doctors": doctors,
-        "testimonials": testimonials
+        "testimonials": testimonials,
+        "doctor_profile": doctor_profile,  # Add doctor_profile to context
     })
 
 
@@ -93,90 +101,6 @@ def dashboard(request):
         return redirect('doctor_dashboard')
     return redirect('patient_dashboard')
 
-# Doctor Dashboard View
-@login_required
-def doctor_dashboard(request):
-    return render(request, 'healthcare_app/doctor_dashboard.html')
-
-# Patient Dashboard View
-@login_required
-def patient_dashboard(request):
-    return render(request, 'healthcare_app/patient_dashboard.html')
-
-@login_required
-def disease_prediction(request):
-    prediction_result = None
-    disease_details = None  # Store disease details here
-
-    if request.method == "POST":
-        form = SymptomForm(request.POST)
-        if form.is_valid():
-            symptoms = form.cleaned_data["symptoms"]
-
-            try:
-                response = requests.post(FLASK_API_URL, json={"symptoms": symptoms})
-
-                if response.status_code == 200:
-                    prediction_result = response.json()
-                    predicted_disease = prediction_result.get("final_prediction")
-
-                    # ✅ Get additional disease details
-                    disease_details = get_disease_details(predicted_disease)
-
-                    # ✅ Save Prediction History
-                    PredictionHistory.objects.create(
-                        user=request.user,
-                        symptoms=symptoms,
-                        predicted_disease=predicted_disease
-                    )
-
-                else:
-                    prediction_result = {"error": "Failed to fetch prediction from API"}
-
-            except requests.exceptions.RequestException as e:
-                prediction_result = {"error": f"API request failed: {e}"}
-
-    else:
-        form = SymptomForm()
-
-    return render(request, "healthcare_app/disease_prediction.html", {
-        "form": form,
-        "prediction": prediction_result,
-        "disease_details": disease_details  # ✅ Pass disease details to template
-    })
-
-def get_disease_details(predicted_disease):
-    """Retrieve disease description, tests, and medications from CSV"""
-    try:
-        df = pd.read_csv(CSV_FILE_PATH)
-
-        # Normalize disease names
-        df["Disease"] = df["Prognosis"].str.strip().str.lower()
-        predicted_disease = predicted_disease.strip().lower()
-
-        # Find the disease
-        disease_info = df[df["Disease"] == predicted_disease]
-
-        if not disease_info.empty:
-            return {
-                "description": disease_info.iloc[0]["Description"],
-                "tests": disease_info.iloc[0]["Medical Test"],
-                "medications": disease_info.iloc[0]["Medications"]
-            }
-        else:
-            return {"description": "No details available.", "tests": "N/A", "medications": "N/A"}
-
-    except FileNotFoundError:
-        return {"description": "CSV file not found.", "tests": "N/A", "medications": "N/A"}
-    except Exception as e:
-        return {"description": f"Error fetching data: {e}", "tests": "N/A", "medications": "N/A"}
-
-
-# Prediction history
-@login_required
-def prediction_history(request):
-    history = PredictionHistory.objects.filter(user=request.user).order_by("-prediction_date")
-    return render(request, "healthcare_app/prediction_history.html", {"history": history})
 
 # appoipment
 @login_required
@@ -318,7 +242,8 @@ def doctor_dashboard(request):
     ).distinct()
 
     today = now()
-
+    # Calculate the number of confirmed appointments
+    confirmed_appointments_count = appointments.filter(status="Confirmed").count()
     # ✅ Data Visualization for Appointments
     if appointments.exists():
         df = pd.DataFrame(list(appointments.values("date", "status", "patient")))
@@ -380,6 +305,7 @@ def doctor_dashboard(request):
             "doctor_profile": doctor_profile,
             "profile_form": profile_form,
             "appointments": appointments,
+            "confirmed_appointments_count": confirmed_appointments_count,
             "patients": patients,
             "chart_monthly": chart_monthly,
             "chart_weekly": chart_weekly,
@@ -404,7 +330,6 @@ def reject_appointment(request, appointment_id):
     messages.warning(request, "Appointment Rejected!")
     return redirect('doctor_dashboard')
 
-# ✅ Doctor Issues a Prescription
 @login_required
 def issue_prescription(request):
     if request.user.user_type != 'doctor':
@@ -457,6 +382,80 @@ def patient_details(request, patient_id):
 
     })
 
+@login_required
+def disease_prediction(request):
+    prediction_result = None
+    disease_details = None  # Store disease details here
+
+    if request.method == "POST":
+        form = SymptomForm(request.POST)
+        if form.is_valid():
+            symptoms = form.cleaned_data["symptoms"]
+
+            try:
+                response = requests.post(FLASK_API_URL, json={"symptoms": symptoms})
+
+                if response.status_code == 200:
+                    prediction_result = response.json()
+                    predicted_disease = prediction_result.get("final_prediction")
+
+                    # ✅ Get additional disease details
+                    disease_details = get_disease_details(predicted_disease)
+
+                    # ✅ Save Prediction History
+                    PredictionHistory.objects.create(
+                        user=request.user,
+                        symptoms=symptoms,
+                        predicted_disease=predicted_disease
+                    )
+
+                else:
+                    prediction_result = {"error": "Failed to fetch prediction from API"}
+
+            except requests.exceptions.RequestException as e:
+                prediction_result = {"error": f"API request failed: {e}"}
+
+    else:
+        form = SymptomForm()
+
+    return render(request, "healthcare_app/disease_prediction.html", {
+        "form": form,
+        "prediction": prediction_result,
+        "disease_details": disease_details  # ✅ Pass disease details to template
+    })
+
+def get_disease_details(predicted_disease):
+    """Retrieve disease description, tests, and medications from CSV"""
+    try:
+        df = pd.read_csv(CSV_FILE_PATH)
+
+        # Normalize disease names
+        df["Disease"] = df["Prognosis"].str.strip().str.lower()
+        predicted_disease = predicted_disease.strip().lower()
+
+        # Find the disease
+        disease_info = df[df["Disease"] == predicted_disease]
+
+        if not disease_info.empty:
+            return {
+                "description": disease_info.iloc[0]["Description"],
+                "tests": disease_info.iloc[0]["Medical Test"],
+                "medications": disease_info.iloc[0]["Medications"]
+            }
+        else:
+            return {"description": "No details available.", "tests": "N/A", "medications": "N/A"}
+
+    except FileNotFoundError:
+        return {"description": "CSV file not found.", "tests": "N/A", "medications": "N/A"}
+    except Exception as e:
+        return {"description": f"Error fetching data: {e}", "tests": "N/A", "medications": "N/A"}
+
+
+# Prediction history
+@login_required
+def prediction_history(request):
+    history = PredictionHistory.objects.filter(user=request.user).order_by("-prediction_date")
+    return render(request, "healthcare_app/prediction_history.html", {"history": history})
 
 
 # ✅ List all medicines or create a new one

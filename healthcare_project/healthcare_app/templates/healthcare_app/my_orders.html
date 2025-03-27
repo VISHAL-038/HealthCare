@@ -3,9 +3,13 @@
 
 {% block content %}
 <div class="container my-5">
-    <h2 class="text-center fw-bold text-dark">📦 My Orders</h2>
-    <p class="text-center text-muted">Track your medicine purchases and order status.</p>
+    <!-- Header Section -->
+    <div class="text-center mb-5">
+        <h2 class="fw-bold text-dark display-5">📦 My Orders</h2>
+        <p class="text-muted lead">Track your medicine purchases and order status.</p>
+    </div>
 
+    <!-- Orders List -->
     <div class="row mt-4" id="order-list">
         {% if orders %}
             {% for order in orders %}
@@ -13,14 +17,25 @@
                     <div class="card order-card shadow-sm">
                         <div class="order-info">
                             <h5 class="order-id">🩺 {{ order.medicine }}</h5>
-                            {% comment %} <h5 class="order-id">Order #{{ order.id }}</h5> {% endcomment %}
-                            {% comment %} <p><strong>Ordered By:</strong> {{ order.user.username }}</p> {% endcomment %}
-                            <p><strong>Ordered On:</strong> {{ order.order_date }}</p>
-                            {% comment %} <p class="medicine-name">🩺 Medicine: {{ order.medicine }}</p> {% endcomment %}
+                            <p><strong>Ordered On:</strong> {{ order.order_date|date:"M d, Y" }}</p>
                             <p><strong>Quantity:</strong> {{ order.quantity }}</p>
-                            <p><strong>Total Price:</strong> {{ order.total_price }}</p>
-                            
-                            <!-- 🔵 Order Progress Bar -->
+                            <p><strong>Total Price:</strong> <span class="text-success">₹{{ order.total_price }}</span></p>
+                            <!-- Order Status -->
+                            <p class="mt-2 order-status">
+                                <strong>Status:</strong> 
+                                {% if order.status == "pending" %}
+                                    <span class="badge bg-warning text-dark">Pending</span>
+                                {% elif order.status == "confirmed" %}
+                                    <span class="badge bg-primary">Confirmed</span>
+                                {% elif order.status == "shipped" %}
+                                    <span class="badge bg-info text-dark">Shipped</span>
+                                {% elif order.status == "delivered" %}
+                                    <span class="badge bg-success">Delivered</span>
+                                {% elif order.status == "cancelled" %}
+                                    <span class="badge bg-danger">Cancelled</span>
+                                {% endif %}
+                            </p>
+                            <!-- Progress Bar -->
                             <div class="progress-container">
                                 <div class="progress-bar 
                                     {% if order.status == 'pending' %}status-pending
@@ -30,112 +45,131 @@
                                     {% else %}status-cancelled{% endif %}">
                                 </div>
                             </div>
-                            
-                            <!-- 🔥 Amazon Style Order Status -->
-                            <p class="mt-2 order-status">
-                                <strong>Status:</strong> 
-                                {% if order.status == "pending" %}
-                                    <span class="badge bg-warning">Pending</span>
-                                {% elif order.status == "confirmed" %}
-                                    <span class="badge bg-primary">Confirmed</span>
-                                {% elif order.status == "shipped" %}
-                                    <span class="badge bg-info">Shipped</span>
-                                {% elif order.status == "delivered" %}
-                                    <span class="badge bg-success">Delivered</span>
-                                {% elif order.status == "cancelled" %}
-                                    <span class="badge bg-danger">Cancelled</span>
-                                {% endif %}
-                            </p>
-                            
-                            <a href="#" class="btn btn-track">Track Order</a>
+                            <!-- Uncomment and style this if you want a track button -->
+                            {% comment %}
+                            <a href="#" class="btn btn-track mt-3">Track Order</a>
+                            {% endcomment %}
                         </div>
                     </div>
                 </div>
             {% endfor %}
         {% else %}
-            <p class="text-center text-muted">No orders found.</p>
+            <div class="col-12">
+                <p class="text-center text-muted py-5">No orders found. Start shopping now!</p>
+            </div>
         {% endif %}
     </div>
 </div>
 
-
 <style>
+/* General Container Styling */
+.container {
+    max-width: 1200px; /* Slightly wider for better layout */
+}
+
+/* Order Card */
 .order-card {
-    border-radius: 10px;
-    background: white;
-    padding: 20px;
-    transition: 0.3s;
-    box-shadow: 3px 3px 15px rgba(0, 0, 0, 0.1);
-    border: 1px solid #ddd;
+    border-radius: 12px;
+    background: #fff;
+    padding: 25px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e9ecef;
     position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    overflow: hidden; /* Ensures content stays within rounded corners */
 }
 
 .order-card:hover {
-    box-shadow: 5px 5px 20px rgba(0, 0, 0, 0.2);
-    transform: scale(1.02);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+    transform: translateY(-5px); /* Subtle lift effect */
 }
 
-/* 📦 Order Details */
+/* Order Info */
 .order-info {
     flex-grow: 1;
 }
 
 .order-id {
-    font-weight: bold;
-    color: #ff9900; /* Amazon Theme */
+    font-weight: 700;
+    font-size: 1.25rem;
+    color: #ff9900; /* Amazon-inspired orange */
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
 }
 
-.medicine-name {
-    font-size: 1.1rem;
-    font-weight: bold;
-    color: #333;
+.order-info p {
+    margin: 5px 0;
+    font-size: 0.95rem;
+    color: #495057;
 }
 
-.order-status {
-    font-weight: bold;
+.order-info p strong {
+    color: #212529;
 }
 
-/* 🔵 Progress Bar for Order Status */
+/* Status Badge */
+.order-status .badge {
+    font-size: 0.85rem;
+    padding: 5px 10px;
+    border-radius: 20px;
+}
+
+/* Progress Bar */
 .progress-container {
     width: 100%;
-    background-color: #f1f1f1;
-    border-radius: 10px;
-    height: 10px;
-    margin-top: 10px;
-    position: relative;
+    background-color: #e9ecef;
+    border-radius: 15px;
+    height: 12px;
+    margin-top: 15px;
+    overflow: hidden; /* Ensures progress bar stays within bounds */
 }
 
 .progress-bar {
-    height: 10px;
-    border-radius: 10px;
+    height: 100%;
+    border-radius: 15px;
     transition: width 0.5s ease-in-out;
 }
 
-/* 🎨 Status Colors */
+/* Status Colors */
 .status-pending { background-color: #ffc107; width: 20%; }
 .status-confirmed { background-color: #007bff; width: 40%; }
 .status-shipped { background-color: #17a2b8; width: 70%; }
 .status-delivered { background-color: #28a745; width: 100%; }
-.status-cancelled { background-color: #dc3545; width: 100%; opacity: 0.6; }
+.status-cancelled { background-color: #dc3545; width: 100%; opacity: 0.7; }
 
-/* ✅ Amazon-Like Buttons */
+/* Track Button (Uncomment if needed) */
 .btn-track {
     background: #ff9900;
-    color: white;
-    font-weight: bold;
-    border-radius: 5px;
-    padding: 8px 12px;
+    color: #fff;
+    font-weight: 600;
+    border-radius: 6px;
+    padding: 8px 16px;
     text-decoration: none;
-    transition: 0.3s ease-in-out;
+    display: inline-block;
+    transition: all 0.3s ease;
 }
 
 .btn-track:hover {
-    background: #e68900;
+    background: #e68a00;
+    color: #fff;
     transform: scale(1.05);
 }
 
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .order-card {
+        padding: 15px;
+    }
+    .order-id {
+        font-size: 1.1rem;
+    }
+    .order-info p {
+        font-size: 0.9rem;
+    }
+    .progress-container {
+        height: 10px;
+    }
+}
 </style>
 {% endblock %}

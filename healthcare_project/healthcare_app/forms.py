@@ -50,7 +50,7 @@ class AppointmentForm(forms.ModelForm):
             'reason': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
         }
 
-# preciption
+# prescription
 class PrescriptionForm(forms.ModelForm):
     class Meta:
         model = Prescription
@@ -58,6 +58,12 @@ class PrescriptionForm(forms.ModelForm):
         widgets = {
             'prescribed_medicines': forms.Textarea(attrs={'rows': 3}),
             'additional_notes': forms.Textarea(attrs={'rows': 3}),
+        }
+        help_texts = {
+            'patient': 'Select the patient for this prescription.',
+            'diagnosis': 'Enter the patient’s diagnosis.',
+            'prescribed_medicines': 'List the medicines and dosage instructions.',
+            'additional_notes': 'Add any additional notes or instructions.',
         }
 
 # Reports
@@ -108,5 +114,5 @@ class HealthPredictionForm(forms.Form):
     bmi = forms.FloatField(min_value=10.0, max_value=50.0, label="BMI")
     blood_pressure = forms.IntegerField(min_value=80, max_value=200, label="Blood Pressure")
     heart_rate = forms.IntegerField(min_value=40, max_value=150, label="Heart Rate")
-    blood_sugar = forms.IntegerField(min_value=50, max_value=600, label="Blood Sugar")
+    blood_sugar = forms.IntegerField(min_value=25, max_value=600, label="Blood Sugar")
     cholesterol = forms.IntegerField(min_value=100, max_value=400, label="Cholesterol")

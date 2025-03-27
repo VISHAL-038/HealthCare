@@ -5,7 +5,7 @@
 
 {% block content %}
 
-<!-- 🌟 Hero Section with AI Theme -->
+<!-- Hero Section with AI Theme -->
 <div class="container-fluid hero-section text-center py-5">
     <div class="row align-items-center">
         <!-- Left: AI Text Content -->
@@ -30,48 +30,115 @@
         <!-- Right: AI Themed Hero Image -->
         <div class="col-md-5">
             {% if user.user_type == "doctor" %}
-                <img src="{% static 'images/doctor.jpg' %}" class="img-fluid hero-img floating-img" alt="Doctor Dashboard">
+                <img src="{% static 'images/doctor.jpg' %}" class="img-fluid hero-img" alt="Doctor Dashboard">
             {% else %}
-                <img src="{% static 'images/main_.jpeg' %}" class="img-fluid hero-img floating-img" alt="AI Healthcare">
+                <img src="{% static 'images/main_.jpeg' %}" class="img-fluid hero-img" alt="AI Healthcare">
             {% endif %}
         </div>
     </div>
 </div>
 
-
-
-<!-- 🌟 Available Doctors Section -->
-    {% if user.user_type == "patient" %}
-    <div class="container mt-5">
-        <h2 class="text-center text-dark fw-bold">🏥 Available Doctors</h2>
+<!-- Available Doctors Section -->
+<div class="container mt-5">
+    {% if user.is_authenticated %}
+        {% if user.user_type == "patient" %}
+        <h2 class="text-center text-dark fw-bold"><i class="fas fa-hospital"></i> Available Doctors</h2>
         <p class="text-center text-muted">Find the best doctors for your medical needs.</p>
         <div class="row mt-4">
             {% for doctor in doctors %}
-            <div class="col-lg-4 col-md-6 col-sm-12 mb-4">
-                <div class="glass-card doctor-card">
-                    <div class="card-body text-center">
-                        <h4 class="doctor-name">🩺 Dr. {{ doctor.user.username }}</h4>
-                        <p class=".text-secondary"><strong>Specialization:</strong> {{ doctor.specialization }}</p>
-                        <p class=".text-secondary"><strong>Experience:</strong> {{ doctor.experience|default:"Not provided" }} years</p>
-                        <p class=".text-secondary"><strong>Contact:</strong> {{ doctor.contact_number }}</p>
+                <div class="col-lg-6 col-md-12 mb-4">
+                    <div class="glass-card doctor-card fade-in d-flex align-items-center">
+                        <!-- Doctor Image (Left Side) -->
+                        <div class="doctor-image">
+                            {% if doctor.profile_image %}
+                                <img src="{{ doctor.profile_image.url }}" class="rounded-circle img-thumbnail" width="150" height="150">
+                            {% else %}
+                                <img src="{% static 'images/default_doctor.png' %}" class="rounded-circle img-thumbnail" width="150" height="150">
+                            {% endif %}
+                        </div>
+                        <!-- Doctor Details (Right Side) -->
+                        <div class="card-body">
+                            <h4 class="doctor-name"><i class="fas fa-user-md"></i> Dr. {{ doctor.user.username }}</h4>
+                            <p><strong>Specialization:</strong> {{ doctor.specialization }}</p>
+                            <p><strong>Experience:</strong> {{ doctor.experience|default:"Not provided" }} years</p>
+                            <p><strong>Contact:</strong> {{ doctor.contact_number }}</p>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <p class="text-center text-muted">No doctors available at the moment.</p>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="container my-5">
+            <div class="glass-card doctor-card fade-in p-4">
+                <div class="d-flex align-items-center justify-content-between">
+                    <!-- Left Section: Welcome Message and Button -->
+                    <div class="welcome-text">
+                        <h4 class="doctor-name mb-2">
+                            <i class="fas fa-user-md me-2"></i> Welcome to MediAI, Dr. {{ user.username }}!
+                        </h4>
+                        <a href="{% url 'doctor_dashboard' %}" class="btn btn-lg btn-glow mt-3">
+                            Go to Dashboard
+                        </a>
+                    </div>
+                    <!-- Right Section: Doctor Image -->
+                    <div class="doctor-image welcome-doctor-image">
+                        {% if doctor_profile and doctor_profile.profile_image %}
+                            <img src="{{ doctor_profile.profile_image.url }}" class="img-fluid rounded-circle" alt="Dr. {{ user.username }}">
+                        {% else %}
+                            <img src="{% static 'images/default_doctor.png' %}" class="img-fluid rounded-circle" alt="Default Profile">
+                        {% endif %}
                     </div>
                 </div>
             </div>
-            {% empty %}
-            <p class="text-center text-muted">No doctors available at the moment.</p>
-            {% endfor %}
+        </div>
+        {% endif %}
+    {% else %}
+        <!-- Non-Logged-In Users -->
+        <div class="text-center mt-4">
+            <p class="lead text-muted">Unlock access to our expert doctors by joining MediAI!</p>
+            <h2 class="text-center text-dark fw-bold"><i class="fas fa-hospital"></i> Available Doctors</h2>
+            <p class="text-center text-muted">Find the best doctors for your medical needs.</p>
+            <div class="row justify-content-center">
+                <!-- Teaser Example Doctor Cards -->
+                <div class="col-lg-6 col-md-12 mb-4">
+                    <div class="glass-card doctor-card fade-in d-flex align-items-center">
+                        <div class="doctor-image">
+                            <img src="{% static 'images/default_doctor.png' %}" alt="Dr. Sample" class="img-fluid rounded-circle">
+                        </div>
+                        <div class="card-body">
+                            <h4 class="doctor-name"><i class="fas fa-user-md"></i> Dr. Sample</h4>
+                            <p><strong>Specialization:</strong> General Medicine</p>
+                            <p><strong>Experience:</strong> 10+ years</p>
+                            <p class="text-muted">Login to view contact details</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 col-md-12 mb-4">
+                    <div class="glass-card doctor-card fade-in d-flex align-items-center">
+                        <div class="doctor-image">
+                            <img src="{% static 'images/default_doctor.png' %}" alt="Dr. Demo" class="img-fluid rounded-circle">
+                        </div>
+                        <div class="card-body">
+                            <h4 class="doctor-name"><i class="fas fa-user-md"></i> Dr. Demo</h4>
+                            <p><strong>Specialization:</strong> Cardiology</p>
+                            <p><strong>Experience:</strong> 15+ years</p>
+                            <p class="text-muted">Login to view contact details</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="text-center mt-4">
+                <p class="lead text-muted">Login or register to see available doctors!</p>
+                <a href="{% url 'login' %}" class="btn btn-lg btn-glow mx-2">Login</a>
+                <a href="{% url 'register' %}" class="btn btn-lg btn-secondary btn-outline-light mx-2">Register</a>
             </div>
         </div>
-    {% else %}
-        <div class="container mt-5">
-                <div class="glass-card doctor-card">
-                    <h4 class="doctor-name"> Welcome 🩺 Dr. {{ user.username }}</h4>  
-                    <a href="{% url 'doctor_dashboard' %}" class="btn btn-lg btn-glow">Go to Dashboard</a>
-                </div>
-        </div>
     {% endif %}
+</div>
 
-<!-- 🌟 AI-Powered Services Section -->
+<!-- AI-Powered Services Section -->
 <div class="container-fluid my-5 ai-services-banner">
     <div class="row align-items-center text-center py-5">
         <div class="col-md-12">
@@ -83,12 +150,11 @@
 
 <div class="container mt-5">
     <div class="row text-center">
-        
         {% if user.user_type == 'doctor' %}
-        <!-- ✅ Doctor-Specific Services -->
+        <!-- Doctor-Specific Services -->
         <div class="col-md-4">
-            <a href="{% url 'doctor_dashboard' %}">
-            <div class="card service-card shadow-lg p-4 fade-in">
+            <a href="{% url 'doctor_dashboard' %}" style="text-decoration:none;">
+            <div class="card service-card shadow-lg p-4">
                 <img src="{% static 'images/Manage_Appoipments.jpg' %}" class="service-img mb-3" alt="Manage Appointments">
                 <h4>Manage Appointments</h4>
                 <p>Track and manage patient bookings efficiently.</p>
@@ -97,8 +163,8 @@
         </div>
 
         <div class="col-md-4">
-            <a href="{% url 'issue_prescription' %}">
-            <div class="card service-card shadow-lg p-4 fade-in">
+            <a href="{% url 'issue_prescription' %}" style="text-decoration:none;">
+            <div class="card service-card shadow-lg p-4">
                 <img src="{% static 'images/Issue_Precreptions.jpg' %}" class="service-img mb-3" alt="Issue Prescriptions">
                 <h4>Issue Prescriptions</h4>
                 <p>Provide and manage patient prescriptions digitally.</p>
@@ -107,20 +173,19 @@
         </div>
 
         <div class="col-md-4">
-            <a href="{% url 'health_trends' %}">
-            <div class="card service-card shadow-lg p-4 fade-in">
+            <a href="{% url 'health_trends' %}" style="text-decoration:none;">
+            <div class="card service-card shadow-lg p-4">
                 <img src="{% static 'images/Health_analysis.jpg' %}" class="service-img mb-3" alt="Health Analytics">
                 <h4>Health Analytics</h4>
                 <p>Analyze patient trends and improve diagnosis with AI insights.</p>
             </div>
             </a>
         </div>
-
         {% else %}
-        <!-- ✅ Patient-Specific Services (Default) -->
+        <!-- Patient-Specific Services (Default) -->
         <div class="col-md-4">
-            <a href="{% url 'disease_prediction' %}">
-            <div class="card service-card shadow-lg p-4 fade-in">
+            <a href="{% url 'disease_prediction' %}" style="text-decoration:none;">
+            <div class="card service-card shadow-lg p-4">
                 <img src="{% static 'images/Diseases_Prediction.jpg' %}" class="service-img mb-3" alt="Disease Prediction">
                 <h4>Disease Prediction</h4>
                 <p>AI-powered system to detect possible diseases based on symptoms.</p>
@@ -129,8 +194,8 @@
         </div>
 
         <div class="col-md-4">
-            <a href="{% url 'book_appointment' %}">
-            <div class="card service-card shadow-lg p-4 fade-in">
+            <a href="{% url 'book_appointment' %}" style="text-decoration:none;">
+            <div class="card service-card shadow-lg p-4">
                 <img src="{% static 'images/Doctor_Consultation.jpg' %}" class="service-img mb-3" alt="Doctor Consultation">
                 <h4>Doctor Consultation</h4>
                 <p>Find and book appointments with the best healthcare professionals.</p>
@@ -139,39 +204,37 @@
         </div>
 
         <div class="col-md-4">
-            <a href="{% url 'book_lab_test' %}">
-            <div class="card service-card shadow-lg p-4 fade-in">
+            <a href="{% url 'book_lab_test' %}" style="text-decoration:none;">
+            <div class="card service-card shadow-lg p-4">
                 <img src="{% static 'images/Health_Reports.jpg' %}" class="service-img mb-3" alt="Medical Reports">
                 <h4>Medical Reports</h4>
                 <p>View past predictions and prescriptions for better healthcare management.</p>
             </div>
             </a>
         </div>
-
         {% endif %}
     </div>
 </div>
 
-
-<!-- 🌟 Live Health Statistics -->
+<!-- Live Health Statistics -->
 <div class="container text-center my-5">
-    <h2 class="fw-bold text-dark">💡 Live Health Statistics</h2>
+    <h2 class="fw-bold text-dark"><i class="fas fa-lightbulb"></i> Live Health Statistics</h2>
     <p class="text-muted">Real-time health insights.</p>
     <div class="row">
         <div class="col-md-4">
-            <div class="health-card">
+            <div class="health-card fade-in">
                 <h5>Blood Pressure</h5>
                 <p class="fs-4 text-primary" id="bpValue">Loading...</p>
             </div>
         </div>
         <div class="col-md-4">
-            <div class="health-card">
+            <div class="health-card fade-in">
                 <h5>Heart Rate</h5>
                 <p class="fs-4 text-danger" id="heartRateValue">Loading...</p>
             </div>
         </div>
         <div class="col-md-4">
-            <div class="health-card">
+            <div class="health-card fade-in">
                 <h5>BMI</h5>
                 <p class="fs-4 text-success" id="bmiValue">Loading...</p>
             </div>
@@ -179,24 +242,24 @@
     </div>
 </div>
 
-<!-- 🌟 AI Health Tips -->
+<!-- AI Health Tips -->
 <div class="container my-5 text-center">
-    <div class="ai-health-box">
-        <h2 class="fw-bold text-info">🧠 AI Health Tips</h2>
+    <div class="ai-health-box fade-in">
+        <h2 class="fw-bold text-info"><i class="fas fa-brain"></i> AI Health Tips</h2>
         <p id="healthTip" class="fs-5">Loading...</p>
     </div>
 </div>
 
-<!-- 🌟 Testimonials Section -->
+<!-- Testimonials Section -->
 <div class="container my-5">
-    <h2 class="text-center fw-bold">⭐ What Our Patients Say</h2>
+    <h2 class="text-center fw-bold"><i class="fas fa-star"></i> What Our Patients Say</h2>
     <div class="row">
         {% for testimonial in testimonials %}
             <div class="col-md-4">
-                <div class="testimonial-card">
+                <div class="testimonial-card fade-in">
                     <p class="fw-bold text-warning">⭐ {{ testimonial.rating }} Stars</p>
                     <p class="text-muted">"{{ testimonial.feedback }}"</p>
-                    <small class="text-end text-secondary">- {{ testimonial.patient.username }}</small>
+                    <small class="text-end text-secondary d-block">- {{ testimonial.patient.username }}</small>
                 </div>
             </div>
         {% empty %}
@@ -205,156 +268,85 @@
     </div>
 </div>
 
-<!-- 🌟 GSAP Animations & Scripts -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-
-<!-- 🌟 JavaScript Enhancements -->
+<!-- JavaScript Enhancements -->
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const textElement = document.getElementById("dynamic-text");
-        const words = [
-            "Healthcare ",
-            "Diagnosis ",
-            "Analysis ",
-            "Telemedicine ",
-            "Prediction ",
-            "Consultation ",
-            "Prevention "
-        ];
-        
-        let index = 0;
-        let charIndex = 0;
-        let isDeleting = false;
-        let typingSpeed = 150;  // ⏳ Typing speed
-        let deletingSpeed = 100; // ⏳ Deleting speed
-        let holdTime = 2000;  // ⏳ Hold time before deleting
-        let loopDelay = 500;  // ⏳ Delay before restarting loop
+document.addEventListener("DOMContentLoaded", function () {
+    const textElement = document.getElementById("dynamic-text");
+    const words = [
+        "Healthcare ",
+        "Diagnosis ",
+        "Analysis ",
+        "Telemedicine ",
+        "Prediction ",
+        "Consultation ",
+        "Prevention "
+    ];
     
-        function typeEffect() {
-            const currentWord = words[index];
-    
-            if (isDeleting) {
-                textElement.textContent = currentWord.substring(0, charIndex--);
-            } else {
-                textElement.textContent = currentWord.substring(0, charIndex++);
-            }
-    
-            if (!isDeleting && charIndex === currentWord.length) {
-                setTimeout(() => {
-                    isDeleting = true;
-                    typeEffect();
-                }, holdTime);  // ⏳ Hold for 2 seconds before deleting
-            } else if (isDeleting && charIndex === 0) {
-                isDeleting = false;
-                index = (index + 1) % words.length;  // Move to next word
-                setTimeout(typeEffect, loopDelay); // ⏳ Small delay before restarting
-            } else {
-                setTimeout(typeEffect, isDeleting ? deletingSpeed : typingSpeed);
-            }
+    let index = 0;
+    let charIndex = 0;
+    let isDeleting = false;
+    let typingSpeed = 150;
+    let deletingSpeed = 100;
+    let holdTime = 2000;
+    let loopDelay = 500;
+
+    function typeEffect() {
+        const currentWord = words[index];
+
+        if (isDeleting) {
+            textElement.textContent = currentWord.substring(0, charIndex--);
+        } else {
+            textElement.textContent = currentWord.substring(0, charIndex++);
         }
-    
-        typeEffect();
-    });
-    
-    
-    function getRandomInRange(min, max) {
-        return (Math.random() * (max - min) + min).toFixed(1);
+
+        if (!isDeleting && charIndex === currentWord.length) {
+            setTimeout(() => {
+                isDeleting = true;
+                typeEffect();
+            }, holdTime);
+        } else if (isDeleting && charIndex === 0) {
+            isDeleting = false;
+            index = (index + 1) % words.length;
+            setTimeout(typeEffect, loopDelay);
+        } else {
+            setTimeout(typeEffect, isDeleting ? deletingSpeed : typingSpeed);
+        }
     }
 
-    function updateHealthStats() {
-        document.getElementById("bpValue").innerText = getRandomInRange(110, 130) + "/" + getRandomInRange(70, 90) + " mmHg";
-        document.getElementById("heartRateValue").innerText = getRandomInRange(60, 90) + " bpm";
-        document.getElementById("bmiValue").innerText = getRandomInRange(18, 25) + " kg/m²";
-    }
+    typeEffect();
+});
 
-    function updateHealthTip() {
-        const tips = [
-            "Stay hydrated! Drink at least 8 glasses of water a day.",
-            "Eat a balanced diet rich in vitamins and minerals.",
-            "Exercise for at least 30 minutes daily to stay fit.",
-            "Ensure 7-9 hours of quality sleep for good health.",
-            "Regular check-ups can help in early disease detection."
-        ];
-        document.getElementById("healthTip").innerText = tips[Math.floor(Math.random() * tips.length)];
-    }
+function getRandomInRange(min, max) {
+    return (Math.random() * (max - min) + min).toFixed(1);
+}
 
-    setInterval(updateHealthStats, 5000);
-    setInterval(updateHealthTip, 5000);
-    updateHealthStats();
-    updateHealthTip();
+function updateHealthStats() {
+    document.getElementById("bpValue").innerText = getRandomInRange(110, 130) + "/" + getRandomInRange(70, 90) + " mmHg";
+    document.getElementById("heartRateValue").innerText = getRandomInRange(60, 90) + " bpm";
+    document.getElementById("bmiValue").innerText = getRandomInRange(18, 25) + " kg/m²";
+}
 
-    document.addEventListener("DOMContentLoaded", function () {
-        let fadeElements = document.querySelectorAll(".fade-in");
-    
-        let observer = new IntersectionObserver(
-            (entries, observer) => {
-                entries.forEach((entry) => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add("show");
-                        observer.unobserve(entry.target); // Stop observing after first trigger
-                    }
-                });
-            },
-            { threshold: 0.2 }
-        );
-    
-        fadeElements.forEach((el) => {
-            observer.observe(el);
-        });
-    });
-    document.addEventListener("DOMContentLoaded", function () {
-        gsap.to("body", { opacity: 1, duration: 0.8, ease: "power3.out" });
+function updateHealthTip() {
+    const tips = [
+        "Stay hydrated! Drink at least 8 glasses of water a day.",
+        "Eat a balanced diet rich in vitamins and minerals.",
+        "Exercise for at least 30 minutes daily to stay fit.",
+        "Ensure 7-9 hours of quality sleep for good health.",
+        "Regular check-ups can help in early disease detection."
+    ];
+    document.getElementById("healthTip").innerText = tips[Math.floor(Math.random() * tips.length)];
+}
 
-        // Hero Section Animation
-        gsap.from(".animated-text", {
-            duration: 1.2,
-            opacity: 0,
-            y: -30,
-            ease: "power3.out",
-        });
-
-        gsap.from(".floating-img", {
-            duration: 2,
-            opacity: 0,
-            y: 50,
-            ease: "power3.out",
-            delay: 0.3
-        });
-
-        // Fade-in effect for sections
-        gsap.utils.toArray(".fade-in").forEach((el) => {
-            gsap.from(el, {
-                scrollTrigger: {
-                    trigger: el,
-                    start: "top 85%",
-                    toggleActions: "play none none none",
-                },
-                opacity: 0,
-                y: 30,
-                duration: 1,
-                ease: "power3.out",
-            });
-        });
-
-        // Service Cards Hover Animation
-        document.querySelectorAll(".service-card").forEach((card) => {
-            card.addEventListener("mouseenter", () => {
-                gsap.to(card, { scale: 1.05, duration: 0.3, ease: "power2.out" });
-            });
-
-            card.addEventListener("mouseleave", () => {
-                gsap.to(card, { scale: 1, duration: 0.3, ease: "power2.out" });
-            });
-        });
-    });
-    
+setInterval(updateHealthStats, 5000);
+setInterval(updateHealthTip, 5000);
+updateHealthStats();
+updateHealthTip();
 </script>
 
 <style>
-    /* 🌟 AI Hero Section */
+/* AI Hero Section */
 .hero-section {
-    background: #141e30; /* Dark futuristic gradient */
+    background: #141e30;
     color: white;
     padding: 60px 0;
 }
@@ -368,7 +360,7 @@
     filter: drop-shadow(0px 5px 20px rgba(255, 255, 255, 0.5));
 }
 
-/* 🌟 Curved AI Services Banner */
+/* Curved AI Services Banner */
 .ai-services-banner {
     background: linear-gradient(120deg, #502ab1, #8a2be2);
     border-bottom-left-radius: 50% 10%;
@@ -378,10 +370,10 @@
     padding: 60px 0;
 }
 
-/* 🌟 Service Card - default */
+/* Service Card - default */
 .service-card {
     transform-style: preserve-3d;
-    perspective: 1000px; 
+    perspective: 1000px;
     transition: transform 0.4s ease-in-out, box-shadow 0.4s ease-in-out;
     background: rgba(255, 255, 255, 0.95);
     border-radius: 15px;
@@ -399,8 +391,7 @@
     box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
 }
 
-
-/* 🌟 Glowing Button */
+/* Glowing Button */
 .btn-glow {
     background: #ff9800;
     padding: 12px 25px;
@@ -411,8 +402,7 @@
     transition: 0.3s ease-in-out;
 }
 
-
-/* 🏥 Title Glow Effect */
+/* Title Glow Effect */
 .text-glow {
     font-size: 2rem;
     font-weight: bold;
@@ -420,33 +410,82 @@
     text-shadow: 0 0 10px #00eaff, 0 0 20px #00eaff, 0 0 30px #00eaff;
 }
 
-/* 🌟 Light Themed Futuristic Doctor Cards */
-.glass-card {
-    background: rgba(255, 255, 255, 0.4); /* Semi-transparent Light Theme */
+/* Doctor Cards */
+.glass-card.doctor-card {
+    background: rgba(255, 255, 255, 0.4);
     border-radius: 15px;
     padding: 20px;
-    text-align: center;
-    backdrop-filter: blur(10px); /* Glass Effect */
-    border: 2px solid rgba(0, 0, 0, 0.2); /* Subtle Border */
-    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15); /* Soft Glow */
-    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-/* 🌠 Floating Hover Effect */
-.glass-card:hover {
+.glass-card.doctor-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.2);
-    border-color: rgba(0, 0, 0, 0.5);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
 }
 
-/* 🏥 Heading in Dark Color */
+.doctor-image {
+    flex: 0 0 120px; /* Fixed width for the image container */
+    margin-right: 20px; /* Space between image and details */
+}
+
+.doctor-image img {
+    width: 100%;
+    height: 120px; /* Fixed height to match width for a perfect circle */
+    object-fit: cover; /* Ensure the image fits nicely */
+    border: 3px solid #3b82f6; /* Add a border that matches the theme */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+}
+
+.card-body {
+    flex: 1; /* Take up remaining space */
+}
+
+.doctor-name {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #0056b3;
+    margin-bottom: 10px;
+}
+
+.card-body p {
+    margin: 5px 0; /* Consistent spacing between details */
+    font-size: 1rem;
+    color: #2d3748;
+}
+
+.card-body p strong {
+    color: #1e3a8a; /* Match the theme */
+}
+
+/* Responsive Adjustments */
+@media (max-width: 767px) {
+    .glass-card.doctor-card {
+        flex-direction: column; /* Stack image and details on small screens */
+        text-align: center;
+    }
+
+    .doctor-image {
+        margin-right: 0;
+        margin-bottom: 20px; /* Space below the image when stacked */
+    }
+
+    .doctor-image img {
+        width: 100px;
+        height: 100px; /* Slightly smaller on mobile */
+    }
+}
+
+/* Heading in Dark Color */
 .text-dark {
     font-size: 2rem;
     font-weight: bold;
     color: #222222;
 }
 
-/* 🔹 Doctor Name Highlight */
+/* Doctor Name Highlight */
 .doctor-name {
     font-size: 1.5rem;
     font-weight: bold;
@@ -454,75 +493,65 @@
     text-shadow: 0 0 8px rgba(0, 86, 179, 0.3);
 }
 
-/* 🩺 Live Health Stats */
+/* Health Stats */
 .health-card {
     background: rgba(240, 248, 255, 0.3);
     border-radius: 12px;
     padding: 20px;
-    text-align: center;
     backdrop-filter: blur(8px);
     border: 1px solid rgba(0, 0, 0, 0.1);
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-    transition: 0.3s ease-in-out;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease, border-color 0.3s ease;
 }
 
-/* Hover Effect */
 .health-card:hover {
     transform: scale(1.05);
-    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    background: rgba(240, 248, 255, 0.5);
+    border-color: #3b82f6;
 }
 
-/* AI Health Tips Box */
+/* AI Health Tips */
 .ai-health-box {
     background: rgba(255, 255, 255, 0.4);
     border-radius: 15px;
     padding: 30px;
     backdrop-filter: blur(12px);
-    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
     border: 1px solid rgba(0, 0, 0, 0.15);
-    transition: 0.3s ease-in-out;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease, backdrop-filter 0.3s ease, background 0.3s ease, border-color 0.3s ease;
 }
 
-/* Glowing AI Health Tips */
+.ai-health-box:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+    backdrop-filter: blur(15px);
+    background: rgba(255, 255, 255, 0.5);
+    border-color: #ff9800;
+}
+
 #healthTip {
-    font-size: 1.2rem;
     color: #004085;
-    font-weight: bold;
-    text-shadow: 0px 0px 8px rgba(0, 64, 133, 0.3);
+    font-weight: 500;
 }
 
-/* Testimonial Cards */
+/* Testimonials */
 .testimonial-card {
     background: rgba(255, 255, 255, 0.3);
     border-radius: 15px;
     padding: 20px;
     backdrop-filter: blur(10px);
     border: 1px solid rgba(0, 0, 0, 0.1);
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-    transition: 0.3s ease-in-out;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease, border-color 0.3s ease;
 }
 
-/* Hover effect on Testimonials */
 .testimonial-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    background: rgba(255, 255, 255, 0.5);
+    border-color: #f59e0b;
 }
-
-/* 🌟 Smooth Fade-In Effect */
-.fade-in {
-    opacity: 0;
-    transform: translateY(20px);
-    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
-}
-
-/* 🌟 Trigger animation when in viewport */
-.fade-in.show {
-    opacity: 1;
-    transform: translateY(0);
-}
-
 </style>
-
-
 
 {% endblock %}
