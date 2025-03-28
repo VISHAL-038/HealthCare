@@ -117,13 +117,17 @@
         <div class="col-md-6">
             <div class="chart-container fade-in">
                 <h4 class="text-center">📅 Monthly Appointments Trend</h4>
-                {{ chart_monthly|safe }}
+                <div class="chart-content">
+                    {{ chart_monthly|safe }}
+                </div>
             </div>
         </div>
         <div class="col-md-6">
             <div class="chart-container fade-in">
                 <h4 class="text-center">📅 Weekly Appointments</h4>
-                {{ chart_weekly|safe }}
+                <div class="chart-content">
+                    {{ chart_weekly|safe }}
+                </div>
             </div>
         </div>
     </div>
@@ -132,7 +136,9 @@
         <div class="col-md-12">
             <div class="chart-container fade-in">
                 <h4 class="text-center">🩺 Confirmed vs Canceled Appointments</h4>
-                {{ chart_status|safe }}
+                <div class="chart-content">
+                    {{ chart_status|safe }}
+                </div>
             </div>
         </div>
     </div>
@@ -330,6 +336,10 @@
     /* Chart Containers */
     .chart-container {
         padding: 20px;
+    }
+    .chart-content {
+        width: 100%;
+        overflow-x: auto;
     }
 
     /* Buttons */

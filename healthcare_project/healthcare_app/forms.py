@@ -28,7 +28,7 @@ class PatientProfileForm(forms.ModelForm):
 
     class Meta:
         model = PatientProfile
-        fields = ['age', 'gender', 'contact_number', 'profile_image']
+        fields = ['age', 'gender', 'contact_number','address', 'profile_image']
 
 # symptom forms
 class SymptomForm(forms.Form):
@@ -114,5 +114,5 @@ class HealthPredictionForm(forms.Form):
     bmi = forms.FloatField(min_value=10.0, max_value=50.0, label="BMI")
     blood_pressure = forms.IntegerField(min_value=80, max_value=200, label="Blood Pressure")
     heart_rate = forms.IntegerField(min_value=40, max_value=150, label="Heart Rate")
-    blood_sugar = forms.IntegerField(min_value=25, max_value=600, label="Blood Sugar")
+    blood_sugar = forms.IntegerField(min_value=50, max_value=51200, label="Blood Sugar")
     cholesterol = forms.IntegerField(min_value=100, max_value=400, label="Cholesterol")

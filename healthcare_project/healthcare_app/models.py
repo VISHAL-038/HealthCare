@@ -28,7 +28,9 @@ class PatientProfile(models.Model):
     age = models.IntegerField()
     gender = models.CharField(max_length=10)
     contact_number = models.CharField(max_length=15)
+    address = models.CharField(max_length=255, null=True, blank=True)
     profile_image = models.ImageField(upload_to="profile_images/patients/", null=True, blank=True)  # ✅ Optional profile image
+
 
 
 # Prediction History
