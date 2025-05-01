@@ -3,7 +3,7 @@ from .views import (
     home, register, user_login, user_logout, dashboard, doctor_dashboard, patient_dashboard,
     disease_prediction, prediction_history, book_appointment, appointment_list, cancel_appointment,
     approve_appointment, reject_appointment, prescription_list, issue_prescription, patient_details,
-    MedicineDetailView, MedicineListCreateView, medicine_shop, my_orders_page,  add_to_cart, view_cart, remove_from_cart, checkout, 
+    MedicineDetailView, MedicineListCreateView, medicine_shop,medicine_detail_view, my_orders_page,  add_to_cart, view_cart, remove_from_cart, checkout, 
     available_lab_tests, book_lab_test, lab_test_success, health_trends,health_prediction, health_history )
 from .views_medicine import medicine_list, place_order, my_orders
 
@@ -50,6 +50,7 @@ urlpatterns = [
 
     # ✅ Serve the medicine shop frontend page
     path("shop/", medicine_shop, name="medicine_shop"),
+    path('medicine/<int:pk>/', medicine_detail_view, name='medicine_detail'),
     path("cart/", view_cart, name="view_cart"),
     path("cart/add/<int:medicine_id>/", add_to_cart, name="add_to_cart"),
     path("cart/remove/<int:cart_id>/", remove_from_cart, name="remove_from_cart"),

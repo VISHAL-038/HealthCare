@@ -108,9 +108,17 @@ class Medicine(models.Model):
     price_range = models.CharField(max_length=255)
     price = models.DecimalField(max_digits=10, decimal_places=2, null=True)
     image_link = models.URLField(max_length=500, blank=True, null=True)
+    dosage_instructions = models.TextField(null=True, blank=True)
+    side_effects = models.TextField(null=True, blank=True)  # Make this field nullable
+    ingredients = models.TextField(null=True, blank=True)
+    is_prescription_required = models.BooleanField(default=False)
+    storage_instructions = models.TextField(null=True, blank=True)
+    warnings = models.TextField(null=True,blank=True)
+    prescription_instructions = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return f"{self.generic_name} ({self.brand_names})"
+
 
 class Cart(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)

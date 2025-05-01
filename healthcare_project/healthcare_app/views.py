@@ -19,6 +19,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import base64
 from io import BytesIO
+from decimal import Decimal
 import matplotlib
 matplotlib.use("Agg")
 
@@ -489,6 +490,11 @@ def medicine_shop(request):
         "search_query": query,
     })
 
+def medicine_detail_view(request, pk):
+    medicine = get_object_or_404(Medicine, pk=pk)
+    return render(request,"healthcare_app/medicinedetail.html",{'medicine':medicine})
+
+
 @login_required
 def add_to_cart(request, medicine_id):
     medicine = get_object_or_404(Medicine, id=medicine_id)
@@ -522,22 +528,31 @@ def remove_from_cart(request, cart_id):
     return redirect("view_cart")
 
 # ✅ Proceed to Checkout (Move from Cart to Order)
+
 @login_required
 def checkout(request):
-    from decimal import Decimal  # ✅ Ensure Decimal import
-
     cart_items = Cart.objects.filter(user=request.user)
 
     if not cart_items:
         messages.error(request, "Your cart is empty.")
         return redirect("view_cart")
 
+    try:
+        patient_profile = PatientProfile.objects.get(user=request.user)
+    except PatientProfile.DoesNotExist:
+        messages.error(request, "Please complete your profile with an address before proceeding to checkout.")
+        return redirect("dashboard")  # redirect to dashboard instead
+
+    if not patient_profile.address:
+        messages.error(request, "Please add your address in your profile before placing the order.")
+        return redirect("dashboard")  # redirect to dashboard instead
+
     for item in cart_items:
         Order.objects.create(
             user=request.user,
             medicine=item.medicine,
             quantity=item.quantity,
-            total_price=Decimal(str(item.total_price() or "0.00")),  # ✅ Fix NoneType issue
+            total_price=Decimal(str(item.total_price() or "0.00")),
             status="pending"
         )
 

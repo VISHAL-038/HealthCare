@@ -36,6 +36,10 @@
                             <p class="text-muted"><strong>Generic:</strong> <span class="highlight-search">{{ medicine.generic_name }}</span></p>
                             <p class="text-muted"><strong>Use:</strong> {{ medicine.typical_use }}</p>
                             <p class="fw-bold price"><strong>Price:</strong> {{ medicine.price_range }}</p>
+                            <a href="{% url 'medicine_detail' medicine.id%}" class="btn btn-info w-100 d-flex align-items-center justify-content-center">
+                                <i class="fas fa-bolt me-2"></i> Detail
+                            </a>
+                            <br>
                             <a href="{% url 'add_to_cart' medicine.id %}" class="btn btn-success w-100 d-flex align-items-center justify-content-center">
                                 <i class="fas fa-shopping-cart me-2"></i> Add to Cart
                             </a>
