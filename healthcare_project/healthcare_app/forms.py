@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
-from .models import User, DoctorProfile, PatientProfile, Appointment, Prescription, PatientReport, PatientHistory, Testimonial,  AvailableLabTest, LabTest
+from .models import User, DoctorProfile, PatientProfile, Appointment, Prescription, PatientReport, PatientHistory, Testimonial,  AvailableLabTest, LabTest, Message
 
 # Custom User Registration Form
 class UserRegisterForm(UserCreationForm):
@@ -116,3 +116,11 @@ class HealthPredictionForm(forms.Form):
     heart_rate = forms.IntegerField(min_value=40, max_value=150, label="Heart Rate")
     blood_sugar = forms.IntegerField(min_value=50, max_value=51200, label="Blood Sugar")
     cholesterol = forms.IntegerField(min_value=100, max_value=400, label="Cholesterol")
+
+class MessageForm(forms.ModelForm):
+    class Meta:
+        model = Message
+        fields = ['content']
+        widgets = {
+            'content': forms.Textarea(attrs={'rows': 2, 'placeholder': 'Type your message...'})
+        }

@@ -2,8 +2,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .forms import UserRegisterForm, DoctorProfileForm, PatientProfileForm, SymptomForm, AppointmentForm, PrescriptionForm, PatientReportForm, PatientHistoryForm, TestimonialForm, LabTestForm, HealthPredictionForm
-from .models import User, DoctorProfile, PatientProfile, PredictionHistory, Appointment, Prescription, PatientReport, PatientHistory, Medicine, Cart, Testimonial, Order, AvailableLabTest, LabTest, HealthPredictionHistory
+from .forms import UserRegisterForm, DoctorProfileForm, PatientProfileForm, SymptomForm, AppointmentForm, PrescriptionForm, PatientReportForm, PatientHistoryForm, TestimonialForm, LabTestForm, HealthPredictionForm, MessageForm
+from .models import User, DoctorProfile, PatientProfile, PredictionHistory, Appointment, Prescription, PatientReport, PatientHistory, Medicine, Cart, Testimonial, Order, AvailableLabTest, LabTest, HealthPredictionHistory, Message
 import requests
 import os
 import pandas as pd
@@ -733,3 +733,31 @@ def health_history(request):
             plt.close(fig)
 
     return render(request, "healthcare_app/health_history.html", {"history": history, "charts": charts})
+
+
+@login_required
+def message_thread(request, appointment_id):
+    appointment = get_object_or_404(Appointment, id=appointment_id)
+
+    # Check if user is part of this appointment
+    if request.user != appointment.patient and request.user != appointment.doctor:
+        return redirect('home')
+
+    messages = appointment.messages.order_by('timestamp')
+
+    if request.method == 'POST':
+        form = MessageForm(request.POST)
+        if form.is_valid():
+            message = form.save(commit=False)
+            message.appointment = appointment
+            message.sender = request.user
+            message.save()
+            return redirect('message_thread', appointment_id=appointment.id)
+    else:
+        form = MessageForm()
+
+    return render(request, 'healthcare_app/message_thread.html', {
+        'appointment': appointment,
+        'messages': messages,
+        'form': form
+    })

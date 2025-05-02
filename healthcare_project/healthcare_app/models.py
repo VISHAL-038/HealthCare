@@ -3,6 +3,7 @@ from django.contrib.auth.models import AbstractUser
 from django.utils.timezone import now
 from django.contrib.auth import get_user_model
 from decimal import Decimal
+from django.conf import settings
 
 
 class User(AbstractUser):
@@ -201,3 +202,13 @@ class HealthPredictionHistory(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.predicted_health_condition} ({self.created_at.strftime('%Y-%m-%d')})"
+
+class Message(models.Model):
+    appointment = models.ForeignKey('Appointment', on_delete=models.CASCADE, related_name='messages')
+    sender = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    content = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Message from {self.sender} at {self.timestamp}"
+    

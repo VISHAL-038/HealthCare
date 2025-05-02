@@ -75,6 +75,10 @@
                                         <a href="{% url 'issue_prescription' %}" class="btn btn-primary btn-sm">💊 Prescribe</a>
                                     {% endif %}
                                 </div>
+                                <a href="{% url 'message_thread' appointment.id %}" class="btn btn-sm btn-outline-primary">
+                                    Message
+                                </a>
+                                                              
                             </li>
                         {% empty %}
                             <li class="list-group-item text-muted text-center">No scheduled appointments.</li>
