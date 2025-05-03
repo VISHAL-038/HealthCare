@@ -225,7 +225,7 @@
                                     <br><small>{{ appointment.date|date:"M d, Y" }} at {{ appointment.time }}</small>
                                 </span>
                                 <a href="{% url 'message_thread' appointment.id %}" class="btn btn-sm btn-outline-primary">
-                                    Message
+                                    Chat
                                 </a>
                                 
                                 <a href="{% url 'cancel_appointment' appointment.id %}" class="btn btn-sm btn-danger">Cancel</a>

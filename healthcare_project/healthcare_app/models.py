@@ -204,11 +204,10 @@ class HealthPredictionHistory(models.Model):
         return f"{self.user.username} - {self.predicted_health_condition} ({self.created_at.strftime('%Y-%m-%d')})"
 
 class Message(models.Model):
-    appointment = models.ForeignKey('Appointment', on_delete=models.CASCADE, related_name='messages')
-    sender = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    appointment = models.ForeignKey(Appointment, related_name='messages', on_delete=models.CASCADE)
+    sender = models.ForeignKey(User, on_delete=models.CASCADE)
     content = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
 
-    def __str__(self):
-        return f"Message from {self.sender} at {self.timestamp}"
-    
+    class Meta:
+        ordering = ['timestamp']

@@ -66,18 +66,20 @@
                                     <br><small>📒{{ appointment.reason }}</small>
                                 </span>
                                 <span class="badge bg-info text-dark">{{ appointment.status }}</span>
-                                <div class="action-buttons">
+                                <div class="action-buttons d-flex">
                                     {% if appointment.status == "pending" %}
                                         <a href="{% url 'approve_appointment' appointment.id %}" class="btn btn-success btn-sm">✔ Approve</a>
                                         <a href="{% url 'reject_appointment' appointment.id %}" class="btn btn-danger btn-sm">✖ Reject</a>
                                     {% endif %}
                                     {% if appointment.status == "confirmed" %}
                                         <a href="{% url 'issue_prescription' %}" class="btn btn-primary btn-sm">💊 Prescribe</a>
+                                        <a href="{% url 'message_thread' appointment.id %}" class="btn btn-sm btn-outline-primary">
+                                            Chat
+                                        </a>
                                     {% endif %}
+
                                 </div>
-                                <a href="{% url 'message_thread' appointment.id %}" class="btn btn-sm btn-outline-primary">
-                                    Message
-                                </a>
+                                
                                                               
                             </li>
                         {% empty %}
