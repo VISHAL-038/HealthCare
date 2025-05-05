@@ -1,0 +1,7 @@
+{% block content %}
+<div class="message {% if message.sender == user %}sent{% else %}received{% endif %}">
+    <strong>{{ message.sender.username }}</strong>: {{ message.content }}
+    <span class="timestamp">{{ message.timestamp|date:"H:i" }}</span>
+</div>
+{% endblock %}
+

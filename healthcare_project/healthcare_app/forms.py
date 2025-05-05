@@ -122,5 +122,5 @@ class MessageForm(forms.ModelForm):
         model = Message
         fields = ['content']
         widgets = {
-            'content': forms.Textarea(attrs={'rows': 2, 'placeholder': 'Type your message...'})
+            'content': forms.Textarea(attrs={'rows': 2, 'placeholder': 'Type your message...','id': 'chat-input'})
         }

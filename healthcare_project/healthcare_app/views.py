@@ -20,6 +20,7 @@ import seaborn as sns
 import base64
 from io import BytesIO
 from decimal import Decimal
+from django.template.loader import render_to_string
 import matplotlib
 matplotlib.use("Agg")
 
@@ -155,10 +156,20 @@ def patient_dashboard(request):
 
     # Fetch related data
     appointments = Appointment.objects.filter(patient=request.user)
+
+    # ✅ Add a property: does this appointment have any unread messages *from the doctor*?
+    for appointment in appointments:
+        appointment.has_unread_messages = appointment.messages.filter(
+            is_read=False, sender=appointment.doctor
+        ).exists()
+
+    
     reports = PatientReport.objects.filter(patient=request.user)
     history = PredictionHistory.objects.filter(user=request.user)
     user_lab_tests = LabTest.objects.filter(user=request.user)
     testimonials = Testimonial.objects.all().order_by("-created_at")[:5]
+    prescriptions = Prescription.objects.filter(patient=request.user).order_by('-date_issued')[:3]
+    prescriptions_full = Prescription.objects.filter(patient=request.user).order_by('-date_issued')
 
     # Forms
     history_form = PatientHistoryForm(instance=patient_history)
@@ -214,11 +225,12 @@ def patient_dashboard(request):
             "testimonial_form": testimonial_form,
             "testimonials": testimonials,
             "user_lab_tests": user_lab_tests,
+            "prescriptions":prescriptions,
+            "prescriptions_full":prescriptions_full,
         },
     )
 
 
-# ✅ Doctor Dashboard
 @login_required
 def doctor_dashboard(request):
     # Redirect if user is not a doctor
@@ -228,6 +240,7 @@ def doctor_dashboard(request):
     # Ensure doctor profile exists
     doctor_profile, _ = DoctorProfile.objects.get_or_create(user=request.user)
     profile_form = DoctorProfileForm(instance=doctor_profile)
+
     if request.method == "POST":
         if "update_doctor_profile" in request.POST:
             profile_form = DoctorProfileForm(request.POST, request.FILES, instance=doctor_profile)
@@ -242,19 +255,19 @@ def doctor_dashboard(request):
         user_type="patient", patient_appointments__doctor=request.user
     ).distinct()
 
+    for appointment in appointments:
+        appointment.has_unread_messages = appointment.messages.filter(is_read=False).exclude(sender=request.user).exists()
+
+
     today = now()
-    # Calculate the number of confirmed appointments
     confirmed_appointments = appointments.filter(status="confirmed")
     confirmed_appointments_count = confirmed_appointments.count()
-    # print("Appointment Status Values:", list(appointments.values_list("status", flat=True)))
-    
-    # print("Confirmed Appointments Count:", confirmed_appointments_count)
+
     # ✅ Data Visualization for Appointments
     if appointments.exists():
         df = pd.DataFrame(list(appointments.values("date", "status", "patient")))
 
         if not df.empty:
-            # 📅 Monthly Appointment Trend
             df["Month"] = pd.to_datetime(df["date"]).dt.strftime("%b %Y")
             appointment_counts = df.groupby("Month").size().reset_index(name="Count")
             fig_monthly = px.line(
@@ -268,7 +281,6 @@ def doctor_dashboard(request):
             )
             fig_monthly.update_layout(title_x=0.5)
 
-            # 📅 Appointments per Weekday
             df["Weekday"] = pd.to_datetime(df["date"]).dt.day_name()
             weekday_counts = df["Weekday"].value_counts().reset_index()
             weekday_counts.columns = ["Weekday", "Count"]
@@ -282,7 +294,6 @@ def doctor_dashboard(request):
             )
             fig_weekly.update_layout(title_x=0.5)
 
-            # 🩺 Confirmed vs Canceled Appointments
             status_counts = df["status"].value_counts().reset_index()
             status_counts.columns = ["Status", "Count"]
             fig_status = px.pie(
@@ -294,7 +305,6 @@ def doctor_dashboard(request):
             )
             fig_status.update_layout(title_x=0.5)
 
-            # Convert charts to HTML
             chart_monthly = fig_monthly.to_html(full_html=False)
             chart_weekly = fig_weekly.to_html(full_html=False)
             chart_status = fig_status.to_html(full_html=False)
@@ -317,6 +327,7 @@ def doctor_dashboard(request):
             "chart_status": chart_status,
         },
     )
+
 
 @login_required
 def approve_appointment(request, appointment_id):
@@ -475,6 +486,8 @@ class MedicineDetailView(generics.RetrieveUpdateDestroyAPIView):
 
 def medicine_shop(request):
     query = request.GET.get("search", "").strip()  # Get search query from the URL
+    cart_count = Cart.objects.filter(user=request.user).count() if request.user.is_authenticated else 0
+    
 
     if query:
         medicines = Medicine.objects.filter(
@@ -488,10 +501,12 @@ def medicine_shop(request):
     return render(request, "healthcare_app/medicines.html", {
         "medicines": medicines,
         "search_query": query,
+        'cart_count':cart_count,
     })
 
 def medicine_detail_view(request, pk):
     medicine = get_object_or_404(Medicine, pk=pk)
+   
     return render(request,"healthcare_app/medicinedetail.html",{'medicine':medicine})
 
 
@@ -734,17 +749,21 @@ def health_history(request):
 
     return render(request, "healthcare_app/health_history.html", {"history": history, "charts": charts})
 
-
 @login_required
 def message_thread(request, appointment_id):
     appointment = get_object_or_404(Appointment, id=appointment_id)
 
-    # Check if user is part of this appointment
+    # ✅ Check if the user is either the patient or doctor
     if request.user != appointment.patient and request.user != appointment.doctor:
         return redirect('home')
 
+    # ✅ Mark unread messages (not sent by current user) as read
+    appointment.messages.filter(is_read=False).exclude(sender=request.user).update(is_read=True)
+
+    # ✅ Get all messages for this appointment
     messages = appointment.messages.order_by('timestamp')
 
+    # ✅ Handle message sending via POST (optional if using AJAX)
     if request.method == 'POST':
         form = MessageForm(request.POST)
         if form.is_valid():
@@ -761,3 +780,29 @@ def message_thread(request, appointment_id):
         'messages': messages,
         'form': form
     })
+
+
+@login_required
+def send_message_ajax(request, appointment_id):
+    if request.method == "POST":
+        appointment = get_object_or_404(Appointment, id=appointment_id)
+
+        if request.user != appointment.patient and request.user != appointment.doctor:
+            return JsonResponse({'error': 'Unauthorized'}, status=403)
+
+        form = MessageForm(request.POST)
+        if form.is_valid():
+            message = form.save(commit=False)
+            message.appointment = appointment
+            message.sender = request.user
+            message.save()
+
+            html = render_to_string('healthcare_app/partials/message.html', {
+                'message': message,
+                'user': request.user
+            })
+
+            return JsonResponse({'message_html': html})
+
+    return JsonResponse({'error': 'Invalid request'}, status=400)
+

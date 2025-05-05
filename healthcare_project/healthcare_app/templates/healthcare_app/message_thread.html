@@ -1,115 +1,171 @@
-{% extends 'healthcare_app/base.html' %}
-{% block content %}
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+{% extends 'healthcare_app/base.html' %} {% block content %}
+<link
+  href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+  rel="stylesheet"
+/>
 <style>
-    .chat-container {
-        max-width: 800px;
-        margin: 20px auto;
-        border: 1px solid #b3cde0;
-        border-radius: 10px;
-        background-color: #ffffff;
-        height: 80vh;
-        display: flex;
-        flex-direction: column;
-        overflow: hidden;
+  .chat-container {
+    max-width: 800px;
+    margin: 20px auto;
+    border: 1px solid #b3cde0;
+    border-radius: 10px;
+    background-color: #ffffff;
+    height: 80vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .chat-header {
+    background-color: #005b96;
+    color: white;
+    padding: 10px;
+    border-bottom: 1px solid #b3cde0;
+  }
+  .chat-messages {
+    flex-grow: 1;
+    padding: 15px;
+    overflow-y: auto;
+    background-color: #f5faff;
+  }
+  .message {
+    margin-bottom: 10px;
+    max-width: 70%;
+    padding: 8px 12px;
+    border-radius: 7.5px;
+    position: relative;
+    clear: both;
+    animation: fadeIn 0.5s ease-in-out;
+  }
+  .message.sent {
+    background-color: #b3cde0;
+    margin-left: auto;
+    border-top-right-radius: 0;
+    float: right;
+  }
+  .message.received {
+    background-color: #ffffff;
+    margin-right: auto;
+    border-top-left-radius: 0;
+    float: left;
+    border: 1px solid #e6e6e6;
+  }
+  .message .timestamp {
+    font-size: 0.75em;
+    color: #666;
+    display: block;
+    text-align: right;
+  }
+  .message-form {
+    background-color: #ffffff;
+    padding: 10px;
+    border-top: 1px solid #b3cde0;
+    display: flex;
+    align-items: center;
+  }
+  .message-form textarea {
+    flex-grow: 1;
+    border-radius: 20px;
+    padding: 10px;
+    margin-right: 10px;
+    resize: none;
+    height: 40px;
+    border: 1px solid #b3cde0;
+  }
+  .message-form button {
+    border-radius: 20px;
+    background-color: #005b96;
+    border: none;
+  }
+  .message-form button:hover {
+    background-color: #03396c;
+  }
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
     }
-    .chat-header {
-        background-color: #005b96;
-        color: white;
-        padding: 10px;
-        border-bottom: 1px solid #b3cde0;
+    to {
+      opacity: 1;
+      transform: translateY(0);
     }
-    .chat-messages {
-        flex-grow: 1;
-        padding: 15px;
-        overflow-y: auto;
-        background-color: #f5faff;
-    }
-    .message {
-        margin-bottom: 10px;
-        max-width: 70%;
-        padding: 8px 12px;
-        border-radius: 7.5px;
-        position: relative;
-        clear: both;
-        animation: fadeIn 0.5s ease-in-out;
-    }
-    .message.sent {
-        background-color: #b3cde0;
-        margin-left: auto;
-        border-top-right-radius: 0;
-        float: right;
-    }
-    .message.received {
-        background-color: #ffffff;
-        margin-right: auto;
-        border-top-left-radius: 0;
-        float: left;
-        border: 1px solid #e6e6e6;
-    }
-    .message .timestamp {
-        font-size: 0.75em;
-        color: #666;
-        display: block;
-        text-align: right;
-    }
-    .message-form {
-        background-color: #ffffff;
-        padding: 10px;
-        border-top: 1px solid #b3cde0;
-        display: flex;
-        align-items: center;
-    }
-    .message-form textarea {
-        flex-grow: 1;
-        border-radius: 20px;
-        padding: 10px;
-        margin-right: 10px;
-        resize: none;
-        height: 40px;
-        border: 1px solid #b3cde0;
-    }
-    .message-form button {
-        border-radius: 20px;
-        background-color: #005b96;
-        border: none;
-    }
-    .message-form button:hover {
-        background-color: #03396c;
-    }
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
+  }
 </style>
 
 <div class="chat-container">
-    <div class="chat-header">
-        <h2>Messages for Appointment #{{ appointment.id }}</h2>
-        <p>Patient Name : {{ appointment.patient }}</p>
-        <p>Doctor Name : {{ appointment.doctor }}</p>
+  <div class="chat-header d-flex justify-content-between align-items-start">
+    <div>
+      <h2 class="mb-1">Messages for Appointment #{{ appointment.id }}</h2>
+      <p class="mb-0">Patient Name: {{ appointment.patient }}</p>
+      <p class="mb-0">Doctor Name: {{ appointment.doctor }}</p>
     </div>
-    <div class="chat-messages">
-        {% for message in messages %}
-            <div class="message {% if message.sender == user %}sent{% else %}received{% endif %}">
-                <strong>{{ message.sender.username }}</strong>: {{ message.content }}
-                <span class="timestamp">{{ message.timestamp|date:"H:i" }}</span>
-            </div>
-        {% empty %}
-            <p class="text-center text-muted">No messages yet.</p>
-        {% endfor %}
+    {% if user.doctorprofile %}
+      <a href="{% url 'doctor_dashboard' %}" class="btn btn-light text-dark ms-auto">
+        ⬅️ Back to Dashboard
+      </a>
+    {% elif user.patientprofile %}
+      <a href="{% url 'patient_dashboard' %}" class="btn btn-light text-dark ms-auto">
+        ⬅️ Back to Dashboard
+      </a>
+    {% endif %}
+  </div>
+  
+  <div class="chat-messages">
+    {% for message in messages %}
+    <div
+      class="message {% if message.sender == user %}sent{% else %}received{% endif %}"
+    >
+      <strong>{{ message.sender.username }}</strong>: {{ message.content }}
+      <span class="timestamp">{{ message.timestamp|date:"H:i" }}</span>
     </div>
-    <form method="post" class="message-form">
-        {% csrf_token %}
-        {{ form.content }}
-        <button type="submit" class="btn btn-primary">Send</button>
-    </form>
+    {% empty %}
+    <p class="text-center text-muted">No messages yet.</p>
+    {% endfor %}
+  </div>
+  <form id="chat-form" method="post" class="message-form">
+    {% csrf_token %} {{ form.content }}
+    <button type="submit" class="btn btn-primary">Send</button>
+  </form>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // Auto-scroll to the bottom of the chat
-    const chatMessages = document.querySelector('.chat-messages');
-    chatMessages.scrollTop = chatMessages.scrollHeight;
+  // Auto-scroll to the bottom of the chat
+  const chatMessages = document.querySelector(".chat-messages");
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+
+  document.getElementById("chat-form").addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    const input = document.getElementById("chat-input");
+    const content = input.value.trim();
+    if (!content) return;
+
+    const csrfToken = document.querySelector(
+      "[name=csrfmiddlewaretoken]"
+    ).value;
+
+    fetch("{% url 'send_message_ajax' appointment.id %}", {
+      method: "POST",
+      headers: {
+        "X-CSRFToken": csrfToken,
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: new URLSearchParams({
+        content: content,
+      }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.message_html) {
+          document
+            .querySelector(".chat-messages")
+            .insertAdjacentHTML("beforeend", data.message_html);
+          input.value = "";
+          const chatBox = document.querySelector(".chat-messages");
+          chatBox.scrollTop = chatBox.scrollHeight;
+        }
+      })
+      .catch((error) => console.error("Error:", error));
+  });
 </script>
 {% endblock %}

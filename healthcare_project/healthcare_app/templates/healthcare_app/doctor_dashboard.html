@@ -73,8 +73,9 @@
                                     {% endif %}
                                     {% if appointment.status == "confirmed" %}
                                         <a href="{% url 'issue_prescription' %}" class="btn btn-primary btn-sm">💊 Prescribe</a>
-                                        <a href="{% url 'message_thread' appointment.id %}" class="btn btn-sm btn-outline-primary">
-                                            Chat
+                                        <a href="{% url 'message_thread' appointment.id %}"
+                                        class="btn btn-sm {% if appointment.has_unread_messages %}btn-warning{% else %}btn-outline-primary{% endif %}">
+                                        Chat {% if appointment.has_unread_messages %}<span class="badge bg-danger ms-1">New</span>{% endif %}
                                         </a>
                                     {% endif %}
 

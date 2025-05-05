@@ -224,8 +224,9 @@
                                     <strong>🩺 Dr. {{ appointment.doctor.username }}</strong> 
                                     <br><small>{{ appointment.date|date:"M d, Y" }} at {{ appointment.time }}</small>
                                 </span>
-                                <a href="{% url 'message_thread' appointment.id %}" class="btn btn-sm btn-outline-primary">
-                                    Chat
+                                <a href="{% url 'message_thread' appointment.id %}"
+                                class="btn btn-sm {% if appointment.has_unread_messages %}btn-warning{% else %}btn-outline-primary{% endif %}">
+                                Chat {% if appointment.has_unread_messages %}<span class="badge bg-danger ms-1">New</span>{% endif %}
                                 </a>
                                 
                                 <a href="{% url 'cancel_appointment' appointment.id %}" class="btn btn-sm btn-danger">Cancel</a>
@@ -238,6 +239,94 @@
             </div>
         </div>
     </div>
+
+    <!-- Prescriptions Section -->
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card dashboard-card shadow-lg p-4">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <div>
+                    <h4 class="mb-0">💊 Your Prescriptions</h4>
+                    <p class="text-muted mb-0">View the latest prescriptions issued by your doctor.</p>
+                </div>
+                <!-- Button to trigger modal -->
+                <button type="button" class="btn btn-outline-primary ms-3" data-bs-toggle="modal" data-bs-target="#prescriptionModal">
+                    📝 View Prescriptions
+                </button>
+            </div>
+
+            {% if prescriptions %}
+                <div class="row row-cols-1 row-cols-md-2 g-4 mt-3">
+                    {% for prescription in prescriptions %}
+                        <div class="col">
+                            <div class="card border-primary h-100 shadow-sm">
+                                <div class="card-body">
+                                    <h5 class="card-title text-primary">Dr. {{ prescription.doctor }}</h5>
+                                    <h6 class="card-subtitle mb-2 text-muted">Issued on: {{ prescription.date_issued|date:"Y-m-d H:i" }}</h6>
+                                    <p class="card-text"><strong>Diagnosis:</strong> {{ prescription.diagnosis }}</p>
+                                    <p class="card-text"><strong>Medicines:</strong> {{ prescription.prescribed_medicines }}</p>
+                                    {% if prescription.additional_notes %}
+                                        <p class="card-text"><strong>Notes:</strong> {{ prescription.additional_notes }}</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-center text-muted mt-3">No prescriptions available.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+
+    <!-- Modal -->
+<div class="modal fade" id="prescriptionModal" tabindex="-1" aria-labelledby="prescriptionModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title fw-bold" id="prescriptionModalLabel">My Prescriptions</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          {% if prescriptions %}
+            <div class="table-responsive">
+              <table class="table table-bordered">
+                <thead class="table-dark">
+                  <tr>
+                    <th>Date</th>
+                    <th>Doctor</th>
+                    <th>Diagnosis</th>
+                    <th>Medicines</th>
+                    <th>Notes</th>
+                    <th>Print</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for p in prescriptions_full%}
+                    <tr id="prescription-{{ p.id }}">
+                      <td>{{ p.date_issued }}</td>
+                      <td>{{ p.doctor }}</td>
+                      <td>{{ p.diagnosis }}</td>
+                      <td>{{ p.prescribed_medicines }}</td>
+                      <td>{{ p.additional_notes|default:"N/A" }}</td>
+                      <td>
+                        <button class="btn btn-sm btn-outline-secondary mt-2" onclick="printPrescription({{ p.id }})">🖨️ Print</button>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          {% else %}
+            <p class="text-muted">No prescriptions found.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+  
 
     <!-- Upload Reports & Display Section -->
     <div class="row mt-5">
@@ -328,6 +417,25 @@
         <a href="{% url 'logout' %}" class="btn btn-danger btn-lg">Logout</a>
     </div>
 </div>
+
+<script>
+    function printPrescription(id) {
+      const content = document.getElementById(`prescription-${id}`).outerHTML;
+      const win = window.open('', '', 'height=700,width=900');
+      win.document.write('<html><head><title>Prescription</title>');
+      win.document.write('<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">');
+      win.document.write('</head><body>');
+      win.document.write('<div class="container mt-5">');
+      win.document.write('<h3 class="text-center mb-4">Prescription</h3>');
+      win.document.write('<table class="table table-bordered">' + content + '</table>');
+      win.document.write('</div>');
+      win.document.write('</body></html>');
+      win.document.close();
+      win.print();
+    }
+  </script>
+  
+    
 <style>
 /* General Styling */
 body {

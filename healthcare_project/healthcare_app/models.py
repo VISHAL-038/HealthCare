@@ -5,14 +5,12 @@ from django.contrib.auth import get_user_model
 from decimal import Decimal
 from django.conf import settings
 
-
 class User(AbstractUser):
     USER_TYPE_CHOICES = (
         ('patient', 'Patient'),
         ('doctor', 'Doctor'),
     )
     user_type = models.CharField(max_length=10, choices=USER_TYPE_CHOICES, default='patient')
-
 
 # Doctor Profile
 class DoctorProfile(models.Model):
@@ -208,6 +206,8 @@ class Message(models.Model):
     sender = models.ForeignKey(User, on_delete=models.CASCADE)
     content = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
+    is_read = models.BooleanField(default=False)  # 👈 Add this
 
     class Meta:
         ordering = ['timestamp']
+

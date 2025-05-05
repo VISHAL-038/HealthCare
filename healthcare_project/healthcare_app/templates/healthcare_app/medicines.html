@@ -18,9 +18,15 @@
             </form>
     
             <!-- Right Side: View Cart Button -->
-            <a href="{% url 'view_cart' %}" class="btn btn-primary d-flex align-items-center cart-btn">
+            <a href="{% url 'view_cart' %}" class="btn btn-primary d-flex align-items-center cart-btn position-relative">
                 <i class="fas fa-shopping-basket me-2"></i> View Cart
+                {% if cart_count > 0 %}
+                    <span class="badge bg-danger position-absolute top-0 start-100 translate-middle rounded-pill">
+                        {{ cart_count }}
+                    </span>
+                {% endif %}
             </a>
+            
         </div>
     </div>
 
