@@ -201,13 +201,17 @@ class HealthPredictionHistory(models.Model):
     def __str__(self):
         return f"{self.user.username} - {self.predicted_health_condition} ({self.created_at.strftime('%Y-%m-%d')})"
 
+from django.core.validators import FileExtensionValidator
+
 class Message(models.Model):
     appointment = models.ForeignKey(Appointment, related_name='messages', on_delete=models.CASCADE)
     sender = models.ForeignKey(User, on_delete=models.CASCADE)
-    content = models.TextField()
+    content = models.TextField(blank=True)
+    image = models.ImageField(upload_to='message_images/', blank=True, null=True, validators=[FileExtensionValidator(['jpg', 'jpeg', 'png'])])
     timestamp = models.DateTimeField(auto_now_add=True)
-    is_read = models.BooleanField(default=False)  # 👈 Add this
+    is_read = models.BooleanField(default=False)
 
     class Meta:
         ordering = ['timestamp']
+
 

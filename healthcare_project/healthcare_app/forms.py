@@ -120,7 +120,12 @@ class HealthPredictionForm(forms.Form):
 class MessageForm(forms.ModelForm):
     class Meta:
         model = Message
-        fields = ['content']
+        fields = ['content', 'image']
         widgets = {
-            'content': forms.Textarea(attrs={'rows': 2, 'placeholder': 'Type your message...','id': 'chat-input'})
+            'content': forms.Textarea(attrs={
+                'rows': 2, 
+                'placeholder': 'Type your message...',
+                'id': 'chat-input'
+            })
         }
+

@@ -753,19 +753,19 @@ def health_history(request):
 def message_thread(request, appointment_id):
     appointment = get_object_or_404(Appointment, id=appointment_id)
 
-    # ✅ Check if the user is either the patient or doctor
+    # Check user access
     if request.user != appointment.patient and request.user != appointment.doctor:
         return redirect('home')
 
-    # ✅ Mark unread messages (not sent by current user) as read
+    # Mark unread messages as read
     appointment.messages.filter(is_read=False).exclude(sender=request.user).update(is_read=True)
 
-    # ✅ Get all messages for this appointment
+    # Get all messages
     messages = appointment.messages.order_by('timestamp')
 
-    # ✅ Handle message sending via POST (optional if using AJAX)
+    # Handle message submission (including image)
     if request.method == 'POST':
-        form = MessageForm(request.POST)
+        form = MessageForm(request.POST, request.FILES)
         if form.is_valid():
             message = form.save(commit=False)
             message.appointment = appointment
@@ -781,16 +781,16 @@ def message_thread(request, appointment_id):
         'form': form
     })
 
-
 @login_required
 def send_message_ajax(request, appointment_id):
     if request.method == "POST":
         appointment = get_object_or_404(Appointment, id=appointment_id)
 
+        # Check user access
         if request.user != appointment.patient and request.user != appointment.doctor:
             return JsonResponse({'error': 'Unauthorized'}, status=403)
 
-        form = MessageForm(request.POST)
+        form = MessageForm(request.POST, request.FILES)
         if form.is_valid():
             message = form.save(commit=False)
             message.appointment = appointment
@@ -805,4 +805,3 @@ def send_message_ajax(request, appointment_id):
             return JsonResponse({'message_html': html})
 
     return JsonResponse({'error': 'Invalid request'}, status=400)
-
