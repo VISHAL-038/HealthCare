@@ -108,15 +108,21 @@
 
   <div class="chat-messages" id="chat-box">
     {% for message in messages %}
-      <div class="message {% if message.sender == user %}sent{% else %}received{% endif %}">
+      <div class="message {% if message.sender == user %}sent{% else %}received{% endif %}" data-message-id="{{ message.id }}">
         <strong>{{ message.sender.username }}</strong>:
         {% if message.content %}
-          <p>{{ message.content }}</p>
+          <p class="content-text">{{ message.content }}</p>
         {% endif %}
         {% if message.image %}
-          <img src="{{ message.image.url }}" alt="Attached Image" style="max-width: 100%; height: auto; margin-top: 5px;" />
+          <img src="{{ message.image.url }}" alt="Image" style="max-width: 100%; margin-top: 5px;" />
         {% endif %}
         <span class="timestamp">{{ message.timestamp|date:"H:i" }}</span>
+        {% if message.sender == user %}
+          <div class="mt-1 text-end">
+            <button class="btn btn-sm btn-warning edit-message">✏️ Edit</button>
+            <button class="btn btn-sm btn-danger delete-message">🗑️ Delete</button>
+          </div>
+        {% endif %}
       </div>
     {% empty %}
       <p class="text-center text-muted">No messages yet.</p>
@@ -127,12 +133,11 @@
     {% csrf_token %}
     {{ form.content }}
     <button type="button" class="image-upload-btn" id="image-upload-btn">📎</button>
-    {{ form.image }} <!-- Hidden file input -->
+    {{ form.image }}
     <button type="submit" class="btn btn-primary send-btn">Send</button>
   </form>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
   const chatBox = document.getElementById("chat-box");
   chatBox.scrollTop = chatBox.scrollHeight;
@@ -140,16 +145,10 @@
   const chatForm = document.getElementById("chat-form");
   const imageUploadBtn = document.getElementById("image-upload-btn");
   const imageInput = document.querySelector("input[name='image']");
-
-  // Hide file input by default
   imageInput.style.display = "none";
 
-  // Trigger file input on image upload button click
-  imageUploadBtn.addEventListener("click", () => {
-    imageInput.click();
-  });
+  imageUploadBtn.addEventListener("click", () => imageInput.click());
 
-  // Handle form submission
   chatForm.addEventListener("submit", function (e) {
     e.preventDefault();
 
@@ -163,22 +162,60 @@
       },
       body: formData
     })
-      .then(response => response.json())
-      .then(data => {
-        if (data.message_html) {
-          document.querySelector(".chat-messages").insertAdjacentHTML("beforeend", data.message_html);
-          chatBox.scrollTop = chatBox.scrollHeight;
-          chatForm.reset();
-          imageInput.value = ""; // Clear file input
-        } else {
-          console.error("Error:", data.error);
-          alert("Failed to send message: " + (data.error || "Unknown error"));
-        }
-      })
-      .catch(error => {
-        console.error("Error:", error);
-        alert("An error occurred while sending the message.");
-      });
+    .then(response => response.json())
+    .then(data => {
+      if (data.message_html) {
+        document.querySelector(".chat-messages").insertAdjacentHTML("beforeend", data.message_html);
+        chatBox.scrollTop = chatBox.scrollHeight;
+        chatForm.reset();
+        imageInput.value = "";
+      } else {
+        alert("Failed to send message: " + (data.error || "Unknown error"));
+      }
+    })
+    .catch(() => alert("An error occurred while sending the message."));
+  });
+
+  document.querySelector(".chat-messages").addEventListener("click", function (e) {
+    const messageDiv = e.target.closest(".message");
+    const messageId = messageDiv?.dataset.messageId;
+
+    if (e.target.classList.contains("delete-message")) {
+      if (confirm("Are you sure you want to delete this message?")) {
+        fetch(`/delete-message/${messageId}/`, {
+          method: "POST",
+          headers: {
+            "X-CSRFToken": document.querySelector("[name=csrfmiddlewaretoken]").value
+          }
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) messageDiv.remove();
+          else alert(data.error || "Failed to delete.");
+        });
+      }
+    }
+
+    if (e.target.classList.contains("edit-message")) {
+      const textElem = messageDiv.querySelector(".content-text");
+      const originalText = textElem.innerText;
+      const newText = prompt("Edit your message:", originalText);
+      if (newText && newText !== originalText) {
+        fetch(`/edit-message/${messageId}/`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": document.querySelector("[name=csrfmiddlewaretoken]").value
+          },
+          body: JSON.stringify({ content: newText })
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) textElem.textContent = newText;
+          else alert(data.error || "Edit failed.");
+        });
+      }
+    }
   });
 </script>
 {% endblock %}

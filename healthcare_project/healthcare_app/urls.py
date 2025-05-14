@@ -4,7 +4,7 @@ from .views import (
     disease_prediction, prediction_history, book_appointment, appointment_list, cancel_appointment,
     approve_appointment, reject_appointment, prescription_list, issue_prescription, patient_details,
     MedicineDetailView, MedicineListCreateView, medicine_shop,medicine_detail_view, my_orders_page,  add_to_cart, view_cart, remove_from_cart, checkout, 
-    available_lab_tests, book_lab_test, lab_test_success, health_trends,health_prediction, health_history , message_thread, send_message_ajax)
+    available_lab_tests, book_lab_test, lab_test_success, health_trends,health_prediction, health_history , message_thread, send_message_ajax, delete_message, edit_message)
 from .views_medicine import medicine_list, place_order, my_orders
 
 urlpatterns = [
@@ -72,5 +72,8 @@ urlpatterns = [
     # chat
     path('appointments/<int:appointment_id>/messages/', message_thread, name='message_thread'),
     path('appointment/<int:appointment_id>/send/', send_message_ajax, name='send_message_ajax'),
+    path('delete-message/<int:pk>/', delete_message, name='delete_message'),
+    path('edit-message/<int:pk>/', edit_message, name='edit_message'),
 
+ 
 ]

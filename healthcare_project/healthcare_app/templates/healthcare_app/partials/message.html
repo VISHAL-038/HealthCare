@@ -1,11 +1,26 @@
-<!-- healthcare_app/partials/message.html -->
-<div class="message {% if message.sender == user %}sent{% else %}received{% endif %} {% if message.image %}has-image{% endif %}">
-    <strong aria-label="Message from {{ message.sender.username }}">{{ message.sender.username }}</strong>:
+<div class="message {% if message.sender == user %}sent{% else %}received{% endif %}" data-message-id="{{ message.id }}">
+  <strong>{{ message.sender.username }}</strong>:
+
+  <div class="message-content position-relative">
     {% if message.content %}
-      <p>{{ message.content|safe }}</p>
+      <p class="content-text mb-0">{{ message.content|safe }}</p>
     {% endif %}
     {% if message.image %}
-      <img src="{{ message.image.url }}" alt="Attached image from {{ message.sender.username }}" style="max-width: 100%; height: auto; margin-top: 5px;" onerror="this.src='/static/fallback-image.png'; this.alt='Image failed to load';" />
+      <img src="{{ message.image.url }}" alt="Image" style="max-width: 100%; height: auto; margin-top: 5px;" />
     {% endif %}
-    <span class="timestamp">{{ message.timestamp|date:"H:i" }}</span>
+
+    {% if message.sender == user %}
+    <div class="dropdown position-absolute top-0 end-0">
+      <button class="btn btn-sm p-0 m-0 border-0 bg-transparent dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <span style="font-size: 18px;">⋮</span>
+      </button>
+      <ul class="dropdown-menu">
+        <li><a class="dropdown-item edit-message" href="#">Edit</a></li>
+        <li><a class="dropdown-item delete-message" href="#">Delete</a></li>
+      </ul>
+    </div>
+    {% endif %}
   </div>
+
+  <span class="timestamp">{{ message.timestamp|date:"H:i" }}</span>
+</div>

@@ -21,7 +21,9 @@ import base64
 from io import BytesIO
 from decimal import Decimal
 from django.template.loader import render_to_string
+from django.views.decorators.csrf import csrf_exempt
 import matplotlib
+import json
 matplotlib.use("Agg")
 
 # ✅ Flask API URL for ML Predictions
@@ -805,3 +807,26 @@ def send_message_ajax(request, appointment_id):
             return JsonResponse({'message_html': html})
 
     return JsonResponse({'error': 'Invalid request'}, status=400)
+
+@csrf_exempt
+def delete_message(request, pk):
+    if request.method == 'POST':
+        try:
+            message = Message.objects.get(pk=pk, sender=request.user)
+            message.delete()
+            return JsonResponse({'success': True})
+        except Message.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Message not found or permission denied'})
+
+@csrf_exempt
+def edit_message(request, pk):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            content = data.get('content', '').strip()
+            message = Message.objects.get(pk=pk, sender=request.user)
+            message.content = content
+            message.save()
+            return JsonResponse({'success': True})
+        except Message.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Message not found or permission denied'})
