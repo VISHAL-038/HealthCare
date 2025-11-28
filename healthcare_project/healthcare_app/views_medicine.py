@@ -11,7 +11,7 @@ def medicine_list(request):
     return Response(serializer.data)
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])  # Only authenticated users can place orders
+@permission_classes([IsAuthenticated]) 
 def place_order(request):
     medicine_id = request.data.get('medicine_id')
     quantity = int(request.data.get('quantity', 1))
@@ -21,7 +21,7 @@ def place_order(request):
     except Medicine.DoesNotExist:
         return Response({"error": "Medicine not found"}, status=404)
 
-    total_price = medicine.price_range  # Keeping it simple, using price range as string
+    total_price = medicine.price_range 
 
     order = Order.objects.create(
         user=request.user,

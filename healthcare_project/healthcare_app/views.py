@@ -24,33 +24,31 @@ from django.template.loader import render_to_string
 from django.views.decorators.csrf import csrf_exempt
 import matplotlib
 import json
+from .forms import HealthPredictionForm
 matplotlib.use("Agg")
 
-# ✅ Flask API URL for ML Predictions
 FLASK_API_URL = "http://127.0.0.1:5000/predict"
+flask_api_url = "http://127.0.0.1:8080/predict_health"
 
 # ✅ Path to the CSV file
 CSV_FILE_PATH = os.path.join(settings.BASE_DIR, 'healthcare_app', 'static', 'data', 'disease_data.csv')
 
 def home(request):
     doctors = DoctorProfile.objects.select_related('user').all()
-    testimonials = Testimonial.objects.all().order_by('-created_at')[:5]  # Fetch latest 5 testimonials
+    testimonials = Testimonial.objects.all().order_by('-created_at')[:5]  
 
-    # Fetch the DoctorProfile for the logged-in user if they are a doctor
     doctor_profile = None
     if request.user.is_authenticated and request.user.user_type == "doctor":
         try:
             doctor_profile = DoctorProfile.objects.get(user=request.user)
         except DoctorProfile.DoesNotExist:
-            pass  # Handle the case where the doctor profile doesn't exist
+            pass  
 
     return render(request, "healthcare_app/home.html", {
         "doctors": doctors,
         "testimonials": testimonials,
-        "doctor_profile": doctor_profile,  # Add doctor_profile to context
+        "doctor_profile": doctor_profile,  
     })
-
-
 
 # User Registration View
 def register(request):
@@ -61,7 +59,6 @@ def register(request):
             user_type = form.cleaned_data.get('user_type')
 
             if user_type == 'doctor':
-                # Providing default values for required fields
                 DoctorProfile.objects.create(user=user, specialization="General", experience=0, contact_number="N/A")
                 login(request, user)
                 return redirect('doctor_dashboard')
@@ -74,7 +71,6 @@ def register(request):
     else:
         form = UserRegisterForm()
     return render(request, 'healthcare_app/register.html', {'form': form})
-
 
 # User Login View
 def user_login(request):
@@ -173,12 +169,10 @@ def patient_dashboard(request):
     prescriptions = Prescription.objects.filter(patient=request.user).order_by('-date_issued')[:3]
     prescriptions_full = Prescription.objects.filter(patient=request.user).order_by('-date_issued')
 
-    # Forms
     history_form = PatientHistoryForm(instance=patient_history)
     report_form = PatientReportForm()
     testimonial_form = TestimonialForm()
 
-    # ✅ Handle Form Submissions
     if request.method == "POST":
         if "update_history" in request.POST:
             history_form = PatientHistoryForm(request.POST, instance=patient_history)
@@ -235,11 +229,9 @@ def patient_dashboard(request):
 
 @login_required
 def doctor_dashboard(request):
-    # Redirect if user is not a doctor
     if request.user.user_type != "doctor":
         return redirect("patient_dashboard")
 
-    # Ensure doctor profile exists
     doctor_profile, _ = DoctorProfile.objects.get_or_create(user=request.user)
     profile_form = DoctorProfileForm(instance=doctor_profile)
 
@@ -251,7 +243,6 @@ def doctor_dashboard(request):
                 messages.success(request, "Profile updated successfully!")
                 return redirect("doctor_dashboard")
 
-    # Fetch related data
     appointments = Appointment.objects.filter(doctor=request.user).order_by("date")
     patients = User.objects.filter(
         user_type="patient", patient_appointments__doctor=request.user
@@ -265,7 +256,7 @@ def doctor_dashboard(request):
     confirmed_appointments = appointments.filter(status="confirmed")
     confirmed_appointments_count = confirmed_appointments.count()
 
-    # ✅ Data Visualization for Appointments
+
     if appointments.exists():
         df = pd.DataFrame(list(appointments.values("date", "status", "patient")))
 
@@ -381,17 +372,12 @@ def patient_details(request, patient_id):
     doctor = request.user
     patient = get_object_or_404(User, id=patient_id, user_type="patient")
     print(patient)
-
-    # Ensure the doctor has an appointment with this patient
     if not Appointment.objects.filter(doctor=doctor, patient=patient).exists():
         messages.error(request, "You are not authorized to view this patient's details.")
         return redirect('doctor_dashboard')
-
-    # Fetch patient's medical history, reports, and prescriptions
     patient_history, _ = PatientHistory.objects.get_or_create(patient=patient)
     reports = PatientReport.objects.filter(patient=patient)
     prescriptions = Prescription.objects.filter(patient=patient, doctor=doctor)
-
     return render(request, "healthcare_app/patient_details.html", {
         "patient": patient,
         "patient_history": patient_history,
@@ -403,57 +389,41 @@ def patient_details(request, patient_id):
 @login_required
 def disease_prediction(request):
     prediction_result = None
-    disease_details = None  # Store disease details here
-
+    disease_details = None  
     if request.method == "POST":
         form = SymptomForm(request.POST)
         if form.is_valid():
             symptoms = form.cleaned_data["symptoms"]
-
             try:
                 response = requests.post(FLASK_API_URL, json={"symptoms": symptoms})
-
                 if response.status_code == 200:
                     prediction_result = response.json()
                     predicted_disease = prediction_result.get("final_prediction")
-
-                    # ✅ Get additional disease details
                     disease_details = get_disease_details(predicted_disease)
-
-                    # ✅ Save Prediction History
                     PredictionHistory.objects.create(
                         user=request.user,
                         symptoms=symptoms,
                         predicted_disease=predicted_disease
                     )
-
                 else:
                     prediction_result = {"error": "Failed to fetch prediction from API"}
-
             except requests.exceptions.RequestException as e:
                 prediction_result = {"error": f"API request failed: {e}"}
-
     else:
         form = SymptomForm()
-
     return render(request, "healthcare_app/disease_prediction.html", {
         "form": form,
         "prediction": prediction_result,
-        "disease_details": disease_details  # ✅ Pass disease details to template
+        "disease_details": disease_details 
     })
 
 def get_disease_details(predicted_disease):
     """Retrieve disease description, tests, and medications from CSV"""
     try:
         df = pd.read_csv(CSV_FILE_PATH)
-
-        # Normalize disease names
         df["Disease"] = df["Prognosis"].str.strip().str.lower()
         predicted_disease = predicted_disease.strip().lower()
-
-        # Find the disease
         disease_info = df[df["Disease"] == predicted_disease]
-
         if not disease_info.empty:
             return {
                 "description": disease_info.iloc[0]["Description"],
@@ -462,19 +432,16 @@ def get_disease_details(predicted_disease):
             }
         else:
             return {"description": "No details available.", "tests": "N/A", "medications": "N/A"}
-
     except FileNotFoundError:
         return {"description": "CSV file not found.", "tests": "N/A", "medications": "N/A"}
     except Exception as e:
         return {"description": f"Error fetching data: {e}", "tests": "N/A", "medications": "N/A"}
-
 
 # Prediction history
 @login_required
 def prediction_history(request):
     history = PredictionHistory.objects.filter(user=request.user).order_by("-prediction_date")
     return render(request, "healthcare_app/prediction_history.html", {"history": history})
-
 
 # ✅ List all medicines or create a new one
 class MedicineListCreateView(generics.ListCreateAPIView):
@@ -487,10 +454,8 @@ class MedicineDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = MedicineSerializer
 
 def medicine_shop(request):
-    query = request.GET.get("search", "").strip()  # Get search query from the URL
+    query = request.GET.get("search", "").strip()  
     cart_count = Cart.objects.filter(user=request.user).count() if request.user.is_authenticated else 0
-    
-
     if query:
         medicines = Medicine.objects.filter(
             brand_names__icontains=query
@@ -508,29 +473,23 @@ def medicine_shop(request):
 
 def medicine_detail_view(request, pk):
     medicine = get_object_or_404(Medicine, pk=pk)
-   
     return render(request,"healthcare_app/medicinedetail.html",{'medicine':medicine})
-
 
 @login_required
 def add_to_cart(request, medicine_id):
     medicine = get_object_or_404(Medicine, id=medicine_id)
     cart_item, created = Cart.objects.get_or_create(user=request.user, medicine=medicine)
-
     if not created:
-        cart_item.quantity += 1  # ✅ Increment quantity if item already exists
+        cart_item.quantity += 1  
         cart_item.save()
-
     messages.success(request, "Added to cart!")
     return redirect("medicine_shop")
 
-# ✅ View Cart
-# ✅ Fix in view_cart()
+# View Cart
 @login_required
 def view_cart(request):
     cart_items = Cart.objects.filter(user=request.user)
-    total_price = sum(item.total_price() for item in cart_items)  # ✅ Add ()
-
+    total_price = sum(item.total_price() for item in cart_items) 
     return render(request, "healthcare_app/cart.html", {
         "cart_items": cart_items,
         "total_price": total_price,
@@ -545,25 +504,20 @@ def remove_from_cart(request, cart_id):
     return redirect("view_cart")
 
 # ✅ Proceed to Checkout (Move from Cart to Order)
-
 @login_required
 def checkout(request):
     cart_items = Cart.objects.filter(user=request.user)
-
     if not cart_items:
         messages.error(request, "Your cart is empty.")
         return redirect("view_cart")
-
     try:
         patient_profile = PatientProfile.objects.get(user=request.user)
     except PatientProfile.DoesNotExist:
         messages.error(request, "Please complete your profile with an address before proceeding to checkout.")
-        return redirect("dashboard")  # redirect to dashboard instead
-
+        return redirect("dashboard") 
     if not patient_profile.address:
         messages.error(request, "Please add your address in your profile before placing the order.")
-        return redirect("dashboard")  # redirect to dashboard instead
-
+        return redirect("dashboard")  
     for item in cart_items:
         Order.objects.create(
             user=request.user,
@@ -572,7 +526,6 @@ def checkout(request):
             total_price=Decimal(str(item.total_price() or "0.00")),
             status="pending"
         )
-
     cart_items.delete()
     messages.success(request, "Order placed successfully!")
     return redirect("my_orders_page")
@@ -580,7 +533,6 @@ def checkout(request):
 @login_required
 def my_orders_page(request):
     orders = Order.objects.filter(user=request.user).select_related("medicine")
-
     return render(request, "healthcare_app/my_orders.html", {"orders": orders})
 
 # lab test
@@ -597,12 +549,11 @@ def book_lab_test(request):
         form = LabTestForm(request.POST)
         if form.is_valid():
             booking = form.save(commit=False)
-            booking.user = request.user  # Assign the logged-in user
+            booking.user = request.user  
             booking.save()
             return redirect("lab_test_success")
     else:
         form = LabTestForm()
-
     return render(request, "healthcare_app/book_lab_test.html", {"form": form})
 
 @login_required
@@ -614,7 +565,6 @@ def lab_test_success(request):
 def health_trends(request):
     predictions = PredictionHistory.objects.filter(prediction_date__gte=timezone.now() - timezone.timedelta(days=30))
     symptom_chart_html = disease_chart_html = heatmap_chart_html = None
-    
     if predictions.exists():
         df = pd.DataFrame(list(predictions.values('symptoms', 'predicted_disease')))
         df['symptoms'] = df['symptoms'].str.split(',\s*')
@@ -665,15 +615,9 @@ def health_trends(request):
         'heatmap_chart': heatmap_chart_html,
     })
 
-
-from .forms import HealthPredictionForm
-# ✅ Flask API URL
-flask_api_url = "http://127.0.0.1:8080/predict_health"
-
 @login_required
 def health_prediction(request):
     prediction_result = None
-
     if request.method == "POST":
         form = HealthPredictionForm(request.POST)
         if form.is_valid():
@@ -685,19 +629,14 @@ def health_prediction(request):
                 "Blood Sugar": form.cleaned_data["blood_sugar"],
                 "Cholesterol": form.cleaned_data["cholesterol"],
             }
-
             try:
                 response = requests.post(flask_api_url, json=health_data, timeout=10)
                 if response.status_code == 200:
                     raw_prediction = response.json()
-
-                    # Convert keys for better template access
                     prediction_result = {
                         "predicted_health_condition": raw_prediction.get("Predicted Health Condition", "Unknown"),
                         "health_risk": raw_prediction.get("Health Risk", "No significant health risks detected.")
                     }
-
-                    # Save to history
                     HealthPredictionHistory.objects.create(
                         user=request.user,
                         age=form.cleaned_data["age"],
@@ -709,17 +648,13 @@ def health_prediction(request):
                         predicted_health_condition=prediction_result["predicted_health_condition"],
                         health_risk=prediction_result["health_risk"]
                     )
-
                 else:
                     prediction_result = {"error": f"API Error: {response.status_code}"}
-
             except requests.exceptions.RequestException as e:
                 prediction_result = {"error": f"API request failed: {e}"}
-
     else:
         form = HealthPredictionForm()
-    
-    print(prediction_result)  # ✅ Check the modified dictionary structure
+    print(prediction_result)  
     return render(request, "healthcare_app/health_prediction.html", {
         "form": form,
         "prediction": prediction_result
@@ -729,7 +664,6 @@ def health_prediction(request):
 def health_history(request):
     history = HealthPredictionHistory.objects.filter(user=request.user).order_by("-created_at")
     charts = {}
-
     if history.exists():
         for key in ["bmi", "blood_pressure", "heart_rate", "blood_sugar", "cholesterol"]:
             fig, ax = plt.subplots(figsize=(8, 4))
@@ -741,31 +675,21 @@ def health_history(request):
             ax.set_xlabel("Date")
             ax.set_ylabel("Value")
             ax.grid()
-
             buffer = BytesIO()
             plt.savefig(buffer, format="png")
             buffer.seek(0)
             charts[key.replace("_", " ").title()] = base64.b64encode(buffer.getvalue()).decode("utf-8")
             buffer.close()
             plt.close(fig)
-
     return render(request, "healthcare_app/health_history.html", {"history": history, "charts": charts})
 
 @login_required
 def message_thread(request, appointment_id):
     appointment = get_object_or_404(Appointment, id=appointment_id)
-
-    # Check user access
     if request.user != appointment.patient and request.user != appointment.doctor:
         return redirect('home')
-
-    # Mark unread messages as read
     appointment.messages.filter(is_read=False).exclude(sender=request.user).update(is_read=True)
-
-    # Get all messages
     messages = appointment.messages.order_by('timestamp')
-
-    # Handle message submission (including image)
     if request.method == 'POST':
         form = MessageForm(request.POST, request.FILES)
         if form.is_valid():
@@ -776,7 +700,6 @@ def message_thread(request, appointment_id):
             return redirect('message_thread', appointment_id=appointment.id)
     else:
         form = MessageForm()
-
     return render(request, 'healthcare_app/message_thread.html', {
         'appointment': appointment,
         'messages': messages,
@@ -787,25 +710,19 @@ def message_thread(request, appointment_id):
 def send_message_ajax(request, appointment_id):
     if request.method == "POST":
         appointment = get_object_or_404(Appointment, id=appointment_id)
-
-        # Check user access
         if request.user != appointment.patient and request.user != appointment.doctor:
             return JsonResponse({'error': 'Unauthorized'}, status=403)
-
         form = MessageForm(request.POST, request.FILES)
         if form.is_valid():
             message = form.save(commit=False)
             message.appointment = appointment
             message.sender = request.user
             message.save()
-
             html = render_to_string('healthcare_app/partials/message.html', {
                 'message': message,
                 'user': request.user
             })
-
             return JsonResponse({'message_html': html})
-
     return JsonResponse({'error': 'Invalid request'}, status=400)
 
 @csrf_exempt

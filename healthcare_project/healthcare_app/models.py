@@ -4,6 +4,7 @@ from django.utils.timezone import now
 from django.contrib.auth import get_user_model
 from decimal import Decimal
 from django.conf import settings
+from django.core.validators import FileExtensionValidator
 
 class User(AbstractUser):
     USER_TYPE_CHOICES = (
@@ -16,10 +17,9 @@ class User(AbstractUser):
 class DoctorProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     specialization = models.CharField(max_length=100, default="General")
-    experience = models.IntegerField(null=True, blank=True)  # Allow NULL values
+    experience = models.IntegerField(null=True, blank=True)  
     contact_number = models.CharField(max_length=15, default="N/A")
-    profile_image = models.ImageField(upload_to="profile_images/doctors/", null=True, blank=True)  # ✅ Optional profile image
-
+    profile_image = models.ImageField(upload_to="profile_images/doctors/", null=True, blank=True)  
 
 # Patient Profile
 class PatientProfile(models.Model):
@@ -28,9 +28,7 @@ class PatientProfile(models.Model):
     gender = models.CharField(max_length=10)
     contact_number = models.CharField(max_length=15)
     address = models.CharField(max_length=255, null=True, blank=True)
-    profile_image = models.ImageField(upload_to="profile_images/patients/", null=True, blank=True)  # ✅ Optional profile image
-
-
+    profile_image = models.ImageField(upload_to="profile_images/patients/", null=True, blank=True)  
 
 # Prediction History
 class PredictionHistory(models.Model):
@@ -42,17 +40,14 @@ class PredictionHistory(models.Model):
     def __str__(self):
         return f"{self.user.username} - {self.predicted_disease} ({self.prediction_date})"
 
-
 # Appointment
 User = get_user_model()
-
 class Appointment(models.Model):
     STATUS_CHOICES = (
         ('pending', 'Pending'),
         ('confirmed', 'Confirmed'),
         ('cancelled', 'Cancelled'),
     )
-
     patient = models.ForeignKey(User, on_delete=models.CASCADE, related_name="patient_appointments")
     doctor = models.ForeignKey(User, on_delete=models.CASCADE, related_name="doctor_appointments")
     date = models.DateField()
@@ -63,7 +58,6 @@ class Appointment(models.Model):
 
     def __str__(self):
         return f"Appointment with Dr. {self.doctor.username} on {self.date} at {self.time}"
-
 
 class Prescription(models.Model):
     doctor = models.ForeignKey(User, on_delete=models.CASCADE, related_name="doctor_prescriptions")
@@ -76,7 +70,6 @@ class Prescription(models.Model):
     def __str__(self):
         return f"Prescription for {self.patient.username} by Dr. {self.doctor.username}"
 
-
 class PatientReport(models.Model):
     patient = models.ForeignKey(User, on_delete=models.CASCADE)
     report_name = models.CharField(max_length=255)
@@ -86,20 +79,18 @@ class PatientReport(models.Model):
     def __str__(self):
         return f"{self.report_name} - {self.patient.username}"
 
-
-# ✅ Fixed Patient History (Added created_at)
+# Patient History
 class PatientHistory(models.Model):
-    patient = models.OneToOneField(User, on_delete=models.CASCADE)  # One-to-One Relationship
+    patient = models.OneToOneField(User, on_delete=models.CASCADE)  
     medical_conditions = models.TextField(blank=True, null=True)
     allergies = models.TextField(blank=True, null=True)
     medications = models.TextField(blank=True, null=True)
     surgeries = models.TextField(blank=True, null=True)
-    created_at = models.DateTimeField(default=now)  # ✅ Add timestamp for history creation
+    created_at = models.DateTimeField(default=now)  
 
     def __str__(self):
         return f"Medical History of {self.patient.username}"
     
-
 class Medicine(models.Model):
     generic_name = models.CharField(max_length=255)
     brand_names = models.CharField(max_length=255)
@@ -108,7 +99,7 @@ class Medicine(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2, null=True)
     image_link = models.URLField(max_length=500, blank=True, null=True)
     dosage_instructions = models.TextField(null=True, blank=True)
-    side_effects = models.TextField(null=True, blank=True)  # Make this field nullable
+    side_effects = models.TextField(null=True, blank=True)
     ingredients = models.TextField(null=True, blank=True)
     is_prescription_required = models.BooleanField(default=False)
     storage_instructions = models.TextField(null=True, blank=True)
@@ -117,7 +108,6 @@ class Medicine(models.Model):
 
     def __str__(self):
         return f"{self.generic_name} ({self.brand_names})"
-
 
 class Cart(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -129,7 +119,6 @@ class Cart(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.medicine.generic_name} ({self.quantity})"
-
 
 class Order(models.Model):
     STATUS_CHOICES = (
@@ -153,7 +142,7 @@ class Order(models.Model):
 class Testimonial(models.Model):
     patient = models.ForeignKey(User, on_delete=models.CASCADE)
     feedback = models.TextField()
-    rating = models.IntegerField(choices=[(i, i) for i in range(1, 6)])  # Rating from 1 to 5
+    rating = models.IntegerField(choices=[(i, i) for i in range(1, 6)])
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -164,24 +153,21 @@ class AvailableLabTest(models.Model):
     name = models.CharField(max_length=255)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     description = models.TextField()
-
     def __str__(self):
         return self.name
 
+# book labTest
 class LabTest(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     test = models.ForeignKey(AvailableLabTest, on_delete=models.CASCADE)
     test_date = models.DateField()
     test_time = models.TimeField()
-
     STATUS_CHOICES = [
         ("pending", "Pending"),
         ("completed", "Completed"),
         ("cancelled", "Cancelled"),
     ]
-
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="pending")
-
     def __str__(self):
         return f"{self.user.username} - {self.test.name}"
 
@@ -201,8 +187,6 @@ class HealthPredictionHistory(models.Model):
     def __str__(self):
         return f"{self.user.username} - {self.predicted_health_condition} ({self.created_at.strftime('%Y-%m-%d')})"
 
-from django.core.validators import FileExtensionValidator
-
 class Message(models.Model):
     appointment = models.ForeignKey(Appointment, related_name='messages', on_delete=models.CASCADE)
     sender = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -213,5 +197,3 @@ class Message(models.Model):
 
     class Meta:
         ordering = ['timestamp']
-
-

@@ -224,11 +224,12 @@
                                     <strong>🩺 Dr. {{ appointment.doctor.username }}</strong> 
                                     <br><small>{{ appointment.date|date:"M d, Y" }} at {{ appointment.time }}</small>
                                 </span>
-                                <a href="{% url 'message_thread' appointment.id %}"
-                                class="btn btn-sm {% if appointment.has_unread_messages %}btn-warning{% else %}btn-outline-primary{% endif %}">
-                                Chat {% if appointment.has_unread_messages %}<span class="badge bg-danger ms-1">New</span>{% endif %}
-                                </a>
-                                
+                                {% if appointment.status == 'confirmed' %}
+                                    <a href="{% url 'message_thread' appointment.id %}"
+                                    class="btn btn-sm {% if appointment.has_unread_messages %}btn-warning{% else %}btn-outline-primary{% endif %}">
+                                    Chat {% if appointment.has_unread_messages %}<span class="badge bg-danger ms-1">New</span>{% endif %}
+                                    </a>
+                                {% endif %} 
                                 <a href="{% url 'cancel_appointment' appointment.id %}" class="btn btn-sm btn-danger">Cancel</a>
                             </li>
                         {% empty %}
@@ -241,93 +242,92 @@
     </div>
 
     <!-- Prescriptions Section -->
-<div class="row mt-4">
-    <div class="col-md-12">
-        <div class="card dashboard-card shadow-lg p-4">
-            <div class="d-flex justify-content-between align-items-center mb-2">
-                <div>
-                    <h4 class="mb-0">💊 Your Prescriptions</h4>
-                    <p class="text-muted mb-0">View the latest prescriptions issued by your doctor.</p>
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card dashboard-card shadow-lg p-4">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div>
+                        <h4 class="mb-0">💊 Your Prescriptions</h4>
+                        <p class="text-muted mb-0">View the latest prescriptions issued by your doctor.</p>
+                    </div>
+                    <!-- Button to trigger modal -->
+                    <button type="button" class="btn btn-outline-primary ms-3" data-bs-toggle="modal" data-bs-target="#prescriptionModal">
+                        📝 View Prescriptions
+                    </button>
                 </div>
-                <!-- Button to trigger modal -->
-                <button type="button" class="btn btn-outline-primary ms-3" data-bs-toggle="modal" data-bs-target="#prescriptionModal">
-                    📝 View Prescriptions
-                </button>
-            </div>
 
-            {% if prescriptions %}
-                <div class="row row-cols-1 row-cols-md-2 g-4 mt-3">
-                    {% for prescription in prescriptions %}
-                        <div class="col">
-                            <div class="card border-primary h-100 shadow-sm">
-                                <div class="card-body">
-                                    <h5 class="card-title text-primary">Dr. {{ prescription.doctor }}</h5>
-                                    <h6 class="card-subtitle mb-2 text-muted">Issued on: {{ prescription.date_issued|date:"Y-m-d H:i" }}</h6>
-                                    <p class="card-text"><strong>Diagnosis:</strong> {{ prescription.diagnosis }}</p>
-                                    <p class="card-text"><strong>Medicines:</strong> {{ prescription.prescribed_medicines }}</p>
-                                    {% if prescription.additional_notes %}
-                                        <p class="card-text"><strong>Notes:</strong> {{ prescription.additional_notes }}</p>
-                                    {% endif %}
+                {% if prescriptions %}
+                    <div class="row row-cols-1 row-cols-md-2 g-4 mt-3">
+                        {% for prescription in prescriptions %}
+                            <div class="col">
+                                <div class="card border-primary h-100 shadow-sm">
+                                    <div class="card-body">
+                                        <h5 class="card-title text-primary">Dr. {{ prescription.doctor }}</h5>
+                                        <h6 class="card-subtitle mb-2 text-muted">Issued on: {{ prescription.date_issued|date:"Y-m-d H:i" }}</h6>
+                                        <p class="card-text"><strong>Diagnosis:</strong> {{ prescription.diagnosis }}</p>
+                                        <p class="card-text"><strong>Medicines:</strong> {{ prescription.prescribed_medicines }}</p>
+                                        {% if prescription.additional_notes %}
+                                            <p class="card-text"><strong>Notes:</strong> {{ prescription.additional_notes }}</p>
+                                        {% endif %}
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    {% endfor %}
-                </div>
-            {% else %}
-                <p class="text-center text-muted mt-3">No prescriptions available.</p>
-            {% endif %}
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-center text-muted mt-3">No prescriptions available.</p>
+                {% endif %}
+            </div>
         </div>
     </div>
-</div>
 
 
     <!-- Modal -->
-<div class="modal fade" id="prescriptionModal" tabindex="-1" aria-labelledby="prescriptionModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-scrollable">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title fw-bold" id="prescriptionModalLabel">My Prescriptions</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          {% if prescriptions %}
-            <div class="table-responsive">
-              <table class="table table-bordered">
-                <thead class="table-dark">
-                  <tr>
-                    <th>Date</th>
-                    <th>Doctor</th>
-                    <th>Diagnosis</th>
-                    <th>Medicines</th>
-                    <th>Notes</th>
-                    <th>Print</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {% for p in prescriptions_full%}
-                    <tr id="prescription-{{ p.id }}">
-                      <td>{{ p.date_issued }}</td>
-                      <td>{{ p.doctor }}</td>
-                      <td>{{ p.diagnosis }}</td>
-                      <td>{{ p.prescribed_medicines }}</td>
-                      <td>{{ p.additional_notes|default:"N/A" }}</td>
-                      <td>
-                        <button class="btn btn-sm btn-outline-secondary mt-2" onclick="printPrescription({{ p.id }})">🖨️ Print</button>
-                      </td>
-                    </tr>
-                  {% endfor %}
-                </tbody>
-              </table>
+    <div class="modal fade" id="prescriptionModal" tabindex="-1" aria-labelledby="prescriptionModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h5 class="modal-title fw-bold" id="prescriptionModalLabel">My Prescriptions</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-          {% else %}
-            <p class="text-muted">No prescriptions found.</p>
-          {% endif %}
+            <div class="modal-body">
+            {% if prescriptions %}
+                <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead class="table-dark">
+                    <tr>
+                        <th>Date</th>
+                        <th>Doctor</th>
+                        <th>Diagnosis</th>
+                        <th>Medicines</th>
+                        <th>Notes</th>
+                        <th>Print</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for p in prescriptions_full%}
+                        <tr id="prescription-{{ p.id }}">
+                        <td>{{ p.date_issued }}</td>
+                        <td>{{ p.doctor }}</td>
+                        <td>{{ p.diagnosis }}</td>
+                        <td>{{ p.prescribed_medicines }}</td>
+                        <td>{{ p.additional_notes|default:"N/A" }}</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-secondary mt-2" onclick="printPrescription({{ p.id }})">🖨️ Print</button>
+                        </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                </div>
+            {% else %}
+                <p class="text-muted">No prescriptions found.</p>
+            {% endif %}
+            </div>
         </div>
-      </div>
+        </div>
     </div>
-  </div>
   
-
     <!-- Upload Reports & Display Section -->
     <div class="row mt-5">
         <!-- Upload Form (Left) -->
@@ -437,149 +437,149 @@
   
     
 <style>
-/* General Styling */
-body {
-    font-family: 'Poppins', sans-serif;
-    background: #f4f7fc;
-    color: #333;
-}
+    /* General Styling */
+    body {
+        font-family: 'Poppins', sans-serif;
+        background: #f4f7fc;
+        color: #333;
+    }
 
-.glass-effect {
-    background: rgba(255, 255, 255, 0.85);
-    border-radius: 15px;
-    backdrop-filter: blur(12px);
-    box-shadow: 0px 6px 20px rgba(0, 0, 0, 0.15);
-    padding: 30px;
-}
+    .glass-effect {
+        background: rgba(255, 255, 255, 0.85);
+        border-radius: 15px;
+        backdrop-filter: blur(12px);
+        box-shadow: 0px 6px 20px rgba(0, 0, 0, 0.15);
+        padding: 30px;
+    }
 
-.dashboard-card {
-    background: #ffffff;
-    border-radius: 12px;
-    padding: 25px;
-    text-align: center;
-    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
-    transition: 0.3s ease-in-out;
-}
-.dashboard-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.15);
-}
+    .dashboard-card {
+        background: #ffffff;
+        border-radius: 12px;
+        padding: 25px;
+        text-align: center;
+        box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
+        transition: 0.3s ease-in-out;
+    }
+    .dashboard-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.15);
+    }
 
-.profile-img {
-    width: 180px;
-    height: 180px;
-    border: 5px solid #007bff;
-    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.2);
-    transition: 0.3s ease-in-out;
-}
-.profile-img:hover {
-    transform: scale(1.07);
-}
-.profile-form label {
-    font-weight: bold;
-    color: #333;
-}
-.profile-form label, .history-form label {
-    font-weight: bold;
-    color: #333;
-    display: block;
-    margin-bottom: 5px;
-}
-.profile-form input, .profile-form select, .history-form input, .history-form select {
-    width: 100%;
-    padding: 10px;
-    border-radius: 6px;
-    border: 1px solid #ccc;
-    background: #f9f9f9;
-}
-.profile-form button, .history-form button {
-    font-size: 16px;
-    padding: 10px;
-    border-radius: 8px;
-    transition: 0.3s ease-in-out;
-}
-.profile-form button:hover, .history-form button:hover {
-    background: #28a745;
-    color: #fff;
-}
+    .profile-img {
+        width: 180px;
+        height: 180px;
+        border: 5px solid #007bff;
+        box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.2);
+        transition: 0.3s ease-in-out;
+    }
+    .profile-img:hover {
+        transform: scale(1.07);
+    }
+    .profile-form label {
+        font-weight: bold;
+        color: #333;
+    }
+    .profile-form label, .history-form label {
+        font-weight: bold;
+        color: #333;
+        display: block;
+        margin-bottom: 5px;
+    }
+    .profile-form input, .profile-form select, .history-form input, .history-form select {
+        width: 100%;
+        padding: 10px;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+        background: #f9f9f9;
+    }
+    .profile-form button, .history-form button {
+        font-size: 16px;
+        padding: 10px;
+        border-radius: 8px;
+        transition: 0.3s ease-in-out;
+    }
+    .profile-form button:hover, .history-form button:hover {
+        background: #28a745;
+        color: #fff;
+    }
 
-/* Upload Report Section */
-.upload-report-card {
-    background: rgba(255, 255, 255, 0.98);
-    border-radius: 15px;
-    padding: 25px;
-    backdrop-filter: blur(10px);
-    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
-    transition: 0.3s ease-in-out;
-}
-.upload-report-card:hover {
-    transform: scale(1.02);
-}
+    /* Upload Report Section */
+    .upload-report-card {
+        background: rgba(255, 255, 255, 0.98);
+        border-radius: 15px;
+        padding: 25px;
+        backdrop-filter: blur(10px);
+        box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
+        transition: 0.3s ease-in-out;
+    }
+    .upload-report-card:hover {
+        transform: scale(1.02);
+    }
 
-/* Buttons */
-.btn {
-    padding: 12px 15px;
-    font-weight: 600;
-    border-radius: 8px;
-}
-.btn-primary:hover, .btn-success:hover {
-    transform: translateY(-2px);
-}
+    /* Buttons */
+    .btn {
+        padding: 12px 15px;
+        font-weight: 600;
+        border-radius: 8px;
+    }
+    .btn-primary:hover, .btn-success:hover {
+        transform: translateY(-2px);
+    }
 
-/* Logout Button */
-.logout-btn {
-    background: linear-gradient(135deg, #dc3545, #c82333);
-    font-size: 18px;
-    font-weight: bold;
-    border-radius: 8px;
-    padding: 12px 20px;
-}
-.logout-btn:hover {
-    transform: scale(1.05);
-}
+    /* Logout Button */
+    .logout-btn {
+        background: linear-gradient(135deg, #dc3545, #c82333);
+        font-size: 18px;
+        font-weight: bold;
+        border-radius: 8px;
+        padding: 12px 20px;
+    }
+    .logout-btn:hover {
+        transform: scale(1.05);
+    }
 
-/* Scrollable Containers */
-.table-container, .list-container, .reports-container {
-    max-height: 300px; /* Adjust this height as needed */
-    overflow-y: auto;  /* Enables vertical scrolling */
-    overflow-x: auto;  /* Enables horizontal scrolling if needed */
-    position: relative;
-}
+    /* Scrollable Containers */
+    .table-container, .list-container, .reports-container {
+        max-height: 300px; /* Adjust this height as needed */
+        overflow-y: auto;  /* Enables vertical scrolling */
+        overflow-x: auto;  /* Enables horizontal scrolling if needed */
+        position: relative;
+    }
 
-/* Sticky table headers */
-.table-container table thead th {
-    position: sticky;
-    top: 0;
-    background: #212529; /* Matches table-dark class */
-    color: white;
-    z-index: 1;
-}
+    /* Sticky table headers */
+    .table-container table thead th {
+        position: sticky;
+        top: 0;
+        background: #212529; /* Matches table-dark class */
+        color: white;
+        z-index: 1;
+    }
 
-/* Scrollbar styling */
-.table-container::-webkit-scrollbar, 
-.list-container::-webkit-scrollbar, 
-.reports-container::-webkit-scrollbar {
-    width: 8px;
-}
+    /* Scrollbar styling */
+    .table-container::-webkit-scrollbar, 
+    .list-container::-webkit-scrollbar, 
+    .reports-container::-webkit-scrollbar {
+        width: 8px;
+    }
 
-.table-container::-webkit-scrollbar-track, 
-.list-container::-webkit-scrollbar-track, 
-.reports-container::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 4px;
-}
+    .table-container::-webkit-scrollbar-track, 
+    .list-container::-webkit-scrollbar-track, 
+    .reports-container::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 4px;
+    }
 
-.table-container::-webkit-scrollbar-thumb, 
-.list-container::-webkit-scrollbar-thumb, 
-.reports-container::-webkit-scrollbar-thumb {
-    background: #888;
-    border-radius: 4px;
-}
+    .table-container::-webkit-scrollbar-thumb, 
+    .list-container::-webkit-scrollbar-thumb, 
+    .reports-container::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 4px;
+    }
 
-.table-container::-webkit-scrollbar-thumb:hover, 
-.list-container::-webkit-scrollbar-thumb:hover, 
-.reports-container::-webkit-scrollbar-thumb:hover {
-    background: #555;
-}
+    .table-container::-webkit-scrollbar-thumb:hover, 
+    .list-container::-webkit-scrollbar-thumb:hover, 
+    .reports-container::-webkit-scrollbar-thumb:hover {
+        background: #555;
+    }
 </style>
 {% endblock %}

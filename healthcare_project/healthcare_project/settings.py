@@ -39,8 +39,11 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'healthcare_app'
+    'healthcare_app',
+    'django_extensions',
 ]
+
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -145,3 +148,8 @@ CSRF_TRUSTED_ORIGINS = [
     "http://localhost:8000",
     "http://your-domain.com"
 ]
+
+GRAPH_MODELS = {
+    'all_applications': True,
+    'group_models': True,
+}
